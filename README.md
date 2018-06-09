@@ -16,8 +16,18 @@ The latest specification is available [here](spec.md)
 
 The current roadmap is:
 
-* To consolidate the first draft of the specification (v1.0.0)
-* To have full Python and JavaScript support by the end of the year.
+- [ ] Consolidate Specification
+  - [ ] Types
+  - [ ] Validation
+  - [ ] Binary generation
+  - [ ] Format
+  - [ ] BNF/EBNF
+- [ ] Syntax support
+  - [ ] VS Code
+  - [ ] Atom
+- [ ] Implementation
+  - [ ] Python
+  - [ ] JavaScript
 
 ## Contributing
 
