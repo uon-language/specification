@@ -22,7 +22,9 @@ Seen from another perspective:
 * `JSON` is lightweight and understood by most developers and programming languages
 * `YAML` is very readable and a superset of `JSON`
 
-*UON™* aims to steal all the amazing features of these serialization format into a single format that encompass them
+*UON™* aims to steal all the amazing features of these serialization format into a single format that encompass them.
+
+Also, *UON* would like to go a step further by adding support for validation schema and magnitude units in order to extend interoperability for the Industry 4.0. Internet of Things often have to communicate between small devices with very limited computation power. 
 
 ## Scope
 
