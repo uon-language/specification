@@ -10,17 +10,17 @@ Copyright(C) 2018 Yves Chevallier
 
 ## Introduction
 
-In 2018 three major serialization format are commonly used across Internet: `XML`, `JSON` and `YAML`. Both are great, simple and well specified, but many would argue that: 
+In 2018 three major serialization formats are commonly used across Internet: `XML`, `JSON` and `YAML`. Both are great, simple and well specified, but many would argue that: 
 
 * `XML` is great but cumbersome 
 * `JSON` is awesome but lack validation by design
-* `YAML` is very readable, but isn't great for m2m communication
+* `YAML` is human-friendly but not great for m2m communication
 
-But seen from another perspective
+Seen from another perspective:
 
 * `xml` is fully specified with validation schema `XSD` and representation `XSLT`
-* `JSON` is lightweight and understood by most programming languages
-* `YAML` is very readable
+* `JSON` is lightweight and understood by most developers and programming languages
+* `YAML` is very readable and a superset of `JSON`
 
 *UON™* aims to steal all the amazing features of these serialization format into a single format that encompass them
 
@@ -56,11 +56,34 @@ For the purposes of this document, the following terms and definitions apply.
 
 ## Language
 
- *UON*™ is not a programming language, but a data representation language. 
+ *UON*™ is not a programming language, but a data representation language. It is built upon concepts described by C, Perl, Python, Ruby and JSON. It is meant to be UTF-8 by default, but compatible with other encoding standards. 
+
+### Related to JSON
+
+Both JSON and UON aim to be human readable data interchange formats. UON extends JSON capabilities and readability with: 
+
+* More datatypes support
+* Allow no double quotes on mapping keys since they are promoted to a `keyword` type rather than `string`
+* Validation schema by design inspired from JSON-Schema 
+* Allow type coercion 
+* Add support for comments
+* Add support for set, and ordered mapping
+
+### Related to YAML
+
+YAML is very complete, it supports references (recursive references), comments, complex types, but it syntax lack of rigidity. They are multiple way of writing a YAML which can be confusing to some people and hard to validate. UON extends YAML capabilities by adding: 
+
+* More datatype support
+* Strict formatting closer to JSON
+* Validation schema by design 
+
+### Related to XML
+
+XML has proven its strength over many years. It is still a very complete language, but it is also more verbose than other serialization languages which make it difficult to use with lightweight infrastructures such as MCU and battery powered telemetry devices. However it provides a full support for validation (XSD) and presentation (XSLT). UON took the tags attributes that is missing from JSON and YAML.
 
 ### Symbol Pairs
 
-Symbol pairs are group of data that belong to a particular type. It helps visualizing the data
+Symbol pairs are group of data that belong to a particular type. It helps visualizing the data and they are very similar to JSON. We added support for mathematic expressions and regular expressions. 
 
 | Symbol Pairs | Description           | Type       |
 | ------------ | --------------------- | ---------- |
@@ -73,16 +96,35 @@ Symbol pairs are group of data that belong to a particular type. It helps visual
 | `/ /`        | Regular expression    | `!regex`   |
 | `$ $`        | Mathematics (MathJax) | `!math`    |
 
-
+Structural container can be used to understand how blocks are nested. They should not be used for normal usage. 
 
 ```yaml
 !uon(version: 0.0.1) 
-!map 
 <
-  !keyword "brand": !str "Toyota",
-  !keyword "model": !str "Prius",
-  !keyword "year": !int "2016",
+  !map(comment: "Basic Example")
+  <
+    <!keyword <"brand">: !str <"Toyota">>,
+    <!keyword <"model">: !str <"Prius">>,
+    <!keyword <"year">: !int <"2016">>
+  >
 >
+```
+
+The above example should be written as follow in structured format:
+
+```yaml
+# Basic Example
+{
+  brand: "Toyota",
+  model: "Prius",
+  year: 2016  
+}
+```
+
+Or in the minimal version:
+
+```yaml
+{brand:"Toyota",model:"Prius",year:"2016"}
 ```
 
 ### Symbols
@@ -92,15 +134,16 @@ The only reserved language symbols are the following
 | Symbol  | Description                                                  |
 | ------- | ------------------------------------------------------------ |
 | `!`     | Standard type (cannot be (re)defined at the user level)      |
-| `!!`    | User type                                                    |
+| `!!`    | User type used to extend *UON* capabilities                  |
 | `$`     | Reserved keyword (may be removed on a future *UON* release)  |
 | `,`     | Element separator                                            |
 | `@`     | Reference                                                    |
+| `#`     | Comment                                                      |
 | `.inf`  | Infinity (used within `!number`, `!float`, or `!decimal`)    |
 | `.nan`  | Not a Number (used within `!number`, `!float`, or `!decimal`) |
-| `true`  | Boolean value `true`                                         |
-| `false` | Boolean value `false`                                        |
-| `null`  | Null value                                                   |
+| `true`  | Boolean (`!bool`) value `true`                               |
+| `false` | Boolean (`!bool`) value `false`                              |
+| `null`  | Null (`!null`) value                                         |
 
 ## Example
 
@@ -258,25 +301,30 @@ If requested, the comment can be transmitted along with the data. They are there
 }
 ```
 
+## Formatting
 
+*UON* provide three different format depending on the usage: 
 
-## Format
+* **minimal** for m2m communication in UTF-8
+* **binary** for m2m communication with lightweight architectures
+* **structured** for storing, visualizing and editing
 
 ### Minimal
 
 In minimal format:
 
 * Spaced and new lines are removed
-* Comments are enclosed in a comment block
+* Comments are removed unless configured differently 
 
 ```yaml
-!uon(version:0.0.1)!(urn:car){brand:"Toyota",model:"Prius",year:2016}
+!uon(version:0.0.1)!!car{brand:"Toyota",model:"Prius",year:2016}
 ```
 
 ### Binary
 
 * Payload is encoded in a strict binary form
 * LED128 format for numbers
+* Padding is preserved as much as possible to allows zero-copy payload read/alter
 
 ```yaml
 <tbd>
@@ -284,11 +332,13 @@ In minimal format:
 
 ### Structured
 
-* Document is indented using a two space indentation
-* Explicit types are converted into implicit ones
+* Format uses two space indentation, same as JSON and YAML, but strictly imposed by design
+* Explicit types are converted into implicit ones if not necessary
+* Comments are written using the `#` notation
 
 ```yaml
-!uon(version: 0.0.1) !("urn:car") {
+# This is a car...
+!uon(version: 0.0.1) !!car {
   brand: "Toyota"
   model: "Prius"
   year: 2016
@@ -299,9 +349,9 @@ In minimal format:
 
 One important feature of *UON* is that any kind of information belongs to a type. Types are organized in different categories: 
 
-### Data Structures (or Structural)
+### Data Structures (or Structural types)
 
-They are primitive data types all based on the `!type` master datatype. 
+They are primitive data types all derived from the `!type` master datatype. 
 
 | Type      | Based on | Description                                            |
 | --------- | -------- | ------------------------------------------------------ |
@@ -309,17 +359,25 @@ They are primitive data types all based on the `!type` master datatype.
 | `!map`    | `!type`  | Unordered Mapping (also called HashMap or Dictionary ) |
 | `!omap`   | `!type`  | Ordered Mapping                                        |
 | `!seq`    | `!type`  | Ordered Sequence (also called List or Array)           |
-| `!scalar` | `!type`  | Scalar value                                           |
+| `!scalar` | `!type`  | Scalar value representable with a string               |
 | `!set`    | `!map`   | Unordered set of values                                |
 | `!oset`   | `!omap`  | Ordered set of values                                  |
 
-*UON* aims to represent static data which is therefore immutable by design. This explain the absence of Records or Tuples. However, when a composite type is used as a key, it will be parsed as an immutable type if the destination language allows it.  
+*UON* aims to represent static data which are therefore immutable by design. This explain the absence of Records or Tuples. However, when a composite type is used as a key, it will be parsed as an immutable type if the destination language allows it.  
 
-Unordered mapping (`!map`, `!set`) MUST always be sorted naturally when serialized e.g. `[1, 2, 10, 100, a]`
+```python
+>>> # Example in Python
+>>> uon.loads("{[1,2]:[1,2]}")
+{(1,2):[1,2]}
+```
+
+Unordered mapping (`!map`, `!set`) are always be sorted naturally when serialized e.g. `[1, 2, 10, 100, a]`
 
 Sets are mapping with null values 
 
 ### Scalar
+
+Scalar values are any kind of values that may be represented as a string
 
 | Type      | Based on  | Description                                                  |
 | --------- | --------- | ------------------------------------------------------------ |
@@ -332,20 +390,32 @@ Sets are mapping with null values
 | `!schema` | `!type`   | *UON* Validation schema                                      |
 | `!ref`    | `!str`    | Reference to another type                                    |
 
-#### Numbers
+#### Numbers Datatypes
+
+The number type is much more complete than JSON, XML or YAML. It aims to serve goals of engineering and scientific areas such as: 
+
+* Physics and Mathematics
+  * Quantities with uncertainties and units
+  * Complex and Quaternions
+* Computer science 
+  * Low level representation (hexadecimal, octal and binary)
+  * Fractional values for frequency ratio
+  * Fixed-Point values in 
 
 | Type          | Based on  | Description                                                  |
 | ------------- | --------- | ------------------------------------------------------------ |
 | `!dec`        | `!number` | Decimal (i.e. Base 10) number e.g. `12345`                   |
 | `!float`      | `!number` | Floating point `IEEE-754`                                    |
+| `!bin`        | `!dec`    | Binary representation of decimal number                      |
 | `!oct`        | `!dec`    | Octal representation of decimal number                       |
 | `!hex`        | `!dec`    | Hexadecimal representation of decimal number                 |
 | `!complex`    | `!float`  | Complex value e.g. `42+7j`                                   |
 | `!quaternion` | `!float`  | Quaternion value e.g. `1+2i+3k+4l`                           |
 | `!magnitude`  | `!number` | Physical value with an associated unit                       |
 | `!frac`       | `!seq`    | Fraction of two integers, to represent repeating such as `0.33333` |
+| `!fixpoint`   | `!dec`    | Fixed point value                                            |
 
-### Sized
+### Sized Datatypes
 
 When serialized in binary format, the size of the payload has to be provided. If not, the serializing will use a 7-bit encoding where the 8th bit is used as a continuation bit formerly named [LEB128](https://en.wikipedia.org/wiki/LEB128). Variable size numeric values are less efficient at serializing and deserializing.  
 
@@ -368,7 +438,7 @@ When serialized in binary format, the size of the payload has to be provided. If
 | `!decimal32` | `!float` | `32 b` Single precision floating point number in base 10 |
 | `!decimal64` | `!float` | `64 b` Single precision floating point number in base 10 |
 
-### Rich
+### Rich Datatypes
 
 Rich datatypes are always based on the `!str` but they can be parsed using a regex pattern. Each rich type can be coerced into different format.
 
@@ -387,12 +457,13 @@ All these formats have a strict binary encoding format when the data is transmit
 | `!uuid` | `!str` | Unique User Identifier, a 128-bit data |  |
 | `!epoch` | `!dec` | UNIX timestamp | `!datetime` |
 
-### Others
+### Constraint Datatypes
 
-| Type       | Based on | Description                                      |
-| ---------- | -------- | ------------------------------------------------ |
-| `!any`     | `!map`   | Alternative possibility e.g. `!or( !str, !null)` |
-| `!comment` | `!str`   | Comment, a dummy value, never transmitted        |
+Constraint datatypes are used for validation schema
+
+| Type   | Based on | Description                                       |
+| ------ | -------- | ------------------------------------------------- |
+| `!any` | `!map`   | Alternative possibility e.g. `!any( !str, !null)` |
 
 ## Type details
 
@@ -440,82 +511,134 @@ The IPv4 type is defined in UON
 )
 ```
 
-
-
 ## Units
 
-An important information for telemetry systems and Internet of Things is the unit of magnitudes. When transmitting a temperature, it is essential to know which is the unit used to represent that number. *UON* uses the ISQ system ([ISO/IEC 80000-1:2009](https://www.iso.org/standard/30669.html)).
+An important information for telemetry systems and Internet of Things is the unit of magnitudes. When transmitting a temperature, it is essential to know which is the unit used to represent that number. *UON* uses the ISQ system ([ISO/IEC 80000-1:2009](https://www.iso.org/standard/30669.html)). Currently none of the serialization formats listed [here](https://en.wikipedia.org/wiki/Comparison_of_data_serialization_formats) provide native support for units.
 
 ### Base Units
 
-| Unit symbol | Unit name | Quantity name             |
-| ----------- | --------- | ------------------------- |
-| `m`         | Meter     | Length                    |
-| `kg`        | Kilogram  | Mass                      |
-| `s`         | Second    | Time                      |
-| `A`         | Ampere    | Electric current          |
-| `K`         | Kelvin    | Thermodynamic temperature |
-| `mol`       | Mole      | Amount of substance       |
-| `cd`        | Candela   | Luminous intensity        |
+The International System of Units lists 7 fundamental units that are used as standard. *UON* does not support imperial units deliberately because amount the 195 countries in the world only three countries do not use the metric system: Liberia, Myanmar and the USA. However *UON* 
 
-When only the quantity is known, the unit will be assumed to be SI.
+| Unit symbol | Unit name | Quantity name                             |
+| ----------- | --------- | ----------------------------------------- |
+| `m`         | Meter     | Length (`length`)                         |
+| `kg`        | Kilogram  | Mass (`mass`)                             |
+| `s`         | Second    | Time (`time`)                             |
+| `A`         | Ampere    | Electric current (`current`)              |
+| `K`         | Kelvin    | Thermodynamic temperature (`temperature`) |
+| `mol`       | Mole      | Amount of substance (`substance`)         |
+| `cd`        | Candela   | Luminous intensity (`illumination`)       |
+
+When only the quantity is known, the unit will be assumed to be SI strict.
+
+```yaml
+# Temperature is assumed to be given in Kelvin 
+!number(quantity: temperature) 250.24
+```
 
 ### Derived Units
 
 The International System of Units assigns special names to 22 derived units, which includes two dimensionless derived units, the `radian` and the `steradian`.
 
-| Unit Symbol | Unit Name      | Quantity name                        | Equivalents                         | Base     |
-| ----------- | -------------- | ------------------------------------ | ----------------------------------- | -------- |
-| `Hz`        | Hertz          | `frequency`                          | $1/\text{s}$                        | $s^{-1}$ |
-| `rad`       | Radian         | `angle`                              | $\text{m}/\text{m}$                 | $1$      |
-| `sr`        | Steradian      | `solid-angle`                        | $\text{m}^2/\text{m}^2$             | $1$      |
-| `N`         | Newton         | `[force, weight]`                    | $\text{kg}\cdot\text{m}/\text{s}^2$ |          |
-| `Pa`        | Pascal         | `[pressure, stress]`                 |                                     |          |
-| `J`         | Joule          | `[energy, work, heat]`               |                                     |          |
-| `W`         | Watt           | `[power, radian-flux]`               |                                     |          |
-| `C`         | Coulomb        | `electric-charge`                    |                                     |          |
-| `V`         | Volt           | `voltage`                            |                                     |          |
-| `F`         | Farad          | `electrical-capacitance`             |                                     |          |
-| `Ω `        | Ohm            | `[electrical-resistance, impedance]` |                                     |          |
-| `S`         | Siemens        | `electrical-conductance`             |                                     |          |
-| `Wb`        | Weber          | `magnetic-flux`                      |                                     |          |
-| `T`         | Tesla          | `magnetic-field`                     |                                     |          |
-| `H`         | Henry          | `electrical-inductance`              |                                     |          |
-| `°C`        | Degree Celsius | `temperature`                        |                                     |          |
-| `lm`        | Lumen          | `luminous-flux`                      |                                     |          |
-| `lx`        | Lux            | `illuminance`                        |                                     |          |
-| `Bq`        | Becquerel      | `radioactivity`                      |                                     |          |
-| `Gy`        | Gray           | `absorbed-dose`                      |                                     |          |
-| `Sv`        | Sievert        | `equivalent-dose`                    |                                     |          |
-| `kat`       | Katal          | `catalytic-activity`                 |                                     |          |
+| Unit Symbol | Unit Name      | Quantity name                        | Equivalents                                                  |
+| ----------- | -------------- | ------------------------------------ | ------------------------------------------------------------ |
+| `Hz`        | Hertz          | `frequency`                          | $1/\text{s}$                                                 |
+| `rad`       | Radian         | `angle`                              | 1                                                            |
+| `sr`        | Steradian      | `solid-angle`                        | 1                                                            |
+| `N`         | Newton         | `[force, weight]`                    | $\text{kg}\cdot\text{m}/\text{s}^2$                          |
+| `Pa`        | Pascal         | `[pressure, stress]`                 | $\text{kg}\cdot\text{m}^{-1}\cdot\text{s}^{-2}$              |
+| `J`         | Joule          | `[energy, work, heat]`               | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-3}$                 |
+| `W`         | Watt           | `[power, radian-flux]`               | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-2}$                 |
+| `C`         | Coulomb        | `electric-charge`                    | $\text{s}\cdot\text{A}$                                      |
+| `V`         | Volt           | `voltage`                            | $\text{kg}\cdot\text{m}^{2}\cdot\text{s}^{-3}\cdot\text{A}^{-1}$ |
+| `F`         | Farad          | `electrical-capacitance`             | $\text{kg}^{-1}\cdot\text{m}^{-2}\cdot\text{s}^{4}\cdot\text{A}^{2}$ |
+| `Ω `        | Ohm            | `[electrical-resistance, impedance]` | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-3}\cdot\text{A}^{-2}$ |
+| `S`         | Siemens        | `electrical-conductance`             | $\text{kg}^{-1}\cdot\text{m}^{-2}\cdot\text{s}^{3}\cdot\text{A}^{2}$ |
+| `Wb`        | Weber          | `magnetic-flux`                      | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-2}\cdot\text{A}^{-1}$ |
+| `T`         | Tesla          | `magnetic-field`                     | $\text{kg}\cdot\text{s}^{-2}\cdot\text{A}^{-1}$              |
+| `H`         | Henry          | `electrical-inductance`              | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-2}\cdot\text{A}^{-2}$ |
+| `°C`        | Degree Celsius | `temperature`                        | $\text{K}$                                                   |
+| `lm`        | Lumen          | `luminous-flux`                      | $\text{cd}$                                                  |
+| `lx`        | Lux            | `illuminance`                        | $\text{m}^{-2}\cdot\text{cd}$                                |
+| `Bq`        | Becquerel      | `radioactivity`                      | $\text{s}^{-1}$                                              |
+| `Gy`        | Gray           | `absorbed-dose`                      | $\text{m}^2\cdot\text{s}^{-2}$                               |
+| `Sv`        | Sievert        | `equivalent-dose`                    | $\text{m}^2\cdot\text{s}^{-2}$                               |
+| `kat`       | Katal          | `catalytic-activity`                 | $\text{s}^{-1}\cdot\text{mol}$                               |
+
+These derived units can be used either on a payload or on a validation schema:
+
+```yaml
+[
+  !number(unit: "°C") 21.13,   # Explicit unit
+  21.13 °C                     # Also valid
+]
+```
 
 ### Other accepted units
 
-| Unit Symbol | Unit Name | Quantity name | Equivalents         | Base                |
-| ----------- | --------- | ------------- | ------------------- | ------------------- |
-| `l`         | Litre     | `volume`      | $ \text{dm}^3 $     | $ \text{dm}^3 $     |
-| `h`         | Hour      | `time`        | $3600\cdot\text{s}$ | $3600\cdot\text{s}$ |
-| `m`         | Minute    | `time`        |                     |                     |
-| `d`         | Day       | `time`        |                     |                     |
-| `m`         | Month     | `time`        |                     |                     |
-| `y`         | Year      | `time`        |                     |                     |
-| `bar`       | Bar       | `pressure`    |                     |                     |
-|             |           |               |                     |                     |
-|             |           |               |                     |                     |
+The SI system lack some useful units as listed below. Millimeter of mercury is part of UON because of its large use in medicine. The electron-volt is widely use in fundamental physics. 
+
+| Unit Symbol | Unit Name             | Quantity name | Equivalents                           |
+| ----------- | --------------------- | ------------- | ------------------------------------- |
+| `l`         | Liter                 | `volume`      | $ \text{dm}^3 $                       |
+| `h`         | Hour                  | `time`        | $3600\cdot\text{s}$                   |
+| `min`       | Minute                | `time`        | $60\cdot\text{s}$                     |
+| `day`       | Day                   | `time`        | $24\cdot\text{hour}$                  |
+| `month`     | Month                 | `time`        | $12\cdot\text{month}$                 |
+| `year`      | Year                  | `time`        | $365.25\cdot\text{day}$               |
+| `bar`       | Bar                   | `pressure`    | $100\cdot10^3\cdot\text{Pa}$          |
+| `mmHg`      | Millimeter of mercury | `pressure`    | $(101325/760)\cdot\text{Pa}$          |
+| `eV`        | Electronvolt          | `energy`      | $1.602176620898\cdot10^{-19}\text{J}$ |
 
 ### Units of information
 
-Other non-SI units shall also be accepted such as unit of information
+Other non-SI units shall also be accepted such as unit of information. 
 
-| Unit symbol | Unit name | Quantity name             |
-| ----------- | --------- | ------------------------- |
-| `b`         | Bit       | Base 2                    |
-| `o`         | Octet     | Exactly 8 b               |
-| `nat`       | Nat       | Base `e`                  |
-| `dit`       | Dit       | Base 10                   |
+| Unit symbol | Unit name     | Quantity name |
+| ----------- | ------------- | ------------- |
+| `b`         | Bit           | Base 2        |
+| `B`         | Octet or Byte | Exactly 8 b   |
+| `nat`       | Nat           | Base `e`      |
+| `dit`       | Dit           | Base 10       |
 
 ### Prefix
 
+Prefix can be added in front of a unit 
+
+| Symbol | Name  | Factor                            | Power      |
+| ------ | ----- | --------------------------------- | ---------- |
+| `Y`    | Yotta | 1 000 000 000 000 000 000 000 000 | $10^{24}$  |
+| `Z`    | Zetta | 1 000 000 000 000 000 000 000     | $10^{21}$  |
+| `E`    | Exa   | 1 000 000 000 000 000 000         | $10^{18}$  |
+| `P`    | Peta  | 1 000 000 000 000 000             | $10^{15}$  |
+| `T`    | Tera  | 1 000 000 000 000                 | $10^{12}$  |
+| `G`    | Giga  | 1 000 000 000                     | $10^9$     |
+| `M`    | Mega  | 1 000 000                         | $10^6$     |
+| `k`    | Kilo  | 1 000                             | $10^3$     |
+| `h`    | Hecto | 100                               | $10^2$     |
+| `da`   | Deca  | 10                                | $10^1$     |
+| -      | -     | 1                                 | $10^0$     |
+| `d`    | Deci  | 0.1                               | $10^{-1}$  |
+| `c`    | Centi | 0.01                              | $10^{-2}$  |
+| `m`    | Milli | 0.001                             | $10^{-3}$  |
+| ` μ `  | Micro | 0.000 001                         | $10^{-6}$  |
+| ` n`   | Nano  | 0.000 000 001                     | $10^{-9}$  |
+| `p`    | Pico  | 0.000 000 000 001                 | $10^{-12}$ |
+| `f`    | Femto | 0.000 000 000 000 001             | $10^{-15}$ |
+| `a`    | Atto  | 0.000 000 000 000 000 001         | $10^{-18}$ |
+| `z`    | Zepto | 0.000 000 000 000 000 000 001     | $10^{-21}$ |
+| `y`    | Yocto | 0.000 000 000 000 000 000 000 001 | $10^{-24}$ |
+
+In addition to these prefixes *UON* supports the [JEDEC](https://en.wikipedia.org/wiki/JEDEC_memory_standards) memory standards:
+
+| Symbol | Name  | Factor                    | Power    |
+| ------ | ----- | ------------------------- | -------- |
+| `Ei`   | Exibi | 1 152 921 504 606 846 976 | $2^{60}$ |
+| `Pi`   | Pebi  | 1 125 899 906 842 624     | $2^{50}$ |
+| `Ti`   | Tebi  | 1 099 511 627 776         | $2^{40}$ |
+| `Gi`   | Gibi  | 1 073 741 824             | $2^{30}$ |
+| `Mi`   | Mebi  | 1 048 576                 | $2^{20}$ |
+| `Ki`   | Kibi  | 1024                      | $2^{10}$ |
 
 ### Derived quantities and units
 
@@ -586,10 +709,22 @@ Units can be parsed in any order, but they are always serialized in the same man
 
 ## Encryption 
 
-A UON document can be encrypted. If so, the content of the document is simply a string value usually in base64. UON MUST support the following encryption type: 
+A UON document can be encrypted. If so, the content of the document is simply a string value usually in base64. UON MUST support AES CBC (128, 192, 256 bit)
 
-* GPG
-* Basic AES
+```yaml
+!uon {
+  login: "John",
+  password: "sequoiaTree"
+}
+```
+
+Here is what should look the encrypted payload with the passcode `UON`:
+
+```yaml
+!uon(encryption: aes128) !base64 "XWTrUQIavBWU58SXjpdmZAe/NX4C7Xc1nMQenvK0oKzzyWnwfe8Y5UkmMibT1mwG"
+```
+
+The encryption use the binary format as input to AES algorithm
 
 ## Capabilities
 
@@ -625,6 +760,7 @@ With the help of references (`!ref`), *UON* data can be easily destructured to o
         name: "Akash",
         age: 25
       }
+    # This subset use destructuring to compose a different arborescence of data 
     subset: {
       name: @full.name,
       spouse: @full.spouse.name
@@ -641,6 +777,8 @@ Therefore accessing to `subset` would return:
 }
 ```
 
+Notice that references are resolved because they are no longer accessible from the subset. 
+
 ### Linked list
 
 The example below represents a Git repository with linked references. When serialized, one can choose to flatten or not the references. 
@@ -648,7 +786,7 @@ The example below represents a Git repository with linked references. When seria
 Editors that supports the UON syntax highlight SHOULD be able to resolve references. 
 
 ```yaml
-uon(version: 0.0.1) !!git-repository {
+!!git-repository {
   head: @(refs.master)
   refs: {
     master: @(b43f2c2f661030e2cd4129787e71052567d4ef5a)
@@ -700,39 +838,39 @@ Here is the schema of this data structure, allowing validation:
 
 ```yaml
 !uon(version: 0.0.1) {
-   !!git-repository: !schema {
-     head: !ref(base: "refs"),
-     refs: {
-       !keyword: !str
-     },
-     authors: {
-       !str: !str
-     },
-     objects: {
-       !keyword: !any(
-         !!commit,
-         !!blob,
-         !!tree
-       ) 
-     }
-   },
-   !!ref: !schema !ref(base: "objects"),
-   !!filename: !schema !str,
-   !!blob: !schema !any([!blob, !str]),
-   !!commit: !schema {
-     tree: !!ref,
-     parent(optional: true): !!ref,
-     author: {
-       identity: !ref(base: "authors"),
-       date: !datetime
-     }
-   },
-   !!tree: !schema {
-     !!filename: {
-       permission: !!ref,
-       ref: !!ref
-     }
-   }   
+  !!git-repository: !schema {
+    head: !ref(base: "refs"),
+    refs: {
+      !keyword: !str
+    },
+    authors: {
+      !str: !str
+    },
+    objects: {
+      !keyword: !any(
+        !!commit,
+        !!blob,
+        !!tree
+      ) 
+    }
+  },
+  !!ref: !schema !ref(base: "objects"),
+  !!filename: !schema !str,
+  !!blob: !schema !any([!blob, !str]),
+  !!commit: !schema {
+    tree: !!ref,
+    parent(optional: true): !!ref,
+    author: {
+      identity: !ref(base: "authors"),
+      date: !datetime
+    }
+  },
+  !!tree: !schema {
+    !!filename: {
+      permission: !!ref,
+      ref: !!ref
+    }
+  }   
 }
 ```
 
@@ -746,17 +884,17 @@ The following *UON* file is stored on a server and made accessible from `http://
 
 ```yaml 
 !uon(version: 0.0.1) {
-    name: "Midhuna",
-    age: 23,
-    place: "New York",
-    hobbies: [
-      "Singing", 
-      "Reading Books"
-    ]
-    spouse: {
-      name: "Akash",
-      age: 25
-    }
+  name: "Midhuna",
+  age: 23,
+  place: "New York",
+  hobbies: [
+    "Singing", 
+    "Reading Books"
+  ]
+  spouse: {
+    name: "Akash",
+    age: 25
+  }
 }
 ```
 
@@ -779,7 +917,7 @@ If accessing `http://example.com/midhuna/spouse` the response would be:
 
 The unified API should be identical on all supported programming languages
 
-- `to_json()` Identical to `translate('json')`
+- `to_json()``
 - `to_xml()`
 - `to_yaml()`
 - `to_uon(strict=true, format)`
@@ -790,9 +928,11 @@ The unified API should be identical on all supported programming languages
 - `dumps()`
 - `validate(schema)`
 - `translate(stylesheet)`
+- `register_type(type, function)`
 
-## Implementation
+## Implementations
 
 In the context of this draft, no implementation are fully available, however projects in development are available below: 
 
 * Python: http://github.com/uon-language/py-uon
+
