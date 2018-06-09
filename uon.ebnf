@@ -1,0 +1,30 @@
+(* UON 0.0.1 EBNF Grammar *)
+
+binchar = '0' | '1' .
+octchar = binchar | '2' | '3' | '4' | '5' | '6' | '7' .
+decchar = octchar | '8' | '9' .
+hexchar = decchar | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' .
+
+keyword = (letter, (decchar | letter))+ .
+type = '!', keyword .
+
+keypair = !type ':' !type .
+
+string = .
+
+prop = '(' [properties] ')' .
+!seq = '[' [sequence] ']' .
+!str = '"' [string] '"' .
+!map = '{' [mapping] '}' .
+
+!hex = '0x' hexchar+ .
+!oct = '0o' octchar+ .
+!bin = '0b' binchar+ .
+
+!bool = 'false' | 'true' .
+
+!dec = ['+', '-'] dechar+ .
+
+element = fulltype+ [!type] .
+
+!float = !dec '.' decchar+ ['e' ['+' | '-'] decchar+] .
