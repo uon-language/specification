@@ -163,7 +163,7 @@ The only reserved language symbols are the following
   omap: !omap {
     foo: 1, 
     bar: 2
-  } 
+  }, 
   # Sequences
   seq: [1, 2, 3],
   # Unordered set of unique values
@@ -195,17 +195,18 @@ The only reserved language symbols are the following
       }
     },
     regex: /fo+(bar)?/i
-  }
+  },
   # Properties
   properties: {
       people(id: 1243): "Robert Ford" 
-  }
+  },
   # References
   reference: {
   	ref: @scalar.number.decimal,
   	merge: !map(merge: @scalar.number) {
        int: 1409, # Override existing value
   	}
+  },
   # Rich types
   rich: {
      uuid: !!uuid "82584ce5-d086-41ff-978f-57323ebf5b9d",
@@ -229,13 +230,13 @@ The only reserved language symbols are the following
     accessMode: !@(.dummy)
     genre: !any("Male", "Female"),
     link: !any(!!url, !!urn, !!uri)    
-  }
+  },
   
   # Schema Type
   !str: !schema("http://uon.io/str") !type(
     description: """
        Base string encoded in UTF-8
-    """t
+    """t,
     properties: {
       min(optional: true): !uint(default: 0),
       max(optional: true): !uint(default: .inf), greater-than: @.min),
