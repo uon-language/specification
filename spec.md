@@ -456,6 +456,7 @@ All these formats have a strict binary encoding format when the data is transmit
 | `!jwt` | `!str` | JSON Web Token | `!seq`, `!map` |
 | `!uuid` | `!str` | Unique User Identifier, a 128-bit data |  |
 | `!epoch` | `!dec` | UNIX timestamp | `!datetime` |
+| `!math` | `!str` | Mathematic notation `$\frac{2}{3}$` |  |
 
 ### Constraint Datatypes
 
@@ -514,12 +515,15 @@ b'*'
 
 Type is the base type of all other types
 
-| Property Name         | Description                             | Example                              |
-| --------------------- | --------------------------------------- | ------------------------------------ |
-| `comment: !str`       | Add a comment to an object              | `!dec(comment: "The Answer") 42`     |
-| `description: !str`   | Description for documentation purposes  | `!dec(description: "The Answer") 42` |
-| `binformat: !keyword` | Encoding format used for binary payload | `!dec(binformat: int32) 42`          |
-| `optional: !bool`     | Is the value optional?                  |                                      |
+| Property Name         | Description                                     | Example                              |
+| --------------------- | ----------------------------------------------- | ------------------------------------ |
+| `comment: !str`       | Add a comment to an object                      | `!dec(comment: "The Answer") 42`     |
+| `description: !str`   | Description for documentation purposes          | `!dec(description: "The Answer") 42` |
+| `binformat: !keyword` | Encoding format used for binary payload         | `!dec(binformat: int32) 42`          |
+| `optional: !bool`     | Is the value optional?                          |                                      |
+| `content: !type`      | This is the content value of object (read only) |                                      |
+
+The `content`property is not meant to be used directly, but it appears in the `UON` DOM.
 
 ### Null 
 
@@ -589,32 +593,88 @@ some-numbers: [
 
 Numbers accepts the [E-notation](https://en.wikipedia.org/wiki/Scientific_notation) with the letter `e` as  "times ten raised to the power of"
 
-| Property Name                | Description                                          | Example                        |
-| ---------------------------- | ---------------------------------------------------- | ------------------------------ |
-| `magnitude: !prefix`         | Order of magnitude                                   | `!number(magnitude: k) 12`     |
-| `base: !uint(min:2, max:62)` | Positional notation (base-2, base-10...)             | `!number(base: 4) 222 # 42`    |
-| `min: !number`               | Minimum accepted number                              | `!number(min: 2)`              |
-| `max: !number(min: @.min)`   | Maximum length (must be greater or equal than `min`) | `!number(min: 2, max: 18)`     |
-| `le: @.max`                  | Less than or equal to                                | `!number(le: 2)`               |
-| `ge: @.min`                  | Greater than or equal to                             | `!number(ge: 2)`               |
-| `lt: !number`                | Less than                                            | `!number(lt: 2)`               |
-| `gt: !number(min: @.lt)`     | Greater than                                         | `!number(gt: 2)`               |
-| `uncertainty: !number`       | Uncertainty value such as in `12 ± 0.01`             | `!number(uncertainty: 0.1) 12` |
-| `unit: !unit`                | Associated unit                                      | `number(unit: celsius) 21.3`   |
+| Property Name                | Description                                          | Example                          |
+| ---------------------------- | ---------------------------------------------------- | -------------------------------- |
+| `magnitude: !prefix`         | Order of magnitude                                   | `!number(magnitude: k) 12`       |
+| `base: !uint(min:2, max:62)` | Positional notation (base-2, base-10...)             | `!number(base: 4) 222 # 42`      |
+| `min: !number`               | Minimum accepted number                              | `!number(min: 2)`                |
+| `max: !number(min: @.min)`   | Maximum length (must be greater or equal than `min`) | `!number(min: 2, max: 18)`       |
+| `le: @.max`                  | Less than or equal to                                | `!number(le: 2)`                 |
+| `ge: @.min`                  | Greater than or equal to                             | `!number(ge: 2)`                 |
+| `lt: !number`                | Less than                                            | `!number(lt: 2)`                 |
+| `gt: !number(min: @.lt)`     | Greater than                                         | `!number(gt: 2)`                 |
+| `uncertainty: !number`       | Uncertainty value such as in `12 ± 0.01`             | `!number(uncertainty: 0.1) 12`   |
+| `unit: !unit`                | Associated unit                                      | `number(unit: celsius) 21.3`     |
+| `fix(default: 0): !uint`     | Fixpoint representation, value is divided by `!uint` | `number(base: 2, fix: 2) 110010` |
 
 Positional notation uses the representable symbols in this order `"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"`, which makes the maximum possible representable base 62
 
+### Keyword
+
+A keyword is essentially a string which can be represented without double quotes. It can be either `undefined` or `defined`. An undefined keyword is not defined in the search path, while the defined keyword is documented and defined somewhere in the search path.
+
+```yaml
+!uon(version: 0.0.1) {
+  !keyword: !schema(urn:uon:2018:types:keyword) !str(
+     pattern: /^[a-z][a-z0-9-]+(?!-)$/i,
+     properties: {
+       enum: !dec,
+       coercion: {
+         !number: @..enum
+       }
+     }
+  )
+}
+```
+
+| Property Name | Description       | Example                    |
+| ------------- | ----------------- | -------------------------- |
+| `enum: !dec`  | Enumeration value | `!keyword(enum: 1e3) kilo` |
+
 ### References
 
-A reference can be:
+A reference refers to another field on a *UON* document. A reference can be resolved or not when generating a document. It can be a local reference or a remote reference when the target has to be fetched outside from the document. References can also acts as hyperlinks, this is especially the case when representing a UON document in a Web browser. 
 
-* Absolute to the root of the document
-* Relative to the current element
-* Remote reference as URI: 
-  * URL
-  * URN
-* Accessible remote references MUST point on UON valid files, otherwise the document is not valid
-* URN references relies on an external UON document that resolve a urn. The resolve document is usually passed as follow `!uon(urn-resolve: @(http://some-domain.com))`. A set can be passed to `urn-resolve`
+| Explicit                        | Syntactic sugar |
+| ------------------------------- | --------------- |
+| `!ref ..foo.bar`                | `@(..foo.bar)`  |
+| `!ref(resolve: true) ..foo.bar` | `@@(.foo.bar)`  |
+
+```yaml
+{
+  foo: { bar: 2, baz: [10, 20, 30], "qux": 40 },
+  sub: {
+    local: @@(..foo.bar) # Is replaced by `2` when generating the payload
+  },
+  local: @@(.foo) # Is replaced by `{ bar: 2}` when generating the payload
+  other: [
+    @@(..foo.baz[1]), # Replaced by `20` when generating the payload
+    @@(..foo."qux"), # Replaced by `40` when generating the payload
+  ],
+  remote: @@(http://example.com/something.uon) # Replaced by whatever in something.uon
+}
+```
+
+
+| Property Name                    | Description                             | Example                        |
+| -------------------------------- | --------------------------------------- | ------------------------------ |
+| `resolve(default: false): !bool` | Resolve reference at payload generation | `!ref(resolve=true) ..foo.bar` |
+
+The schema of a references is expressed as follow:
+
+```yaml
+!uon(version: 0.0.1) {
+  !keyword: !schema(urn:uon:2018:types:reference) !any {
+    !uri, 
+    !str
+  },
+  properties: {
+    resolve(default: false): !bool  
+  }
+}
+```
+
+URN references relies on an external UON document that resolve a urn. The resolve document is usually passed as follow `!uon(urn-resolve: @(http://some-domain.com))`. A set can be passed to `urn-resolve`
 
 A possible value for a this resolver is: 
 
@@ -626,6 +686,28 @@ A possible value for a this resolver is:
        2648: !url "https://www.ietf.org/rfc/rfc2648.txt"
    }
 }
+```
+
+### Binary, Octal and Hexadecimal representation
+
+```yaml
+
+!uon(version: 0.0.1) {
+  !bin: !schema(urn:uon:2018:types:binary) !str(
+     pattern: /^0b([01]+)$/,
+     coerce: {
+       !number: !number(base: 2) "$1"
+     }
+     properties: {
+       size: !uint,
+     }
+  )
+}
+```
+
+```yaml
+# Value of this is `2.16015625`
+!number !bin(fix: 8) 0b1000101001
 ```
 
 ### IPv4
@@ -664,7 +746,7 @@ The International System of Units lists 7 fundamental units that are used as sta
 | `A`         | Ampere    | Electric current (`current`)              |
 | `K`         | Kelvin    | Thermodynamic temperature (`temperature`) |
 | `mol`       | Mole      | Amount of substance (`substance`)         |
-| `cd`        | Candela   | Luminous intensity (`illumination`)       |
+| `cd`        | Candela   | Luminous intensity (`illuminance`)        |
 
 When only the quantity is known, the unit will be assumed to be SI strict.
 
@@ -677,30 +759,30 @@ When only the quantity is known, the unit will be assumed to be SI strict.
 
 The International System of Units assigns special names to 22 derived units, which includes two dimensionless derived units, the `radian` and the `steradian`.
 
-| Unit Symbol | Unit Name      | Quantity name                        | Equivalents                                                  |
-| ----------- | -------------- | ------------------------------------ | ------------------------------------------------------------ |
-| `Hz`        | Hertz          | `frequency`                          | $1/\text{s}$                                                 |
-| `rad`       | Radian         | `angle`                              | 1                                                            |
-| `sr`        | Steradian      | `solid-angle`                        | 1                                                            |
-| `N`         | Newton         | `[force, weight]`                    | $\text{kg}\cdot\text{m}/\text{s}^2$                          |
-| `Pa`        | Pascal         | `[pressure, stress]`                 | $\text{kg}\cdot\text{m}^{-1}\cdot\text{s}^{-2}$              |
-| `J`         | Joule          | `[energy, work, heat]`               | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-3}$                 |
-| `W`         | Watt           | `[power, radian-flux]`               | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-2}$                 |
-| `C`         | Coulomb        | `electric-charge`                    | $\text{s}\cdot\text{A}$                                      |
-| `V`         | Volt           | `voltage`                            | $\text{kg}\cdot\text{m}^{2}\cdot\text{s}^{-3}\cdot\text{A}^{-1}$ |
-| `F`         | Farad          | `electrical-capacitance`             | $\text{kg}^{-1}\cdot\text{m}^{-2}\cdot\text{s}^{4}\cdot\text{A}^{2}$ |
-| `Ω `        | Ohm            | `[electrical-resistance, impedance]` | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-3}\cdot\text{A}^{-2}$ |
-| `S`         | Siemens        | `electrical-conductance`             | $\text{kg}^{-1}\cdot\text{m}^{-2}\cdot\text{s}^{3}\cdot\text{A}^{2}$ |
-| `Wb`        | Weber          | `magnetic-flux`                      | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-2}\cdot\text{A}^{-1}$ |
-| `T`         | Tesla          | `magnetic-field`                     | $\text{kg}\cdot\text{s}^{-2}\cdot\text{A}^{-1}$              |
-| `H`         | Henry          | `electrical-inductance`              | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-2}\cdot\text{A}^{-2}$ |
-| `°C`        | Degree Celsius | `temperature`                        | $\text{K}$                                                   |
-| `lm`        | Lumen          | `luminous-flux`                      | $\text{cd}$                                                  |
-| `lx`        | Lux            | `illuminance`                        | $\text{m}^{-2}\cdot\text{cd}$                                |
-| `Bq`        | Becquerel      | `radioactivity`                      | $\text{s}^{-1}$                                              |
-| `Gy`        | Gray           | `absorbed-dose`                      | $\text{m}^2\cdot\text{s}^{-2}$                               |
-| `Sv`        | Sievert        | `equivalent-dose`                    | $\text{m}^2\cdot\text{s}^{-2}$                               |
-| `kat`       | Katal          | `catalytic-activity`                 | $\text{s}^{-1}\cdot\text{mol}$                               |
+| Unit Symbol | Unit Name      | Quantity name                      | Equivalents                                                  |
+| ----------- | -------------- | ---------------------------------- | ------------------------------------------------------------ |
+| `Hz`        | Hertz          | `frequency`                        | $1/\text{s}$                                                 |
+| `rad`       | Radian         | `angle`                            | 1                                                            |
+| `sr`        | Steradian      | `solid-angle`                      | 1                                                            |
+| `N`         | Newton         | `[force, weight]`                  | $\text{kg}\cdot\text{m}/\text{s}^2$                          |
+| `Pa`        | Pascal         | `[pressure, stress]`               | $\text{kg}\cdot\text{m}^{-1}\cdot\text{s}^{-2}$              |
+| `J`         | Joule          | `[energy, work, heat]`             | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-3}$                 |
+| `W`         | Watt           | `[power, radian-flux]`             | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-2}$                 |
+| `C`         | Coulomb        | `electric-charge`                  | $\text{s}\cdot\text{A}$                                      |
+| `V`         | Volt           | `voltage`                          | $\text{kg}\cdot\text{m}^{2}\cdot\text{s}^{-3}\cdot\text{A}^{-1}$ |
+| `F`         | Farad          | `electric-capacitance`             | $\text{kg}^{-1}\cdot\text{m}^{-2}\cdot\text{s}^{4}\cdot\text{A}^{2}$ |
+| `Ω `        | Ohm            | `[electric-resistance, impedance]` | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-3}\cdot\text{A}^{-2}$ |
+| `S`         | Siemens        | `electric-conductance`             | $\text{kg}^{-1}\cdot\text{m}^{-2}\cdot\text{s}^{3}\cdot\text{A}^{2}$ |
+| `Wb`        | Weber          | `magnetic-flux`                    | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-2}\cdot\text{A}^{-1}$ |
+| `T`         | Tesla          | `magnetic-field`                   | $\text{kg}\cdot\text{s}^{-2}\cdot\text{A}^{-1}$              |
+| `H`         | Henry          | `electric-inductance`              | $\text{kg}\cdot\text{m}^2\cdot\text{s}^{-2}\cdot\text{A}^{-2}$ |
+| `°C`        | Degree Celsius | `temperature`                      | $\text{K}$                                                   |
+| `lm`        | Lumen          | `luminous-flux`                    | $\text{cd}$                                                  |
+| `lx`        | Lux            | `illuminance`                      | $\text{m}^{-2}\cdot\text{cd}$                                |
+| `Bq`        | Becquerel      | `radioactivity`                    | $\text{s}^{-1}$                                              |
+| `Gy`        | Gray           | `absorbed-dose`                    | $\text{m}^2\cdot\text{s}^{-2}$                               |
+| `Sv`        | Sievert        | `equivalent-dose`                  | $\text{m}^2\cdot\text{s}^{-2}$                               |
+| `kat`       | Katal          | `catalytic-activity`               | $\text{s}^{-1}\cdot\text{mol}$                               |
 
 These derived units can be used either on a payload or on a validation schema:
 
@@ -1050,11 +1132,91 @@ If accessing `http://example.com/midhuna/spouse` the response would be:
 }
 ```
 
+## Raw Conversion
+
+*UON* source can be serialized in other format such as YAML, XML or JSON with respect of their capabilities and limitations. 
+
+```yaml
+!uon(version: 0.0.1) {
+  # This is a number
+  int: !uint32 12,
+  str: "Hello World!"
+  ref: @(.int)
+}
+```
+
+### JSON
+
+```json
+{
+  "type": "!uon",
+  "properties": {
+    "version": {
+      "type": "!semver",
+      "content": "0.0.1"
+    }
+  },
+  "content": {
+    "type": "!map",
+    "content":
+      {
+        "int": {
+          "type": "!uint32",
+          "content": 12,
+          "properties": {
+            "comment": "This is a number"
+          }
+        }
+      },
+      "str": { 
+        "type": "!str", 
+        "content": "Hello World!"
+      }
+    }
+  }
+}
+```
+
+### XML
+
+```xml
+<?xml encoding='UTF-8'?>
+<uon:uon version="0.0.1" xmlns:uon="http://uon-language.io/uon-type">
+  <uon:map>
+    <int type="!uint32" comment="This is a number">12</int>
+    <str type="!str">Hello World!</str>
+    <ref type="!ref">.int</ref>
+  </uon:map>
+</uon:uon>
+```
+
+### YAML
+
+```yaml
+%YAML 1.2
+---
+type: uon
+properties:
+  version: 0.0.1
+content:
+  int: 
+  	type: "!uint32"
+  	comment: This is a number
+  	content: 12
+  str:
+    type: "!str"    
+    content: Hello World!
+  ref: 
+    type: "!ref"
+    content: .int    
+...
+```
+
 ## Unified API
 
 The unified API should be identical on all supported programming languages
 
-- `to_json()``
+- `to_json()`
 - `to_xml()`
 - `to_yaml()`
 - `to_uon(strict=true, format)`
