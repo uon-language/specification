@@ -381,16 +381,14 @@ Sets are mapping with null values
 
 Scalar values are any kind of values that may be represented as a string
 
-| Type      | Based on  | Description                                                  |
-| --------- | --------- | ------------------------------------------------------------ |
-| `!null`   | `!scalar` | Null type, can be associated to other type e.g. `!null(!str)` |
-| `!bool`   | `!scalar` | Boolean, `true` or `false`                                   |
-| `!char`   | `!scalar` | Character, one single symbol                                 |
-| `!str`    | `!scalar` | String encoded in `UTF-8`                                    |
-| `!number` | `!scalar` | Any kind of representable numeric value                      |
-| `!key`    | `!str`    | Keyword used for mapping keys and references (`/^[a-z](?:(?:[a-z0-9-])*[a-z0-9])?$/i`) |
-| `!schema` | `!type`   | *UON* Validation schema                                      |
-| `!ref`    | `!str`    | Reference to another type                                    |
+| Type       | Based on  | Description                                                  |
+| ---------- | --------- | ------------------------------------------------------------ |
+| `!null`    | `!scalar` | Null type, can be associated to other type e.g. `!null(!str)` |
+| `!bool`    | `!scalar` | Boolean, `true` or `false`                                   |
+| `!str`     | `!scalar` | String encoded in `UTF-8`                                    |
+| `!number`  | `!scalar` | Any kind of representable numeric value                      |
+| `!keyword` | `!str`    | Keyword used for mapping keys and references (`/^[a-z](?:(?:[a-z0-9-])*[a-z0-9])?$/i`) |
+| `!ref`     | `!str`    | Reference to another type                                    |
 
 #### Numbers Datatypes
 
@@ -461,13 +459,150 @@ All these formats have a strict binary encoding format when the data is transmit
 
 ### Constraint Datatypes
 
-Constraint datatypes are used for validation schema
+Constraint datatypes are only used for validation schema
 
-| Type   | Based on | Description                                       |
-| ------ | -------- | ------------------------------------------------- |
-| `!any` | `!map`   | Alternative possibility e.g. `!any( !str, !null)` |
+| Type      | Based on | Description                                       |
+| --------- | -------- | ------------------------------------------------- |
+| `!any`    | `!map`   | Alternative possibility e.g. `!any( !str, !null)` |
+| `!schema` | `!type`  | *UON* Validation schema                           |
+
+## Properties
+
+Properties can be seen as attributes passed to a constructor of a class. When writing:
+
+```yaml
+!uon(version: 0.0.1) {}
+```
+
+You essentially instantiate a `!uon` class with the attribute `version` set to `0.0.1`. This instance is inherited automatically by the following argument here `{}` which is a `!map`.  In *UON* only types can be instantiated, but since everything is static on a *UON* document, `!uon` and `!uon()` performs the same. It is not allowed to add properties to objects such as:
+
+```yaml
+{
+  # Incorrect
+  {foo: 1, bar: 2}(ordered:true)
+  
+  # Correct
+  !map(ordered:true) {foo: 1, bar: 2}
+}
+```
+
+The reason for this is principally for the sake of readability. 
+
+The `UON` parser automatically update the missing properties with correct values for example, this valid *UON* file
+
+```yaml
+42
+```
+
+```python
+>>> import uon
+>>> u = uon.Parser()
+>>> doc = u.loads('42')
+>>> doc
+42
+>>> type(doc)
+uon.integer
+>>> doc.binformat
+uon.binformats.leb128
+>>> doc.to_binary()
+b'*'
+```
 
 ## Type details
+
+###Type
+
+Type is the base type of all other types
+
+| Property Name         | Description                             | Example                              |
+| --------------------- | --------------------------------------- | ------------------------------------ |
+| `comment: !str`       | Add a comment to an object              | `!dec(comment: "The Answer") 42`     |
+| `description: !str`   | Description for documentation purposes  | `!dec(description: "The Answer") 42` |
+| `binformat: !keyword` | Encoding format used for binary payload | `!dec(binformat: int32) 42`          |
+| `optional: !bool`     | Is the value optional?                  |                                      |
+
+### Null 
+
+TBD: I am not sure whether or not I should keep this type... Perhaps not very useful...
+
+### Bool
+
+Boolean value defined by this schema
+
+```yaml
+!uon(version: 0.0.1) {
+  !bool: !schema(urn:uon:2018:types:bool) 
+    !any(
+      set: {
+        !keyword(coercion: {!number: 0}) false, 
+        !keyword(coercion: {!number: 1}) true
+      },
+      properties: {
+        alias: !set {
+          !keyword: !any(set: {false, true})
+        }  
+      }
+    )
+}
+```
+
+| Property Name | Description                           | Example                       |
+| ------------- | ------------------------------------- | ----------------------------- |
+| `alias: !set` | Adds accepted alternative for Boolean | `!bool(alias: {on: true}) on` |
+
+### String
+
+A string is an arbitrary sequence of characters encoded in [UTF-8](https://www.ietf.org/rfc/rfc3629.txt). Since *UON* is a text based language, any other type can be coerced into a string. 
+
+```yaml
+!uon(version: 0.0.1) {
+  !str: !schema(urn:uon:2018:types:string) 
+    !type(
+      properties: {
+      pattern: !regex,
+        min: !uint,
+        max: !uint(ge: @.min)
+      }
+    )
+}
+```
+
+| Property Name     | Description                                          | Example                         |
+| ----------------- | ---------------------------------------------------- | ------------------------------- |
+| `pattern: !regex` | Acceptance pattern                                   | `!str(pattern: /0x[0-9a-f]+/i)` |
+| `min: !uint`      | Minimum length                                       | `!str(min: 2)`                  |
+| `max: !uint`      | Maximum length (must be greater or equal than `min`) | `!str(min: 2, max: 18)`         |
+
+### Number
+
+A number can hold any kind of representable number with an absolute precision without restriction of the storage type. It is therefore the base type for any derived number type. 
+
+The following values are valid: 
+
+```yaml
+some-numbers: [
+  149999932410893322.34334342387324024000485918571097402943e122,
+  -.inf,
+  -8.0 
+]
+```
+
+Numbers accepts the [E-notation](https://en.wikipedia.org/wiki/Scientific_notation) with the letter `e` as  "times ten raised to the power of"
+
+| Property Name                | Description                                          | Example                        |
+| ---------------------------- | ---------------------------------------------------- | ------------------------------ |
+| `magnitude: !prefix`         | Order of magnitude                                   | `!number(magnitude: k) 12`     |
+| `base: !uint(min:2, max:62)` | Positional notation (base-2, base-10...)             | `!number(base: 4) 222 # 42`    |
+| `min: !number`               | Minimum accepted number                              | `!number(min: 2)`              |
+| `max: !number(min: @.min)`   | Maximum length (must be greater or equal than `min`) | `!number(min: 2, max: 18)`     |
+| `le: @.max`                  | Less than or equal to                                | `!number(le: 2)`               |
+| `ge: @.min`                  | Greater than or equal to                             | `!number(ge: 2)`               |
+| `lt: !number`                | Less than                                            | `!number(lt: 2)`               |
+| `gt: !number(min: @.lt)`     | Greater than                                         | `!number(gt: 2)`               |
+| `uncertainty: !number`       | Uncertainty value such as in `12 ± 0.01`             | `!number(uncertainty: 0.1) 12` |
+| `unit: !unit`                | Associated unit                                      | `number(unit: celsius) 21.3`   |
+
+Positional notation uses the representable symbols in this order `"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"`, which makes the maximum possible representable base 62
 
 ### References
 
