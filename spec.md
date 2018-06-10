@@ -202,9 +202,9 @@ The only reserved language symbols are the following
   },
   # References
   reference: {
-  	ref: @scalar.number.decimal,
+  	ref: @(scalar.number.decimal),
   	merge: !map(merge: @scalar.number) {
-       int: 1409, # Override existing value
+       int: 1409 # Override existing value
   	}
   },
   # Rich types
