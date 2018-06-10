@@ -1,0 +1,52 @@
+# Units keywords
+!uon(version: 0.0.1) {
+  !quantity: !schema !any {
+    !base-quantity, !derived-quantity
+  },
+  !unit: !schema !any {
+    !base-unit, !derived-unit, !other-unit
+  },
+  !prefix: !schema !any {
+    !unit-prefix, !unit-binary-prefix
+  },
+
+  !base-quantity: !schema !any {
+    length, mass, time, current, temperature, substance, illumination
+  },
+
+  !base-unit: !schema !any {
+    meter, kilogram, second, ampere, kelvin, mole, candela
+  },
+
+  !derived-unit: !schema !any {
+    hertz, radian, steradian, newton, pascal, joule, watt, coulomb, volt,
+    farad, ohm, siemens, weber, tesla, henry, celsius, lumen
+  },
+
+  !derived-quantity: !schema !any {
+    frequency, angle, solid-angle, force, weight, pressure, stress,
+    energy, work, heat, power, radian-flux, electric-charge, voltage,
+    electric-capacitance, electric-resistance, impedance,
+    electric-conductance, magnetic-flux, magnetic-field,
+    electric-inductance, luminous-flux, radioactivity, absorbed-dose,
+    equivalent-dose, catalytic-activity
+  },
+
+  !other-unit: !schema !any {
+    liter, hour, minute, day, month, year, bar, electronvolt, mmhg
+  },
+
+  !information-unit: !schema !any {
+    bit, byte, nat, dit
+  },
+
+  !unit-prefix: !schema !any {
+    yotta, zetta, exa, peta, tera, giga, mega, kilo, hecto, deca,
+    deci, centi, milli, micro, nano, pico, femto, atto, zepto,
+    yocto
+  },
+
+  !unit-binary-prefix: !schema !any {
+    exibi, pebi, tebi, gibi, mebi, kibi
+  }
+}
