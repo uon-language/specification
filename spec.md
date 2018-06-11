@@ -2,9 +2,11 @@
 
 ## Draft Version 0.0.1
 
-http://github.com/uon-language/specification/spec.md
+**This version:** http://github.com/uon-language/specification/blob/spec.md
 
-Yves Chevallier <ycr@x0x.ch>
+**Bug tracker**: http://github.com/uon-language/specification/issues
+
+**Editor**: Yves Chevallier <ycr@x0x.ch>
 
 Copyright(C) 2018 Yves Chevallier
 
@@ -41,6 +43,7 @@ Also, *UON* would like to go a step further by adding support for validation sch
 * Zero-copy operations
 * Validation schema supported by design (Inspired from [JSON-Schema](http://json-schema.org/) and [Voluptuous](https://pypi.org/project/voluptuous/))
 * Transformation schema supported by design (Inspired from what `XSLT` is to `XML`)
+* Platform neutral
 
 ## Normative references 
 
@@ -78,10 +81,32 @@ YAML is very complete, it supports references (recursive references), comments, 
 * More datatype support
 * Strict formatting closer to JSON
 * Validation schema by design 
+* Resolved and unresolved references
+* Unambiguous comment position
+
+In YAML it is possible to create a reference to an existing location in the tree. However this always resolved after parsing which mean, the reference information is lost. UON supports unresolved references in which even after parsing the document, the reference is preserved. 
+
+Comments in YAML are not formally part of the object tree, but they are somehow supported by `ruamel.yaml` Python package with the `round_trip_load` method. In *UON*, comments are part of the language, and they appear in the object tree.
 
 ### Related to XML
 
 XML has proven its strength over many years. It is still a very complete language, but it is also more verbose than other serialization languages which make it difficult to use with lightweight infrastructures such as MCU and battery powered telemetry devices. However it provides a full support for validation (XSD) and presentation (XSLT). UON took the tags attributes that is missing from JSON and YAML.
+
+## Related to Protocol Buffers
+
+Protocol buffers is a platform neutral serialization language developed by Google.
+
+Any <-> !any
+
+Pack(), Unpack()
+
+Oneof,
+
+Fixed key for map map<key_type, value_type> map_field = N; 
+
+Ambiguous type name
+
+Duration in seconds
 
 ### Symbol Pairs
 
@@ -350,26 +375,21 @@ In minimal format:
 
 ## Datatypes
 
-One important feature of *UON* is that any kind of information belongs to a type. Types are organized in different categories.
-
-Datatypes are regrouped in categories:
-
-* Metatype that serve as base to other types
-* Binary-Serializable
+One important feature of *UON* is that any kind of information belongs to a type. Types are organized in different categories: 
 
 ### Data Structures (or Structural types)
 
 They are primitive data types all derived from the `!type` master datatype. 
 
-| Type      | Based on | Description                                                | Id   |
-| --------- | -------- | ---------------------------------------------------------- | ---- |
-| `!type`   | -        | Base type                                                  | 0x00 |
-| `!map`    | `!type`  | Unordered Mapping (also called *HashMap* or *Dictionary* ) | 0x10 |
-| `!omap`   | `!type`  | Ordered Mapping                                            | 0x20 |
-| `!seq`    | `!type`  | Ordered Sequence (also called *List* or *Array*)           | 0x30 |
-| `!set`    | `!map`   | Unordered set of values                                    | 0x40 |
-| `!oset`   | `!omap`  | Ordered set of values                                      | 0x50 |
-| `!scalar` | `!type`  | Scalar value representable with a string                   | 0x60 |
+| Type      | Based on | Description                                            |
+| --------- | -------- | ------------------------------------------------------ |
+| `!type`   | -        | Base type                                              |
+| `!map`    | `!type`  | Unordered Mapping (also called HashMap or Dictionary ) |
+| `!omap`   | `!type`  | Ordered Mapping                                        |
+| `!seq`    | `!type`  | Ordered Sequence (also called List or Array)           |
+| `!scalar` | `!type`  | Scalar value representable with a string               |
+| `!set`    | `!map`   | Unordered set of values                                |
+| `!oset`   | `!omap`  | Ordered set of values                                  |
 
 *UON* aims to represent static data which are therefore immutable by design. This explain the absence of Records or Tuples. However, when a composite type is used as a key, it will be parsed as an immutable type if the destination language allows it.  
 
@@ -385,16 +405,16 @@ Sets are mapping with null values
 
 ### Scalar
 
-Scalar values are any kind of values that may be represented as a string. Any scalar value can be also represented in an optimized binary format. Refined types are base types with constraints. 
+Scalar values are any kind of values that may be represented as a string
 
-| Type       | Based on  | Description                                                  | Id   |
-| ---------- | --------- | ------------------------------------------------------------ | ---- |
-| `!bool`    | `!scalar` | Boolean, `true` or `false`                                   | 0x41 |
-| `!str`     | `!scalar` | String encoded in `UTF-8` (char `0x00` not allowed)          | 0x42 |
-| `!blob`    | `!scalar` | Agnostic binary payload                                      | 0x43 |
-| `!number`  | `!scalar` | Any kind of representable numeric value                      | 0x44 |
-| `!keyword` | `!str`    | Keyword used for mapping keys and references (`/^[a-z](?:(?:[a-z0-9-])*[a-z0-9])?$/i`) | 0x45 |
-| `!ref`     | `!str`    | Reference to another type                                    | 0x46 |
+| Type       | Based on  | Description                                                  |
+| ---------- | --------- | ------------------------------------------------------------ |
+| `!null`    | `!scalar` | Null type, can be associated to other type e.g. `!null(!str)` |
+| `!bool`    | `!scalar` | Boolean, `true` or `false`                                   |
+| `!str`     | `!scalar` | String encoded in `UTF-8`                                    |
+| `!number`  | `!scalar` | Any kind of representable numeric value                      |
+| `!keyword` | `!str`    | Keyword used for mapping keys and references (`/^[a-z](?:(?:[a-z0-9-])*[a-z0-9])?$/i`) |
+| `!ref`     | `!str`    | Reference to another type                                    |
 
 #### Numbers Datatypes
 
@@ -402,55 +422,47 @@ The number type is much more complete than JSON, XML or YAML. It aims to serve g
 
 * Physics and Mathematics
   * Quantities with uncertainties and units
-  * Complex numbers
+  * Complex and Quaternions
 * Computer science 
   * Low level representation (hexadecimal, octal and binary)
   * Fractional values for frequency ratio
   * Fixed-Point values in 
 
-| Type         | Based on  | Description                                                  | Id   |
-| ------------ | --------- | ------------------------------------------------------------ | ---- |
-| `!dec`       | `!number` | Decimal (i.e. Base 10) number e.g. `12345`                   |      |
-| `!float`     | `!number` | Floating point `IEEE-754`                                    |      |
-| `!bin`       | `!dec`    | Binary representation of decimal number                      |      |
-| `!oct`       | `!dec`    | Octal representation of decimal number                       |      |
-| `!hex`       | `!dec`    | Hexadecimal representation of decimal number                 |      |
-| `!complex`   | `!float`  | Complex value e.g. `42+7j`                                   |      |
-| `!magnitude` | `!number` | Physical value with an associated unit                       |      |
-| `!frac`      | `!seq`    | Fraction of two integers, to represent repeating such as `0.33333` |      |
-| `!fixpoint`  | `!dec`    | Fixed point value                                            |      |
+| Type          | Based on  | Description                                                  |
+| ------------- | --------- | ------------------------------------------------------------ |
+| `!dec`        | `!number` | Decimal (i.e. Base 10) number e.g. `12345`                   |
+| `!float`      | `!number` | Floating point `IEEE-754`                                    |
+| `!bin`        | `!dec`    | Binary representation of decimal number                      |
+| `!oct`        | `!dec`    | Octal representation of decimal number                       |
+| `!hex`        | `!dec`    | Hexadecimal representation of decimal number                 |
+| `!complex`    | `!float`  | Complex value e.g. `42+7j`                                   |
+| `!quaternion` | `!float`  | Quaternion value e.g. `1+2i+3k+4l`                           |
+| `!magnitude`  | `!number` | Physical value with an associated unit                       |
+| `!frac`       | `!seq`    | Fraction of two integers, to represent repeating such as `0.33333` |
+| `!fixpoint`   | `!dec`    | Fixed point value                                            |
 
 ### Sized Datatypes
 
 When serialized in binary format, the size of the payload has to be provided. If not, the serializing will use a 7-bit encoding where the 8th bit is used as a continuation bit formerly named [LEB128](https://en.wikipedia.org/wiki/LEB128). Variable size numeric values are less efficient at serializing and deserializing.  
 
-| Type         | Based on | Description                                   | Id   |
-| ------------ | -------- | --------------------------------------------- | ---- |
-| `!vint`      | `!dec`   | Variable size signed integer                  | 0xa0 |
-| `!vuint`     | `!dec`   | Variable size unsigned integer                | 0xa1 |
-| `!vnfloat`   | `!float` | Variable size positive binary floating point  | 0xa2 |
-| `!vpfloat`   | `!float` | Variable size negative binary floating point  | 0xa3 |
-| `!vndecmal`  | `!float` | Variable size negative decimal floating point | 0xa4 |
-| `!vpdecimal` | `!float` | Variable size positive decimal floating point | 0xa5 |
-
-| Type         | Based on | Description                                              | Id   |
-| ------------ | -------- | -------------------------------------------------------- | ---- |
-| `!int8`      | `!dec`   | `8 b` Signed Integer                                     | 0xa0 |
-| `!int16`     | `!dec`   | `16 b` Signed Integer                                    | 0xa1 |
-| `!int32`     | `!dec`   | `32 b` Signed Integer                                    | 0xa2 |
-| `!int64`     | `!dec`   | `64 b` Signed Integer                                    | 0xa3 |
-| `!int128`    | `!dec`   | `128 b` Signed Integer                                   | 0xa4 |
-| `!uint8`     | `!dec`   | `8 b` Unsigned Integer                                   | 0xa5 |
-| `!uint16`    | `!dec`   | `16 b` Unsigned Integer                                  | 0xa6 |
-| `!uint32`    | `!dec`   | `32 b` Unsigned Integer                                  | 0xa7 |
-| `!uint64`    | `!dec`   | `64 b` Unsigned Integer                                  | 0xa8 |
-| `!uint128`   | `!dec`   | `128 b` Unsigned Integer                                 | 0xa9 |
-| `!float32`   | `!float` | `32 b` Single precision floating point number            | 0xaa |
-| `!float64`   | `!float` | `64 b` Double precision floating point number            | 0xab |
-| `!float128`  | `!float` | `128 b` Quadruple precision floating point number        | 0xac |
-| `!decimal16` | `!float` | `16 b` Single precision floating point number in base 10 | 0xad |
-| `!decimal32` | `!float` | `32 b` Single precision floating point number in base 10 | 0xae |
-| `!decimal64` | `!float` | `64 b` Single precision floating point number in base 10 | 0xaf |
+| Type         | Based on | Description                                              |
+| ------------ | -------- | -------------------------------------------------------- |
+| `!int8`      | `!dec`   | `8 b` Signed Integer                                     |
+| `!int16`     | `!dec`   | `16 b` Signed Integer                                    |
+| `!int32`     | `!dec`   | `32 b` Signed Integer                                    |
+| `!int64`     | `!dec`   | `64 b` Signed Integer                                    |
+| `!int128`    | `!dec`   | `128 b` Signed Integer                                   |
+| `!uint8`     | `!dec`   | `8 b` Unsigned Integer                                   |
+| `!uint16`    | `!dec`   | `16 b` Unsigned Integer                                  |
+| `!uint32`    | `!dec`   | `32 b` Unsigned Integer                                  |
+| `!uint64`    | `!dec`   | `64 b` Unsigned Integer                                  |
+| `!uint128`   | `!dec`   | `128 b` Unsigned Integer                                 |
+| `!float32`   | `!float` | `32 b` Single precision floating point number            |
+| `!float64`   | `!float` | `64 b` Double precision floating point number            |
+| `!float128`  | `!float` | `128 b` Quadruple precision floating point number        |
+| `!decimal16` | `!float` | `16 b` Single precision floating point number in base 10 |
+| `!decimal32` | `!float` | `32 b` Single precision floating point number in base 10 |
+| `!decimal64` | `!float` | `64 b` Single precision floating point number in base 10 |
 
 ### Rich Datatypes
 
@@ -458,23 +470,23 @@ Rich datatypes are always based on the `!str` but they can be parsed using a reg
 
 All these formats have a strict binary encoding format when the data is transmitted in binary.
 
-| Type        | Based on | Description                                                  | Coercible in                                      | Id                                    |
-| ----------- | -------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| `!version`  | `!str`   | [SemVer](https://semver.org/) 2.0.0 version number           | `!seq`, `!map` | 0xb0 |
-| `!regex`    | `!str`   | PCRE2 Regular expression                                     |                                     | 0xb1 |
-| `!time`     | `!str`   | Time value e.g. `12:43:01` (`ISO 8601`)                      | `!seq`, `!map`       | 0xb2  |
-| `!date`     | `!str`   | Date value e.g. `1982-02-16` ( `ISO 8601`)                   | `!seq`, `!map` | 0xb3 |
-| `!datetime` | `!str`   | Full date time e.g. ` 2018-06-08T23:02:51+00:00 ` ( `ISO 8601`) | `!seq`, `!map`, `!epoch` | 0xb4 |
-| `!ipv4` | `!str`   | IP version 4 described in [RFC 791](https://tools.ietf.org/html/rfc791) | `!seq`, `!uint32` | 0xb5 |
-| `!ipv6` | `!str`   | IP version 4 described in [RFC 8200](https://tools.ietf.org/html/rfc8200) | `!seq`, `!uint128` | 0xb6 |
-| `!jwt` | `!str` | JSON Web Token | `!seq`, `!map` | 0xb7 |
-| `!uuid` | `!str` | Unique User Identifier, a 128-bit data |  | 0xb8 |
-| `!epoch` | `!dec` | UNIX timestamp | `!datetime` | 0xb9 |
-| `!math` | `!str` | Mathematic notation `$\frac{2}{3}$` |  | 0xba |
+| Type        | Based on | Description                                                  | Coercible in                                      |
+| ----------- | -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `!version`  | `!str`   | [SemVer](https://semver.org/) 2.0.0 version number           | `!seq`, `!map` |
+| `!regex`    | `!str`   | PCRE2 Regular expression                                     |                                     |
+| `!time`     | `!str`   | Time value e.g. `12:43:01` (`ISO 8601`)                      | `!seq`, `!map`       |
+| `!date`     | `!str`   | Date value e.g. `1982-02-16` ( `ISO 8601`)                   | `!seq`, `!map` |
+| `!datetime` | `!str`   | Full date time e.g. ` 2018-06-08T23:02:51+00:00 ` ( `ISO 8601`) | `!seq`, `!map`, `!epoch` |
+| `!ipv4` | `!str`   | IP version 4 described in [RFC 791](https://tools.ietf.org/html/rfc791) | `!seq`, `!uint32` |
+| `!ipv6` | `!str`   | IP version 4 described in [RFC 8200](https://tools.ietf.org/html/rfc8200) | `!seq`, `!uint128` |
+| `!jwt` | `!str` | JSON Web Token | `!seq`, `!map` |
+| `!uuid` | `!str` | Unique User Identifier, a 128-bit data |  |
+| `!epoch` | `!dec` | UNIX timestamp | `!datetime` |
+| `!math` | `!str` | Mathematic notation `$\frac{2}{3}$` |  |
 
 ### Constraint Datatypes
 
-Constraint datatypes are only used for validation schema, they are not valid for the binary format, thus they don't have an type-id
+Constraint datatypes are only used for validation schema
 
 | Type      | Based on | Description                                       |
 | --------- | -------- | ------------------------------------------------- |
@@ -523,11 +535,9 @@ uon.binformats.leb128
 b'*'
 ```
 
-Some properties are not meant to be encoded in binary format. For example, comments and descriptions are not encoded in the binary form, and their values is therefore lost during the translation.
-
 ## Type details
 
-### Type
+###Type
 
 Type is the base type of all other types
 
@@ -596,6 +606,12 @@ A string is an arbitrary sequence of characters encoded in [UTF-8](https://www.i
 ### Number
 
 A number can hold any kind of representable number with an absolute precision without restriction of the storage type. It is therefore the base type for any derived number type. 
+
+Number group:
+$$
+\N\subset\Z\subset\Q\subset\R\subset\mathbb{A}\subset\C\subset\mathbb{H}
+$$
+
 
 The following values are valid: 
 
@@ -745,6 +761,12 @@ The IPv4 type is defined in UON
   }
 )
 ```
+
+## Physics
+
+Physical constants
+
+
 
 ## Units
 
@@ -1163,6 +1185,13 @@ If accessing `http://example.com/midhuna/spouse` the response would be:
 
 ### JSON
 
+Canonical encoding in JSON format is possible to make it easier to share data between systems. 
+
+They are two way of generating a JSON:
+
+* Raw
+* Closest
+
 ```json
 {
   "type": "!uon",
@@ -1228,6 +1257,10 @@ content:
 ...
 ```
 
+## File format and extensions
+
+The only allowed extension for *UON* file is `.uon` 
+
 ## Unified API
 
 The unified API should be identical on all supported programming languages
@@ -1250,4 +1283,39 @@ The unified API should be identical on all supported programming languages
 In the context of this draft, no implementation are fully available, however projects in development are available below: 
 
 * Python: http://github.com/uon-language/py-uon
+
+
+
+# Annexes
+
+## Type names vs other languages
+
+Consensus matters, *UON* aims to use the largest consensus, by considering several aspects:
+
+* How many languages agree on type names?
+* Which language has better credit for a chosen type (high level, low level language)?
+* Tradition over time
+* Simplicity, shorter is better, simple is better
+
+| UON    | Math    | C/C++  | Java    | Python | Go     | Ruby   | C#     | PHP     |
+| ------ | ------- | ------ | ------- | ------ | ------ | ------ | ------ | ------- |
+| !int8  | integer | int8_t |         | int    |        |        |        |         |
+| !int16 | integer |        |         |        |        |        |        |         |
+| !int32 | integer |        |         |        |        |        |        |         |
+| !bool  | -       | bool   | boolean |        |        |        |        | boolean |
+| !str   | -       | char * | String  | str    | string | String | string | string  |
+|        |         |        |         |        |        |        |        |         |
+|        |         |        |         |        |        |        |        |         |
+|        |         |        |         |        |        |        |        |         |
+|        |         |        |         |        |        |        |        |         |
+|        |         |        |         |        |        |        |        |         |
+|        |         |        |         |        |        |        |        |         |
+|        |         |        |         |        |        |        |        |         |
+|        |         |        |         |        |        |        |        |         |
+|        |         |        |         |        |        |        |        |         |
+|        |         |        |         |        |        |        |        |         |
+|        |         |        |         |        |        |        |        |         |
+|        |         |        |         |        |        |        |        |         |
+|        |         |        |         |        |        |        |        |         |
+|        |         |        |         |        |        |        |        |         |
 
