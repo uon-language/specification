@@ -379,17 +379,19 @@ One important feature of *UON* is that any kind of information belongs to a type
 
 ### Data Structures (or Structural types)
 
+![](C:\Users\ycr\Data\specification\assets\type-base.svg)
+
 They are primitive data types all derived from the `!type` master datatype. 
 
-| Type      | Based on | Description                                            |
-| --------- | -------- | ------------------------------------------------------ |
-| `!type`   | -        | Base type                                              |
-| `!map`    | `!type`  | Unordered Mapping (also called HashMap or Dictionary ) |
-| `!omap`   | `!type`  | Ordered Mapping                                        |
-| `!seq`    | `!type`  | Ordered Sequence (also called List or Array)           |
-| `!scalar` | `!type`  | Scalar value representable with a string               |
-| `!set`    | `!map`   | Unordered set of values                                |
-| `!oset`   | `!omap`  | Ordered set of values                                  |
+| Type      | Based on | Description                                                |
+| --------- | -------- | ---------------------------------------------------------- |
+| `!type`   | -        | Base type                                                  |
+| `!map`    | `!type`  | Unordered Mapping (also called *HashMap* or *Dictionary* ) |
+| `!omap`   | `!type`  | Ordered Mapping                                            |
+| `!seq`    | `!type`  | Ordered Sequence (also called *List* or *Array*)           |
+| `!scalar` | `!type`  | Scalar value representable with a string                   |
+| `!set`    | `!map`   | Unordered set of values                                    |
+| `!oset`   | `!omap`  | Ordered set of values                                      |
 
 *UON* aims to represent static data which are therefore immutable by design. This explain the absence of Records or Tuples. However, when a composite type is used as a key, it will be parsed as an immutable type if the destination language allows it.  
 
@@ -428,18 +430,17 @@ The number type is much more complete than JSON, XML or YAML. It aims to serve g
   * Fractional values for frequency ratio
   * Fixed-Point values in 
 
-| Type          | Based on  | Description                                                  |
-| ------------- | --------- | ------------------------------------------------------------ |
-| `!dec`        | `!number` | Decimal (i.e. Base 10) number e.g. `12345`                   |
-| `!float`      | `!number` | Floating point `IEEE-754`                                    |
-| `!bin`        | `!dec`    | Binary representation of decimal number                      |
-| `!oct`        | `!dec`    | Octal representation of decimal number                       |
-| `!hex`        | `!dec`    | Hexadecimal representation of decimal number                 |
-| `!complex`    | `!float`  | Complex value e.g. `42+7j`                                   |
-| `!quaternion` | `!float`  | Quaternion value e.g. `1+2i+3k+4l`                           |
-| `!magnitude`  | `!number` | Physical value with an associated unit                       |
-| `!frac`       | `!seq`    | Fraction of two integers, to represent repeating such as `0.33333` |
-| `!fixpoint`   | `!dec`    | Fixed point value                                            |
+| Type         | Based on  | Description                                                  |
+| ------------ | --------- | ------------------------------------------------------------ |
+| `!dec`       | `!number` | Decimal (i.e. Base 10) number e.g. `12345`                   |
+| `!float`     | `!number` | Floating point `IEEE-754`                                    |
+| `!bin`       | `!dec`    | Binary representation of decimal number                      |
+| `!oct`       | `!dec`    | Octal representation of decimal number                       |
+| `!hex`       | `!dec`    | Hexadecimal representation of decimal number                 |
+| `!complex`   | `!float`  | Complex value e.g. `42+7j`                                   |
+| `!magnitude` | `!number` | Physical value with an associated unit                       |
+| `!frac`      | `!seq`    | Fraction of two integers, to represent repeating such as `0.33333` |
+| `!fixpoint`  | `!dec`    | Fixed point value                                            |
 
 ### Sized Datatypes
 
