@@ -92,7 +92,7 @@ Comments in YAML are not formally part of the object tree, but they are somehow 
 
 XML has proven its strength over many years. It is still a very complete language, but it is also more verbose than other serialization languages which make it difficult to use with lightweight infrastructures such as MCU and battery powered telemetry devices. However it provides a full support for validation (XSD) and presentation (XSLT). UON took the tags attributes that is missing from JSON and YAML.
 
-## Related to Protocol Buffers
+## Related to (Google) Protocol Buffers
 
 Protocol buffers is a platform neutral serialization language developed by Google.
 
@@ -112,16 +112,15 @@ Duration in seconds
 
 Symbol pairs are group of data that belong to a particular type. It helps visualizing the data and they are very similar to JSON. We added support for mathematic expressions and regular expressions. 
 
-| Symbol Pairs | Description           | Type       |
-| ------------ | --------------------- | ---------- |
-| `[ ]`        | Ordered Sequence      | `!seq`     |
-| `{ }`        | Mapping               | `!map`     |
-| `" "`        | String                | `!str`     |
-| `( )`        | Properties            | -          |
-| `< >`        | Structural container  | -          |
-| `# #`        | Comment               | `!comment` |
-| `/ /`        | Regular expression    | `!regex`   |
-| `$ $`        | Mathematics (MathJax) | `!math`    |
+| Symbol Pairs | Description           | Type     |
+| ------------ | --------------------- | -------- |
+| `[ ]`        | Ordered Sequence      | `!seq`   |
+| `{ }`        | Mapping               | `!map`   |
+| `" "`        | String                | `!str`   |
+| `( )`        | Properties            | -        |
+| `< >`        | Structural container  | -        |
+| `/ /`        | Regular expression    | `!regex` |
+| `$ $`        | Mathematics (MathJax) | `!math`  |
 
 Structural container can be used to understand how blocks are nested. They should not be used for normal usage. 
 
@@ -160,8 +159,8 @@ The only reserved language symbols are the following
 
 | Symbol  | Description                                                  |
 | ------- | ------------------------------------------------------------ |
-| `!`     | Standard type (cannot be (re)defined at the user level)      |
-| `!!`    | User type used to extend *UON* capabilities                  |
+| `!!`    | Standard type (cannot be defined at the user level)          |
+| `!`     | User type used to extend *UON* capabilities                  |
 | `$`     | Reserved keyword (may be removed on a future *UON* release)  |
 | `,`     | Element separator                                            |
 | `@`     | Reference                                                    |
