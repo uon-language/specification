@@ -400,7 +400,7 @@ They are primitive data types all derived from the `!type` master datatype.
 {(1,2):[1,2]}
 ```
 
-Unordered mapping (`!map`, `!set`) are always be sorted naturally when serialized e.g. `[1, 2, 10, 100, a]`
+Unordered mapping (`!map`, `!set`) are always sorted naturally when serialized e.g. `[1, 2, 10, 100, a]`
 
 Sets are mapping with null values 
 
