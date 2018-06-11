@@ -63,6 +63,8 @@ For the purposes of this document, the following terms and definitions apply.
 
  *UON*™ is not a programming language, but a data representation language. It is built upon concepts described by C, Perl, Python, Ruby and JSON. It is meant to be UTF-8 by default, but compatible with other encoding standards. 
 
+![](C:\Users\ycr\Data\specification\assets\complexity-levels.svg)
+
 ### Related to JSON
 
 Both JSON and UON aim to be human readable data interchange formats. UON extends JSON capabilities and readability with: 
