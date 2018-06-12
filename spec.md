@@ -1591,21 +1591,30 @@ Consensus matters, *UON* aims to use the largest consensus, by considering sever
 * Tradition over time
 * Simplicity, shorter is better, simple is better
 
-| UON    | Math    | C/C++  | Java    | Python | Go     | Ruby   | C#     | PHP     |
+| UON    | Math    | C/C++ | Java    | Python | Go     | Ruby   | C#     | PHP     |
 | ------ | ------- | ------ | ------- | ------ | ------ | ------ | ------ | ------- |
-| `!!int8` | integer | int8_t |         | int    |        |        |        |         |
-| `!!int16` | integer |        |         |        |        |        |        |         |
-| `!!int32` | integer |        |         |        |        |        |        |         |
+| `!!int8` | - | `int8_t` | `byte` | `c_byte` |        |        |        | - |
+| `!!uint8` | - |  | - |  | | | | - |
+| `!!int16` | - | `int16_t` | `short` | `c_short` |        |        |        | - |
+| `!!uint16` | - |  | - |  | | | | - |
+| `!!int32` | - | `int32_t` | `int` | `c_int` |        |        |        | int |
+| `!!uint32` | - |  | `uint` |  | | | | - |
+| `!!int64` | - |  | `long` |  | | | | int |
+| `!!uint64` | - |  | `ulong` |  | | | | |
+| `!!int` | integer | - | `BigInteger` | `int` | | | | |
+| `!!uint` | natural | - | `BigInteger` | `int` | | | | |
+| `!!number` |  | - |  |  | | | | |
+| `!!frac` | rational |  |  |  | | | | |
 | `!!bool` | -       | bool   | boolean |        |        |        |        | boolean |
 | `!!str` | -       | char * | String  | str    | string | String | string | string  |
 | `!!float` | real |        |         |        |        |        |        |         |
-|        |         |        |         |        |        |        |        |         |
-|        |         |        |         |        |        |        |        |         |
-|        |         |        |         |        |        |        |        |         |
-|        |         |        |         |        |        |        |        |         |
-|        |         |        |         |        |        |        |        |         |
-|        |         |        |         |        |        |        |        |         |
-|        |         |        |         |        |        |        |        |         |
+| `!!float32` | - |        |         |        |        |        |        |         |
+| `!!float64` | - |        |         |        |        |        |        |         |
+| `!!float128` | - |        |         |        |        |        |        |         |
+| `!!decimal32` | - |        |         |        |        |        |        |         |
+| `!!decimal64` | - |        |         |        |        |        |        |         |
+| `!!decimal128` | - |        |         |        |        |        |        |         |
+| `!!complex` | complex |        |         |        |        |        |        |         |
 |        |         |        |         |        |        |        |        |         |
 |        |         |        |         |        |        |        |        |         |
 |        |         |        |         |        |        |        |        |         |
