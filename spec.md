@@ -63,7 +63,7 @@ For the purposes of this document, the following terms and definitions apply.
 
  *UON*™ is not a programming language, but a data representation language. It is built upon concepts described by C, Perl, Python, Ruby and JSON. It is meant to be UTF-8 by default, but compatible with other encoding standards. 
 
-![](C:\Users\ycr\Data\specification\assets\complexity-levels.svg)
+![](C:\Users\ycr\Data\specification\assets\complexity-levels.png)
 
 ### Related to JSON
 
@@ -90,50 +90,47 @@ In YAML it is possible to create a reference to an existing location in the tree
 
 Comments in YAML are not formally part of the object tree, but they are somehow supported by `ruamel.yaml` Python package with the `round_trip_load` method. In *UON*, comments are part of the language, and they appear in the object tree.
 
+![](C:\Users\ycr\Data\specification\assets\supersets.png)
+
 ### Related to XML
 
 XML has proven its strength over many years. It is still a very complete language, but it is also more verbose than other serialization languages which make it difficult to use with lightweight infrastructures such as MCU and battery powered telemetry devices. However it provides a full support for validation (XSD) and presentation (XSLT). UON took the tags attributes that is missing from JSON and YAML.
 
 ## Related to (Google) Protocol Buffers
 
-Protocol buffers is a platform neutral serialization language developed by Google.
+Protocol buffers is a relatively new standard developed by Google which allow binary payload generation. So it defined some advanced types. platform neutral serialization language developed by Google.
 
-Any <-> !!any
+*UON* got inspired from Protocol Buffers by the following
 
-Pack(), Unpack()
-
-Oneof,
-
-Fixed key for map map<key_type, value_type> map_field = N; 
-
-Ambiguous type name
-
-Duration in seconds
+* `repeated`, Fields can be repeated any number of times
+* Fixed size scalar values e.g. `int32`, `uint64`, `sint32`
+* Enumerations
+* One-of keyword 
 
 ### Symbol Pairs
 
-Symbol pairs are group of data that belong to a particular type. It helps visualizing the data and they are very similar to JSON. We added support for mathematic expressions and regular expressions. 
+Symbol pairs are syntactic sugars used to enhance readability by associating a specific symbol pair to a particular type of data.  
 
 | Symbol Pairs | Description           | Type     |
 | ------------ | --------------------- | -------- |
 | `[ ]`        | Ordered Sequence      | `!!seq`   |
-| `{ }`        | Mapping               | `!!map`   |
+| `{ }`        | Mapping (by default unordered) | `!!map`   |
 | `" "`        | String                | `!!str`   |
+| `/ /`        | Regular expression    | `!!regex` |
+| `$ $`        | Mathematic expression | `!!math`  |
 | `( )`        | Properties            | -        |
 | `< >`        | Structural container  | -        |
-| `/ /`        | Regular expression    | `!!regex` |
-| `$ $`        | Mathematics (MathJax) | `!!math`  |
 
-Structural container can be used to understand how blocks are nested. They should not be used for normal usage. 
+Structural container are not meant to be directly used, but they can show how data are imbricated. 
 
 ```yaml
-!!uon(version: 0.0.1) 
+!!uon<version: !!version<0.0.1>> 
 <
-  !!map(comment: "Basic Example")
+  !!map<comment: <Basic Example>>
   <
-    <!!keyword <"brand">: !!str <"Toyota">>,
-    <!!keyword <"model">: !!str <"Prius">>,
-    <!!keyword <"year">: !!int <"2016">>
+    <!!keyword<brand>: !!str<Toyota>>,
+    <!!keyword<model>: !!str<Prius>>,
+    <!!keyword<year>: !!int<2016>>
   >
 >
 ```
@@ -172,6 +169,10 @@ The only reserved language symbols are the following
 | `true`  | Boolean (`!!bool`) value `true`                               |
 | `false` | Boolean (`!!bool`) value `false`                              |
 | `null`  | Null (`!!null`) value                                         |
+
+## Syntax
+
+![](C:\Users\ycr\Data\specification\assets\syntax.png)
 
 ## Example
 
@@ -254,8 +255,8 @@ The only reserved language symbols are the following
     ),
     about: !@(.dummy),
     accessMode: !@(.dummy)
-    genre: !!any("Male", "Female"),
-    link: !!any(!url, !urn, !uri)    
+    genre: !!oneof("Male", "Female"),
+    link: !!oneof(!url, !urn, !uri)    
   },
   
   # Schema Type
@@ -287,7 +288,7 @@ The only reserved language symbols are the following
   brand: !!str(pattern: /[A-Z]\w+/),
   model: !!str(pattern: /[A-Z]\w+/),
   year(required: false): !!dec(min: 1930)
-  color(required: false): !!any(
+  color(required: false): !!oneof(
      !!str,
      !!number
   )
@@ -492,7 +493,7 @@ Constraint datatypes are only used for validation schema
 
 | Type      | Based on | Description                                       |
 | --------- | -------- | ------------------------------------------------- |
-| `!!any`    | `!!map`   | Alternative possibility e.g. `!!any( !!str, !!null)` |
+| `!!oneof`    | `!!map`   | Alternative possibility e.g. `!!oneof( !!str, !!null)` |
 | `!!schema` | `!!type`  | *UON* Validation schema                           |
 
 ## Properties
@@ -564,14 +565,14 @@ Boolean value defined by this schema
 ```yaml
 !!uon(version: 0.0.1) {
   !!bool: !!schema(urn:uon:2018:types:bool) 
-    !!any(
+    !!oneof(
       set: {
         !!keyword(coercion: {!!number: 0}) false, 
         !!keyword(coercion: {!!number: 1}) true
       },
       properties: {
         alias: !!set {
-          !!keyword: !!any(set: {false, true})
+          !!keyword: !!oneof(set: {false, true})
         }  
       }
     )
@@ -620,7 +621,7 @@ A number can hold any kind of representable number with an absolute precision wi
 
 Number group:
 $$
-\N\subset\Z\subset\Q\subset\R\subset\mathbb{A}\subset\C\subset\mathbb{H}
+\N\subset\Z\subset\Q\subset\R\subset\C
 $$
 
 
@@ -707,7 +708,7 @@ The schema of a references is expressed as follow:
 
 ```yaml
 !!uon(version: 0.0.1) {
-  !!keyword: !!schema(urn:uon:2018:types:reference) !!any {
+  !!keyword: !!schema(urn:uon:2018:types:reference) !!oneof {
     !!uri, 
     !!str
   },
@@ -1112,10 +1113,10 @@ Here is the schema of this data structure, allowing validation:
       !!keyword: !!str
     },
     authors: {
-      !!str: !!str
+      !!str(desc: "email"): !!str
     },
     objects: {
-      !!keyword: !!any(
+      !!keyword: !!oneof(
         !commit,
         !blob,
         !tree
@@ -1124,7 +1125,7 @@ Here is the schema of this data structure, allowing validation:
   },
   !ref: !!schema !!ref(base: "objects"),
   !filename: !!schema !!str,
-  !blob: !!schema !!any([!!blob, !!str]),
+  !blob: !!schema !!oneof([!!blob, !!str]),
   !commit: !!schema {
     tree: !ref,
     parent(optional: true): !ref,
@@ -1349,7 +1350,7 @@ The data-consumer that listen to this sensor (imagine a MQTT payload), will need
 
 ```yaml
 # Inherit of !temperature-sensor
-!schema(!temperature-sensor, id=02d28a9a-6e7b-11e8-adc0-fa7ae01bbebc) { 
+!schema(!temperature-sensor, refine: true, id: 02d28a9a-6e7b-11e8-adc0-fa7ae01bbebc) { 
   temperature(inherit: true): !!uint8(unit: celsius),
 }
 ```
@@ -1447,13 +1448,63 @@ def on_message(client, userdata, msg):
 
 Why would it work that smoothly? Because the payload is still a derived version of `temperature-sensor` so the properties of `temperature` can be modified without changing the original type `!!number`.  
 
+## Aggregation
+
+One missing feature especially on MQTT is data aggregation. For example, a `!!3d-accelerometer` streams the following at 100 Hz
+
+```yaml
+{
+  t: 5433335321 ns
+  x: 12.43 m/s²
+  y: 32.5 m/s²
+  z: 0.05 m/s²
+}
+```
+
+Despite the binary data is really small, when streamed at that speed over AMQP or MQTT, it would quickly flood the network. If we define a new type `!3d-accelerometer-3` which contain 3 values, we will loose the interoperability because it is not a `!!3d-accelerometer`. Let's imagine this schema: 
+
+```yaml
+!3d-accelerometer-3: !schema [ !3d-accelerometer, !3d-accelerometer, !3d-accelerometer]
+```
+
+It is ugly for numerous reasons. What would be prettier would be instead:
+
+```yaml
+!schema: !repeat(3, !3d-accelerometer)
+```
+
+But how can it be understood or either refined? I am not sure I have the answer yet. The scenario is the following. Somebody is expecting from a topic 3d acceleration values. It is expecting a `!3d-accelerometer` payload. So the device should be able to refine the schema in a way it can aggregate several values in the same payload. But not all types are meant to be aggregated. A schema for instance does not change over time, a user documentation, a network description also does not change over time. 
+
+In addition, when the payload is very light, such as our temperature-sensor, carrying the timestamp for each value is stupid. What we should have instead is the initial timestamp and the increment between the values. Some payload could also have values that does not change over a period of time, but they still need to be transmitted. Let's review this
+
+* Find a way to gather data into the same dataset
+* But doing so without the need to define a new schema. 
+* Having a solution to group similar values that do not often changes
+* Add a known offset to some values to retrieve the time increment. 
+* `i * factor + offset` would cover 99% of the use-cases
+
+```yaml
+!acc-seq: !schema !seq(
+  min: 1, 
+  max: 255, 
+) [ !3d-accelerometer ]
+
+data: !acc-seq(index: .time, offset: 5433335321, increment: 250) [
+    {x: 12.43 m/s², y: 32.5 m/s², z: 0.05 m/s²},
+    {x: 12.43 m/s², y: 32.5 m/s², z: 0.05 m/s²},
+    {x: 12.43 m/s², y: 32.5 m/s², z: 0.05 m/s²}    
+]
+```
+
+
+
 ## Sandbox
 
 ```yaml
 {
   # Month name
   !month: !schema(
-  ) !!any {
+  ) !!oneof {
     january(capitalize: true, coerce: {!!int: 1}),
     february(capitalize: true, coerce: {!!int: 2}),
   }
@@ -1480,13 +1531,13 @@ Why would it work that smoothly? Because the payload is still a derived version 
   }) !month
   
   # http://uon-language.io/type/country
-  !country: !schema(
+  !country: !!schema(
     id: !!uuid d925fe72-6e69-11e8-adc0-fa7ae01bbebc,
     desc: "Standardized country code with associated country name",
     example: "!country ch",
     rank: 1,
     version: 0.0.1
-  ) !!any {
+  ) !!oneof {
     af("Afghanistan"),
     ax("Åland Islands"),
     al("Albania")
@@ -1500,7 +1551,7 @@ Why would it work that smoothly? Because the payload is still a derived version 
     example: "!country ch",
     rank: 1,
     version: 0.0.1
-  ) !!any {
+  ) !!oneof {
     af("Afghanistan"),
     ax("Åland Islands"),
     al("Albania")
@@ -1513,7 +1564,7 @@ Why would it work that smoothly? Because the payload is still a derived version 
   ) !!str !!prop(name) !country,
 
   # International geographic point location (ISO 6709:2008)
-  !geo: !schema(
+  !geo: !!schema(
     desc: "Standardized Geographic point location"
     example: "!geo \"+401213.1N+4012.22E123.45\"",
     rank: 1,
@@ -1615,10 +1666,3 @@ Consensus matters, *UON* aims to use the largest consensus, by considering sever
 | `!!decimal64` | - |        |         |        |        |        |        |         |
 | `!!decimal128` | - |        |         |        |        |        |        |         |
 | `!!complex` | complex |        |         |        |        |        |        |         |
-|        |         |        |         |        |        |        |        |         |
-|        |         |        |         |        |        |        |        |         |
-|        |         |        |         |        |        |        |        |         |
-|        |         |        |         |        |        |        |        |         |
-|        |         |        |         |        |        |        |        |         |
-|        |         |        |         |        |        |        |        |         |
-
