@@ -8,15 +8,15 @@
 
 **Editor**: Yves Chevallier <ycr@x0x.ch>
 
-Copyright(C) 2018 Yves Chevallier
+Copyright© 2018 Yves Chevallier
 
 ## Introduction
 
-In 2018 three major serialization formats are commonly used across Internet: `XML`, `JSON` and `YAML`. Both are great, simple and well specified, but many would argue that: 
+In 2018 three major serialization formats are commonly used across the Internet: `XML`, `JSON` and `YAML`. Both are great, simple and well specified, but many would argue that:
 
-* `XML` is great but cumbersome 
+* `XML` is great but cumbersome
 * `JSON` is awesome but lack validation by design
-* `YAML` is human-friendly but not great for m2m communication
+* `YAML` is human friendly but not great for m2m communication
 
 Seen from another perspective:
 
@@ -26,11 +26,11 @@ Seen from another perspective:
 
 *UON™* aims to steal all the amazing features of these serialization format into a single format that encompass them.
 
-Also, *UON* would like to go a step further by adding support for validation schema and magnitude units in order to extend interoperability for the Industry 4.0. Internet of Things often have to communicate between small devices with very limited computation power. 
+Also, *UON* would like to go a step further by adding support for validation schema and magnitude units in order to extend interoperability for the Industry 4.0. Internet of Things often have to communicate between small devices with very limited computation power.
 
 ## Scope
 
-*UON*™ pronounced "You On" is a human-machine friendly serialization language designed to serve the purpose of:
+*UON*™ pronounced "You On" is a human-machine-friendly serialization language designed to serve the purpose of:
 
 * Transmitting data across digital mediums
 * Being human readable and human editable
@@ -45,7 +45,7 @@ Also, *UON* would like to go a step further by adding support for validation sch
 * Transformation schema supported by design (Inspired from what `XSLT` is to `XML`)
 * Platform neutral
 
-## Normative references 
+## Normative references
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC 2119.
 
@@ -61,32 +61,32 @@ For the purposes of this document, the following terms and definitions apply.
 
 ## Language
 
- *UON*™ is not a programming language, but a data representation language. It is built upon concepts described by C, Perl, Python, Ruby and JSON. It is meant to be UTF-8 by default, but compatible with other encoding standards. 
+ *UON*™ is not a programming language, but a data representation language. It is built upon concepts described by C, Perl, Python, Ruby and JSON. It is meant to be UTF-8 by default, but compatible with other encoding standards.
 
 ![](C:\Users\ycr\Data\specification\assets\complexity-levels.png)
 
 ### Related to JSON
 
-Both JSON and UON aim to be human readable data interchange formats. UON extends JSON capabilities and readability with: 
+Both JSON and UON aim to be human readable data interchange formats. UON extends JSON capabilities and readability with:
 
-* More datatypes support
+* More data types support
 * Allow no double quotes on mapping keys since they are promoted to a `keyword` type rather than `string`
-* Validation schema by design inspired from JSON-Schema 
-* Allow type coercion 
+* Validation schema by design inspired by JSON-Schema
+* Allow type coercion
 * Add support for comments
 * Add support for set, and ordered mapping
 
 ### Related to YAML
 
-YAML is very complete, it supports references (recursive references), comments, complex types, but it syntax lack of rigidity. They are multiple way of writing a YAML which can be confusing to some people and hard to validate. UON extends YAML capabilities by adding: 
+YAML is very complete, it supports references (recursive references), comments, complex types, but it syntax lack of rigidity. They are multiple way of writing a YAML which can be confusing to some people and hard to validate. UON extends YAML capabilities by adding:
 
-* More datatype support
+* More data types support
 * Strict formatting closer to JSON
-* Validation schema by design 
+* Validation schema by design
 * Resolved and unresolved references
 * Unambiguous comment position
 
-In YAML it is possible to create a reference to an existing location in the tree. However this always resolved after parsing which mean, the reference information is lost. UON supports unresolved references in which even after parsing the document, the reference is preserved. 
+In YAML it is possible to create a reference to an existing location in the tree. However this always resolved after parsing which means, the reference information is lost. UON supports unresolved references in which even after parsing the document, the reference is preserved.
 
 Comments in YAML are not formally part of the object tree, but they are somehow supported by `ruamel.yaml` Python package with the `round_trip_load` method. In *UON*, comments are part of the language, and they appear in the object tree.
 
@@ -94,22 +94,22 @@ Comments in YAML are not formally part of the object tree, but they are somehow 
 
 ### Related to XML
 
-XML has proven its strength over many years. It is still a very complete language, but it is also more verbose than other serialization languages which make it difficult to use with lightweight infrastructures such as MCU and battery powered telemetry devices. However it provides a full support for validation (XSD) and presentation (XSLT). UON took the tags attributes that is missing from JSON and YAML.
+XML has proven its strength over many years. It is still a very complete language, but it is also more verbose than other serialization languages which make it difficult to use with lightweight infrastructure such as MCU and battery powered telemetry devices. However it provides a full support for validation (XSD) and presentation (XSLT). UON took the tags attributes that are missing from JSON and YAML.
 
 ## Related to (Google) Protocol Buffers
 
-Protocol buffers is a relatively new standard developed by Google which allow binary payload generation. So it defined some advanced types. platform neutral serialization language developed by Google.
+Protocol buffers is a relatively new standard developed by Google which allows binary payload generations. So it defined some advanced types. Platform neutral serialization language developed by Google.
 
 *UON* got inspired from Protocol Buffers by the following
 
 * `repeated`, Fields can be repeated any number of times
 * Fixed size scalar values e.g. `int32`, `uint64`, `sint32`
 * Enumerations
-* One-of keyword 
+* One-of keyword
 
 ### Symbol Pairs
 
-Symbol pairs are syntactic sugars used to enhance readability by associating a specific symbol pair to a particular type of data.  
+Symbol pairs are syntactic sugars used to enhance readability by associating a specific symbol pair to a particular type of data.
 
 | Symbol Pairs | Description           | Type     |
 | ------------ | --------------------- | -------- |
@@ -117,14 +117,14 @@ Symbol pairs are syntactic sugars used to enhance readability by associating a s
 | `{ }`        | Mapping (by default unordered) | `!!map`   |
 | `" "`        | String                | `!!str`   |
 | `/ /`        | Regular expression    | `!!regex` |
-| `$ $`        | Mathematic expression | `!!math`  |
+| `$ $`        | Mathematical expression | `!!math`  |
 | `( )`        | Properties            | -        |
 | `< >`        | Structural container  | -        |
 
-Structural container are not meant to be directly used, but they can show how data are imbricated. 
+Structural containers are not meant to be directly used, but they can show how data are imbricated.
 
 ```yaml
-!!uon<version: !!version<0.0.1>> 
+!!uon<version: !!version<0.0.1>>
 <
   !!map<comment: <Basic Example>>
   <
@@ -135,14 +135,14 @@ Structural container are not meant to be directly used, but they can show how da
 >
 ```
 
-The above example should be written as follow in structured format:
+The above example should be written as follows in structured format:
 
 ```yaml
 # Basic Example
 {
   brand: "Toyota",
   model: "Prius",
-  year: 2016  
+  year: 2016
 }
 ```
 
@@ -159,7 +159,7 @@ The only reserved language symbols are the following
 | Symbol  | Description                                                  |
 | ------- | ------------------------------------------------------------ |
 | `!!`    | Standard type (cannot be defined at the user level)          |
-| `!`     | User type used to extend *UON* capabilities                  |
+| `!`     | User type used to extend *UON* capabilities.                  |
 | `$`     | Reserved keyword (may be removed on a future *UON* release)  |
 | `,`     | Element separator                                            |
 | `@`     | Reference                                                    |
@@ -188,9 +188,9 @@ The only reserved language symbols are the following
   },
   # Ordered mapping, but keys are unique
   omap: !!omap {
-    foo: 1, 
+    foo: 1,
     bar: 2
-  }, 
+  },
   # Sequences
   seq: [1, 2, 3],
   # Unordered set of unique values
@@ -225,7 +225,7 @@ The only reserved language symbols are the following
   },
   # Properties
   properties: {
-      people(id: 1243): "Robert Ford" 
+      people(id: 1243): "Robert Ford"
   },
   # References
   reference: {
@@ -251,14 +251,14 @@ The only reserved language symbols are the following
     	min: 1
     ),
     text(dummy: true): !!str(
-      description: "This dummy field can be used as a reference by other fields"  
+      description: "This dummy field can be used as a reference by other fields"
     ),
     about: !@(.dummy),
     accessMode: !@(.dummy)
     genre: !!oneof("Male", "Female"),
-    link: !!oneof(!url, !urn, !uri)    
+    link: !!oneof(!url, !urn, !uri)
   },
-  
+
   # Schema Type
   !!str: !!schema("http://uon.io/str") !!type(
     description: """
@@ -315,25 +315,25 @@ Inline comments with `#`are never serialized when transmitted unless explicitly 
      23, # Comment associated to the value 43
      43
      # Comment associated to the value 43
-     ,     
-     
+     ,
+
      # Comment associated to the ... fuck this is not consistent...
   ]
 },
 ```
 
-If requested, the comment can be transmitted along with the data. They are therefore encoded as a property of the associated element. Thus the following is equivalent: 
+If requested, the comment can be transmitted along with the data. They are therefore encoded as a property of the associated element. Thus the following is equivalent:
 
 ```yaml
 !!map(comment: "Comment global to the document")
-{  
+{
   !!keyword(comment: "Comment associated to the key-pair { brand: "Toyota" }") brand: "Toyota",
 }
 ```
 
 ## Formatting
 
-*UON* provide three different format depending on the usage: 
+*UON* provide three different formats depending on the usage:
 
 * **minimal** for m2m communication in UTF-8
 * **binary** for m2m communication with lightweight architectures
@@ -344,7 +344,7 @@ If requested, the comment can be transmitted along with the data. They are there
 In minimal format:
 
 * Spaced and new lines are removed
-* Comments are removed unless configured differently 
+* Comments are removed unless configured differently
 
 ```yaml
 !!uon(version:0.0.1)!car{brand:"Toyota",model:"Prius",year:2016}
@@ -354,7 +354,7 @@ In minimal format:
 
 * Payload is encoded in a strict binary form
 * LED128 format for numbers
-* Padding is preserved as much as possible to allows zero-copy payload read/alter
+* Padding is preserved as much as possible to allow zero-copy payload read/alter
 
 ```yaml
 <tbd>
@@ -362,7 +362,7 @@ In minimal format:
 
 ### Structured
 
-* Format uses two space indentation, same as JSON and YAML, but strictly imposed by design
+* Format uses two space indentations, same as JSON and YAML, but strictly imposed by design
 * Explicit types are converted into implicit ones if not necessary
 * Comments are written using the `#` notation
 
@@ -377,13 +377,13 @@ In minimal format:
 
 ## Datatypes
 
-One important feature of *UON* is that any kind of information belongs to a type. Types are organized in different categories: 
+One important feature of *UON* is that any kind of information belongs to a type. Types are organized in different categories:
 
 ### Data Structures (or Structural types)
 
 ![](C:\Users\ycr\Data\specification\assets\type-base.svg)
 
-They are primitive data types all derived from the `!!type` master datatype. 
+They are primitive data types all derived from the `!!type` master data type.
 
 | Type      | Based on | Description                                                |
 | --------- | -------- | ---------------------------------------------------------- |
@@ -395,7 +395,7 @@ They are primitive data types all derived from the `!!type` master datatype.
 | `!!set`    | `!!map`   | Unordered set of values                                    |
 | `!!oset`   | `!!omap`  | Ordered set of values                                      |
 
-*UON* aims to represent static data which are therefore immutable by design. This explain the absence of Records or Tuples. However, when a composite type is used as a key, it will be parsed as an immutable type if the destination language allows it.  
+*UON* aims to represent static data which are therefore immutable by design. This explains the absence of Records or Tuples. However, when a composite type is used as a key, it will be parsed as an immutable type if the destination language allows it.
 
 ```python
 >>> # Example in Python
@@ -405,7 +405,7 @@ They are primitive data types all derived from the `!!type` master datatype.
 
 Unordered mapping (`!!map`, `!!set`) are always sorted naturally when serialized e.g. `[1, 2, 10, 100, a]`
 
-Sets are mapping with null values 
+Sets are mapping with null values
 
 ### Scalar
 
@@ -422,15 +422,15 @@ Scalar values are any kind of values that may be represented as a string
 
 #### Numbers Datatypes
 
-The number type is much more complete than JSON, XML or YAML. It aims to serve goals of engineering and scientific areas such as: 
+The number type is much more complete than JSON, XML or YAML. It aims to serve goals of engineering and scientific areas such as:
 
 * Physics and Mathematics
   * Quantities with uncertainties and units
   * Complex and Quaternions
-* Computer science 
+* Computer science
   * Low level representation (hexadecimal, octal and binary)
   * Fractional values for frequency ratio
-  * Fixed-Point values in 
+  * Fixed-Point values in
 
 | Type         | Based on  | Description                                                  |
 | ------------ | --------- | ------------------------------------------------------------ |
@@ -446,7 +446,7 @@ The number type is much more complete than JSON, XML or YAML. It aims to serve g
 
 ### Sized Datatypes
 
-When serialized in binary format, the size of the payload has to be provided. If not, the serializing will use a 7-bit encoding where the 8th bit is used as a continuation bit formerly named [LEB128](https://en.wikipedia.org/wiki/LEB128). Variable size numeric values are less efficient at serializing and deserializing.  
+When serialized in binary format, the size of the payload has to be provided. If not, the serializing will use a 7-bit encoding where the 8th bit is used as a continuation bit formerly named [LEB128](https://en.wikipedia.org/wiki/LEB128). Variable size numeric values are less efficient at serializing and deserializing.
 
 | Type         | Based on | Description                                              |
 | ------------ | -------- | -------------------------------------------------------- |
@@ -469,7 +469,7 @@ When serialized in binary format, the size of the payload has to be provided. If
 
 ### Rich Datatypes
 
-Rich datatypes are always based on the `!!str` but they can be parsed using a regex pattern. Each rich type can be coerced into different format.
+Rich data types are always based on the `!!str` but they can be parsed using a regex pattern. Each rich type can be coerced into different format.
 
 All these formats have a strict binary encoding format when the data is transmitted in binary.
 
@@ -485,11 +485,11 @@ All these formats have a strict binary encoding format when the data is transmit
 | `!!jwt` | `!!str` | JSON Web Token | `!!seq`, `!!map` |
 | `!!uuid` | `!!str` | Unique User Identifier, a 128-bit data |  |
 | `!!epoch` | `!!dec` | UNIX timestamp | `!!datetime` |
-| `!!math` | `!!str` | Mathematic notation `$\frac{2}{3}$` |  |
+| `!!math` | `!!str` | Mathematical notation `$\frac{2}{3}$` |  |
 
 ### Constraint Datatypes
 
-Constraint datatypes are only used for validation schema
+Constraint data types are only used for validation schema
 
 | Type      | Based on | Description                                       |
 | --------- | -------- | ------------------------------------------------- |
@@ -510,13 +510,13 @@ You essentially instantiate a `!!uon` class with the attribute `version` set to 
 {
   # Incorrect
   {foo: 1, bar: 2}(ordered:true)
-  
+
   # Correct
   !!map(ordered:true) {foo: 1, bar: 2}
 }
 ```
 
-The reason for this is principally for the sake of readability. 
+The reason for this is principally for the sake of readability.
 
 The `UON` parser automatically update the missing properties with correct values for example, this valid *UON* file
 
@@ -554,7 +554,7 @@ Type is the base type of all other types
 
 The `content`property is not meant to be used directly, but it appears in the `UON` DOM.
 
-### Null 
+### Null
 
 TBD: I am not sure whether or not I should keep this type... Perhaps not very useful...
 
@@ -564,16 +564,16 @@ Boolean value defined by this schema
 
 ```yaml
 !!uon(version: 0.0.1) {
-  !!bool: !!schema(urn:uon:2018:types:bool) 
+  !!bool: !!schema(urn:uon:2018:types:bool)
     !!oneof(
       set: {
-        !!keyword(coercion: {!!number: 0}) false, 
+        !!keyword(coercion: {!!number: 0}) false,
         !!keyword(coercion: {!!number: 1}) true
       },
       properties: {
         alias: !!set {
           !!keyword: !!oneof(set: {false, true})
-        }  
+        }
       }
     )
 }
@@ -585,11 +585,11 @@ Boolean value defined by this schema
 
 ### String
 
-A string is an arbitrary sequence of characters encoded in [UTF-8](https://www.ietf.org/rfc/rfc3629.txt). Since *UON* is a text based language, any other type can be coerced into a string. 
+A string is an arbitrary sequence of characters encoded in [UTF-8](https://www.ietf.org/rfc/rfc3629.txt). Since *UON* is a text-based language, any other type can be coerced into a string.
 
 | Format    | Example                    |
 | --------- | -------------------------- |
-| Litteral  | `"A literal string"`       |
+| Literal  | `"A literal string"`       |
 | Raw       | `r"Here \n is not parsed"` |
 | Multiline | `"""A multiline string"""` |
 |           |                            |
@@ -598,7 +598,7 @@ A string is an arbitrary sequence of characters encoded in [UTF-8](https://www.i
 
 ```yaml
 !!uon(version: 0.0.1) {
-  !!str: !!schema(urn:uon:2018:types:string) 
+  !!str: !!schema(urn:uon:2018:types:string)
     !!type(
       properties: {
       pattern: !!regex,
@@ -617,7 +617,7 @@ A string is an arbitrary sequence of characters encoded in [UTF-8](https://www.i
 
 ### Number
 
-A number can hold any kind of representable number with an absolute precision without restriction of the storage type. It is therefore the base type for any derived number type. 
+A number can hold any kind of representable number with an absolute precision without restriction of the storage type. It is therefore the base type for any derived number type.
 
 Number group:
 $$
@@ -625,17 +625,17 @@ $$
 $$
 
 
-The following values are valid: 
+The following values are valid:
 
 ```yaml
 some-numbers: [
   149999932410893322.34334342387324024000485918571097402943e122,
   -.inf,
-  -8.0 
+  -8.0
 ]
 ```
 
-Numbers accepts the [E-notation](https://en.wikipedia.org/wiki/Scientific_notation) with the letter `e` as  "times ten raised to the power of"
+Numbers accept the [E-notation](https://en.wikipedia.org/wiki/Scientific_notation) with the letter `e` as  "times ten raised to the power of"
 
 | Property Name                | Description                                          | Example                          |
 | ---------------------------- | ---------------------------------------------------- | -------------------------------- |
@@ -677,7 +677,7 @@ A keyword is essentially a string which can be represented without double quotes
 
 ### References
 
-A reference refers to another field on a *UON* document. A reference can be resolved or not when generating a document. It can be a local reference or a remote reference when the target has to be fetched outside from the document. References can also acts as hyperlinks, this is especially the case when representing a UON document in a Web browser. 
+A reference refers to another field on a *UON* document. A reference can be resolved or not when generating a document. It can be a local reference or a remote reference when the target has to be fetched outside from the document. References can also act as hyperlinks, this is especially the case when representing a UON document in a Web browser.
 
 | Explicit                        | Syntactic sugar |
 | ------------------------------- | --------------- |
@@ -704,29 +704,29 @@ A reference refers to another field on a *UON* document. A reference can be reso
 | -------------------------------- | --------------------------------------- | ------------------------------ |
 | `resolve(default: false): !!bool` | Resolve reference at payload generation | `!!ref(resolve=true) ..foo.bar` |
 
-The schema of a references is expressed as follow:
+The schema of a reference is expressed as follows:
 
 ```yaml
 !!uon(version: 0.0.1) {
   !!keyword: !!schema(urn:uon:2018:types:reference) !!oneof {
-    !!uri, 
+    !!uri,
     !!str
   },
   properties: {
-    resolve(default: false): !!bool  
+    resolve(default: false): !!bool
   }
 }
 ```
 
-URN references relies on an external UON document that resolve a urn. The resolve document is usually passed as follow `!!uon(urn-resolve: @(http://some-domain.com))`. A set can be passed to `urn-resolve`
+URN references rely on an external UON document that resolve a urn. The resolve document is usually passed as follows `!!uon(urn-resolve: @(http://some-domain.com))`. A set can be passed to `urn-resolve`
 
-A possible value for a this resolver is: 
+A possible value for this resolver is:
 
 ```yaml
 # Resolver for URN
 !!uon(version: 0.0.1) {
    ietf: {
-     rfc: 
+     rfc:
        2648: !!url "https://www.ietf.org/rfc/rfc2648.txt"
    }
 }
@@ -782,11 +782,11 @@ Physical constants
 
 ## Units
 
-An important information for telemetry systems and Internet of Things is the unit of magnitudes. When transmitting a temperature, it is essential to know which is the unit used to represent that number. *UON* uses the ISQ system ([ISO/IEC 80000-1:2009](https://www.iso.org/standard/30669.html)). Currently none of the serialization formats listed [here](https://en.wikipedia.org/wiki/Comparison_of_data_serialization_formats) provide native support for units.
+An important information for telemetry systems and the Internet of Things is the unit of magnitudes. When transmitting a temperature, it is essential to know which is the unit used to represent that number. *UON* uses the ISQ system ([ISO/IEC 80000-1:2009](https://www.iso.org/standard/30669.html)). Currently none of the serialization formats listed [here](https://en.wikipedia.org/wiki/Comparison_of_data_serialization_formats) provide native support for units.
 
 ### Base Units
 
-The International System of Units lists 7 fundamental units that are used as standard. *UON* does not support imperial units deliberately because amount the 195 countries in the world only three countries do not use the metric system: Liberia, Myanmar and the USA. However *UON* 
+The International System of Units list 7 fundamental units that are used as standard. *UON* does not support imperial units deliberately because among the 195 countries in the world only three countries do not use the metric system: Liberia, Myanmar and the USA. However *UON*
 
 | Unit symbol | Unit name | Quantity name                             |
 | ----------- | --------- | ----------------------------------------- |
@@ -801,7 +801,7 @@ The International System of Units lists 7 fundamental units that are used as sta
 When only the quantity is known, the unit will be assumed to be SI strict.
 
 ```yaml
-# Temperature is assumed to be given in Kelvin 
+# Temperature is assumed to be given in Kelvin
 !!number(quantity: temperature) 250.24
 ```
 
@@ -845,7 +845,7 @@ These derived units can be used either on a payload or on a validation schema:
 
 ### Other accepted units
 
-The SI system lack some useful units as listed below. Millimeter of mercury is part of UON because of its large use in medicine. The electron-volt is widely use in fundamental physics. 
+The SI system lack some useful units as listed below. Millimeter of mercury is part of UON because of its large use in medicine. The electron-volt is widely use in fundamental physics.
 
 | Unit Symbol | Unit Name             | Quantity name | Equivalents                           |
 | ----------- | --------------------- | ------------- | ------------------------------------- |
@@ -861,7 +861,7 @@ The SI system lack some useful units as listed below. Millimeter of mercury is p
 
 ### Units of information
 
-Other non-SI units shall also be accepted such as unit of information. 
+Other non-SI units shall also be accepted such as unit of information.
 
 | Unit symbol | Unit name     | Quantity name |
 | ----------- | ------------- | ------------- |
@@ -872,7 +872,7 @@ Other non-SI units shall also be accepted such as unit of information.
 
 ### Prefix
 
-Prefix can be added in front of a unit 
+Prefix can be added in front of a unit
 
 | Symbol | Name  | Factor                            | Power      |
 | ------ | ----- | --------------------------------- | ---------- |
@@ -926,7 +926,7 @@ Other derived quantities and units can be built from these basic types.
 
 ###Representation
 
-Quantities are represented and written using UTF-8 special chars. It is perfectly allowed to write: 
+Quantities are represented and written using UTF-8 special chars. It is perfectly allowed to write:
 
 ```yaml
 value: 12.35±0.01 J/(m²⋅s)
@@ -946,7 +946,7 @@ value: !!magnitude {
 }
 ```
 
-Units can be parsed in any order, but they are always serialized in the same manner 
+Units can be parsed in any order, but they are always serialized in the same manner
 
 ## Validation
 
@@ -974,9 +974,9 @@ Units can be parsed in any order, but they are always serialized in the same man
 | `alias`        | Used to accept values as an alias of another one             | `!!bool(alias: {on: true, off: false})`              |
 | `resolve`      | Resolve reference when serializing, default `false`          |                                                     |
 | `hash`         | Hash of the associated value computed on the binary format. This is useful to make sure a document as not been modified. The hash value can be an external reference. It is computed in SHA256 |                                                     |
-| `signature`    | Any value can be signed using a digital signature            |                                                     |
+| `signature`    | Any value can be signed using a digital signature.            |                                                     |
 
-## Encryption 
+## Encryption
 
 A UON document can be encrypted. If so, the content of the document is simply a string value usually in base64. UON MUST support AES CBC (128, 192, 256 bit)
 
@@ -997,7 +997,7 @@ The encryption use the binary format as input to AES algorithm
 
 ## Capabilities
 
-As UON is made to increase interoperability, the UON standard may not be fully supported, also extensions to the language could be added by third-party people. To ensure two communication nodes can communicate together, they can share minimal UON document with their capabilities such as: 
+As UON is made to increase interoperability, the UON standard may not be fully supported, also extensions to the language could be added by third-party people. To ensure two communication nodes can communicate together, they can share minimal UON document with their capabilities such as:
 
 ```yaml
 !!capabilities {
@@ -1011,9 +1011,9 @@ As UON is made to increase interoperability, the UON standard may not be fully s
 }
 ```
 
-## Destructuring 
+## Destructuring
 
-With the help of references (`!!ref`), *UON* data can be easily destructured to only access a subset of data. This might be useful when used within a RESTful API. 
+With the help of references (`!!ref`), *UON* data can be easily destructured to only access a subset of data. This might be useful when used within a RESTful API.
 
 ```yaml
 !!uon(version: 0.0.1) {
@@ -1022,14 +1022,14 @@ With the help of references (`!!ref`), *UON* data can be easily destructured to 
       age: 23,
       place: "New York",
       hobbies: [
-        "Singing", 
+        "Singing",
         "Reading Books"
       ]
       spouse: {
         name: "Akash",
         age: 25
       }
-    # This subset use destructuring to compose a different arborescence of data 
+    # This subset use destructuring to compose a different arborescence of data
     subset: {
       name: @full.name,
       spouse: @full.spouse.name
@@ -1037,7 +1037,7 @@ With the help of references (`!!ref`), *UON* data can be easily destructured to 
 }
 ```
 
-Therefore accessing to `subset` would return: 
+Therefore accessing to `subset` would return:
 
 ```yaml
 {
@@ -1046,13 +1046,13 @@ Therefore accessing to `subset` would return:
 }
 ```
 
-Notice that references are resolved because they are no longer accessible from the subset. 
+Notice that references are resolved because they are no longer accessible from the subset.
 
 ### Linked list
 
-The example below represents a Git repository with linked references. When serialized, one can choose to flatten or not the references. 
+The example below represents a Git repository with linked references. When serialized, one can choose to flatten or not the references.
 
-Editors that supports the UON syntax highlight SHOULD be able to resolve references. 
+Editors that supports the UON syntax highlight SHOULD be able to resolve references.
 
 ```yaml
 !git-repository {
@@ -1065,29 +1065,29 @@ Editors that supports the UON syntax highlight SHOULD be able to resolve referen
   }
   objects: {
     b43f2c2f661030e2cd4129787e71052567d4ef5a: !commit {
-      tree: @(ee313d61f4eb880e14003a28690ea63980673d9c), 
+      tree: @(ee313d61f4eb880e14003a28690ea63980673d9c),
       parent: @(c9825517d028c352af89a3229f011bdf085f7443),
       author: {
         identity: @(authors."jdoe@example.com"),
         date: !!epoch 1528555907
-      }        
+      }
     },
     c9825517d028c352af89a3229f011bdf085f7443: !commit {
-      tree: @(ea41dba10b54a794284e0be009a11f0ff3716a28), 
+      tree: @(ea41dba10b54a794284e0be009a11f0ff3716a28),
       parent: @(2770d3625580ecd3bd4cf57cb5bff9751f8cbb3c),
       author: {
         identity: @(authors."jdoe@example.com"),
         date: !!epoch 1528555894
-      }        
-    },    
+      }
+    },
     2770d3625580ecd3bd4cf57cb5bff9751f8cbb3c: !commit {
-      tree: @(4d5fcadc293a348e88f777dc0920f11e7d71441c), 
+      tree: @(4d5fcadc293a348e88f777dc0920f11e7d71441c),
       parent: @(2770d3625580ecd3bd4cf57cb5bff9751f8cbb3c),
       author: {
         identity: @(authors."jdoe@example.com"),
         date: !!epoch 1528555881
       }
-    },        
+    },
     ee313d61f4eb880e14003a28690ea63980673d9c: !tree {
       "bar": {
         permissions: 100644,
@@ -1096,14 +1096,14 @@ Editors that supports the UON syntax highlight SHOULD be able to resolve referen
       "foo": {
         permissions: 100644,
         ref: @(d9e80f6f7602c18d035af9659303047b30204182)
-      }     
+      }
     },
     e69de29bb2d1d6434b8b29ae775ad8c2e48c5391: !blob "",
   }
 }
 ```
 
-Here is the schema of this data structure, allowing validation: 
+Here is the schema of this data structure, allowing validation:
 
 ```yaml
 !!uon(version: 0.0.1) {
@@ -1120,7 +1120,7 @@ Here is the schema of this data structure, allowing validation:
         !commit,
         !blob,
         !tree
-      ) 
+      )
     }
   },
   !ref: !!schema !!ref(base: "objects"),
@@ -1139,25 +1139,25 @@ Here is the schema of this data structure, allowing validation:
       permission: !ref,
       ref: !ref
     }
-  }   
+  }
 }
 ```
 
 ## RESTful access
 
-When a UON file is exposed on a RESTful API, a *UON* file MUST be parsed automatically. 
+When a UON file is exposed on a RESTful API, a *UON* file MUST be parsed automatically.
 
 ###Example
 
 The following *UON* file is stored on a server and made accessible from `http://example.com/midhuna`
 
-```yaml 
+```yaml
 !!uon(version: 0.0.1) {
   name: "Midhuna",
   age: 23,
   place: "New York",
   hobbies: [
-    "Singing", 
+    "Singing",
     "Reading Books"
   ]
   spouse: {
@@ -1184,7 +1184,7 @@ If accessing `http://example.com/midhuna/spouse` the response would be:
 
 ## Raw Conversion
 
-*UON* source can be serialized in other format such as YAML, XML or JSON with respect of their capabilities and limitations. 
+*UON* source can be serialized in other formats such as YAML, XML or JSON with respect of their capabilities and limitations.
 
 ```yaml
 !!uon(version: 0.0.1) {
@@ -1197,9 +1197,9 @@ If accessing `http://example.com/midhuna/spouse` the response would be:
 
 ### JSON
 
-Canonical encoding in JSON format is possible to make it easier to share data between systems. 
+Canonical encoding in JSON format is possible to make it easier to share data between systems.
 
-They are two way of generating a JSON:
+They are two ways of generating a JSON:
 
 * Raw
 * Closest
@@ -1225,8 +1225,8 @@ They are two way of generating a JSON:
           }
         }
       },
-      "str": { 
-        "type": "!!str", 
+      "str": {
+        "type": "!!str",
         "content": "Hello World!"
       }
     }
@@ -1256,22 +1256,22 @@ type: uon
 properties:
   version: 0.0.1
 content:
-  int: 
+  int:
   	type: "!!uint32"
   	comment: This is a number
   	content: 12
   str:
-    type: "!!str"    
+    type: "!!str"
     content: Hello World!
-  ref: 
+  ref:
     type: "!!ref"
-    content: .int    
+    content: .int
 ...
 ```
 
 ## File format and extensions
 
-The only allowed extension for *UON* file is `.uon` 
+The only allowed extension for *UON* file is `.uon`
 
 ## Unified API
 
@@ -1294,7 +1294,7 @@ The unified API should be identical on all supported programming languages
 
 This chapter will be removed from this specification when released...
 
-In the context of this draft, no implementation are fully available, however projects in development are available below: 
+In the context of this draft, no implementation is fully available, however, projects in development are available below:
 
 | Language   | Link                                  | Status |
 | ---------- | ------------------------------------- | ------ |
@@ -1318,15 +1318,15 @@ I believe *UON* will only be used by others when its syntax is fully supported b
 
 # Notes and deep thoughts
 
-Of course, this section will be removed from the specification once all the ideas below are fully crystalized without inconsistencies. 
+Of course, this section will be removed from the specification once all the ideas below are fully crystallized without inconsistencies.
 
-I am trying to find the most simple and elegant writing to address typical use cases of what a serialization language should serve.
+I am trying to find the simplest and most elegant writing to address typical use cases of what a serialization language should serve.
 
 Again, *UON* is not a programming language, I don't want to think about loops, functions, or conditionals. Everything should be easily parsed without much computation power. If someone wants to extend the capabilities, it can do at the application level by binding a `resolver` function to a existing type.
 
-Data transformation has to be kept minimal. *UON* is not a language made to transform information, but it has to be able to represent data according to the destination domain: binary payload, human readable document, ... Arithmetic transformations shall be possible to represent data written from one unit to another. A payload that gives an energy value in Joules could be presented in kWh if required during the rendering. 
+Data transformation has to be kept minimal. *UON* is not a language made to transform information, but it has to be able to represent data according to the destination domain: binary payload, readable human documents, ... Arithmetic transformations shall be possible to represent data written from one unit to another. A payload that gives an energy value in joules could be presented in kWh if required during the rendering.
 
-One important application of this feature is IoT. Let's imagine a small temperature sensor. It is composed of a very low-power MCU that transmit temperature data using BLE (Bluetooth Low Energy). To be interoperable, it uses *UON* to describe and encode the payload. 
+One important application of this feature is IoT. Let's imagine a small temperature sensor. It is composed of a very low-power MCU that transmits temperature data using BLE (Bluetooth Low Energy). To be interoperable, it uses *UON* to describe and encode the payload.
 
 ```yaml
 # http://iot-federation.io/uon/schemas/temperature-sensor
@@ -1338,39 +1338,39 @@ One important application of this feature is IoT. Let's imagine a small temperat
 }
 ```
 
-The above schema is device-agnostic. It does not define any unit nor any sized types allowing small devices to transmit data using `!!uint8` or `!!float32`. So the data-consumer that receives the binary data shall be able to interpret the data by only knowing this reference schema. However, the payload should be lightweight and it should not include details such as encoding type. 
+The above schema is device-agnostic. It does not define any unit nor any sized types allowing small devices to transmit data using `!!uint8` or `!!float32`. So the data consumer that receives the binary data shall be able to interpret the data by only knowing this reference schema. However, the payload should be lightweight and it should not include details such as encoding type.
 
-In the case of our, temperature sensor the binary representation looks like this, eight bit long.
+In the case of our, temperature sensor the binary representation looks like this, eight-bit long.
 
 ```
 [ !!uint8 ]
 ```
 
-The data-consumer that listen to this sensor (imagine a MQTT payload), will need more information. So, the device establish a refined schema:
+The data consumer that listens to this sensor (imagine a MQTT payload), will need more information. So, the device establishes a refined schema:
 
 ```yaml
 # Inherit of !temperature-sensor
-!schema(!temperature-sensor, refine: true, id: 02d28a9a-6e7b-11e8-adc0-fa7ae01bbebc) { 
+!schema(!temperature-sensor, refine: true, id: 02d28a9a-6e7b-11e8-adc0-fa7ae01bbebc) {
   temperature(inherit: true): !!uint8(unit: celsius),
 }
 ```
 
-That's it! The new refined schema is compatible with `!temperature-sensor` the temperature value is still a `!!number`, it has the same quantity (temperature). The optional `sampling-time` is still optional so if it is transmitted, the device will need to encode it using a full type notation i.e. the type identifier (0xab for a `!!float64`) followed by the 64-bit data. 
+That's it! The new refined schema is compatible with `!temperature-sensor` the temperature value is still a `!!number`, it has the same quantity (temperature). The optional `sampling-time` is still optional so if it is transmitted, the device will need to encode it using a full-type notation i.e. the type identifier (0xab for a `!!float64`) followed by the 64-bit data.
 
-Now this refined schema has to be exchanged from the BLE temperature sensor to the data-consumer as a contract that describe the payload. How is it done? Well, I am not yet sure of the best solution but here some possibility: 
+Now this refined schema has to be exchanged from the BLE temperature sensor to the data consumer as a contract that describes the payload. How is it done? Well, I am not yet sure of the best solution but here some possibility:
 
-* The refined schema is transmitted once by the device either in plain or binary data. Notice that binary format get rid of properties, unless it belongs to  `!!schema` so in Python doing `my_refined_schema.to_binary()` gives full binary payload that can be parsed and understood. The good thing is only the altered properties and types are mentioned. 
-* The refined schema is stored on a global server and a URI gives the access to it. The data-receiver should then ask the device for the URI of the refined schema. This is possible in MQTT by simply subscribing to `/my-device/.schema` 
+* The refined schema is transmitted once by the device either in plain or binary data. Notice that binary format get rid of properties unless it belongs to  `!!schema` so in Python doing `my_refined_schema.to_binary()` gives full binary payload that can be parsed and understood. The good thing is only the altered properties and types are mentioned.
+* The refined schema is stored on a global server and a URI gives the access to it. The data receiver should then ask the device for the URI of the refined schema. This is possible in MQTT by simply subscribing to `/my-device/.schema`
 
 ```yaml
 !schema(http://my-sensor.com/schemas/s231abx)
 ```
 
-The generated binary payload for this will be still heavy because it contains the string:  `http://my-sensor.com/schemas/s231abx`. With additional data such as `0x80` (schema), and the properties identifiers. 
+The generated binary payload for this will be still heavy because it contains the string:  `http://my-sensor.com/schemas/s231abx`. With additional data such as `0x80` (schema), and the property identifiers.
 
-* The refined schema is stored somewhere on a global server, but the device transmit only the `uuid` of the schema. The payload is then 128-bit + the schema type `0x80`.  Its better, but the data-receiver should be able to match the `uuid` somewhere. 
+* The refined schema is stored somewhere on a global server, but the device transmits only the `uuid` of the schema. The payload is then 128 bit + the schema type `0x80`.  Its better, but the data receiver should be able to match the `uuid` somewhere.
 
-Let's consider for one moment the data receiver. A nice MQTT client which subscribe to this data:
+Let's consider for one moment the data receiver. A nice MQTT client who subscribes to this data:
 
 ```python
 from uon import Parser
@@ -1389,7 +1389,7 @@ def on_message(client, userdata, msg):
    print(parser.from_binary(msg.payload).to_uon())
 ```
 
-The received message will decoded into:
+The received message will decode into:
 
 ```
 {
@@ -1415,7 +1415,7 @@ def on_message(client, userdata, msg):
    temp = payload.temperature
    # type(temp) is <!!uint8>, so temp.unit is `celsius`
    # I can change that easily
-   print("Temperature: %f °F" % 
+   print("Temperature: %f °F" %
        float(Float(temp, unit='fahrenheit')))
 
 # Temperature: 73.4 °F
@@ -1435,18 +1435,18 @@ This is great, but *UON* is powerful enough to do it on its own. Let's suppose t
 temp.to_uon(version: '0.0.1', describe: true)
 ```
 
-Let's now imagine we want to transmit the payload to another very lightweight device that understand the temperature sensor, but in Kelvin with a negative offset, and with data given in `!!float32`. I simply need to refine the original schema and coerce the received payload into it: 
+Let's now imagine we want to transmit the payload to another very lightweight device that understands the temperature sensor, but in Kelvin with a negative offset, and with data given in `!!float32`. I simply need to refine the original schema and coerce the received payload into it:
 
 ```python
-refined = """!schema(!temperature-sensor) { 
+refined = """!schema(!temperature sensor) {
   temperature(inherit: true): !!float32(unit: kelvin offset: -10.2)}"""
 
 def on_message(client, userdata, msg):
-   client.publish('topic-to/other-device', 
+   client.publish('topic-to/other-device',
        parser.from_binary(msg.payload).coerce(refined).to_binary())
 ```
 
-Why would it work that smoothly? Because the payload is still a derived version of `temperature-sensor` so the properties of `temperature` can be modified without changing the original type `!!number`.  
+Why would it work that smoothly? Because the payload is still a derived version of `temperature-sensor` so the properties of `temperature` can be modified without changing the original type `!!number`.
 
 ## Aggregation
 
@@ -1461,7 +1461,7 @@ One missing feature especially on MQTT is data aggregation. For example, a `!!3d
 }
 ```
 
-Despite the binary data is really small, when streamed at that speed over AMQP or MQTT, it would quickly flood the network. If we define a new type `!3d-accelerometer-3` which contain 3 values, we will loose the interoperability because it is not a `!!3d-accelerometer`. Let's imagine this schema: 
+Despite the binary data is really small, when streamed at that speed over AMQP or MQTT, it would quickly flood the network. If we define a new type `!3d-accelerometer-3` which contain 3 values, we will lose the interoperability because it is not a `!!3d-accelerometer`. Let's imagine this schema:
 
 ```yaml
 !3d-accelerometer-3: !schema [ !3d-accelerometer, !3d-accelerometer, !3d-accelerometer]
@@ -1473,26 +1473,26 @@ It is ugly for numerous reasons. What would be prettier would be instead:
 !schema: !repeat(3, !3d-accelerometer)
 ```
 
-But how can it be understood or either refined? I am not sure I have the answer yet. The scenario is the following. Somebody is expecting from a topic 3d acceleration values. It is expecting a `!3d-accelerometer` payload. So the device should be able to refine the schema in a way it can aggregate several values in the same payload. But not all types are meant to be aggregated. A schema for instance does not change over time, a user documentation, a network description also does not change over time. 
+But how can it be understood or either refined? I am not sure I have the answer yet. The scenario is the following. Somebody is expecting from a topic 3d acceleration values. It is expecting a `!3d-accelerometer` payload. So the device should be able to refine the schema in a way it can aggregate several values in the same payload. But not all types are meant to be aggregated. A schema for instance does not change over time, a user documentation, a network description also does not change over time.
 
-In addition, when the payload is very light, such as our temperature-sensor, carrying the timestamp for each value is stupid. What we should have instead is the initial timestamp and the increment between the values. Some payload could also have values that does not change over a period of time, but they still need to be transmitted. Let's review this
+In addition, when the payload is very light, such as our temperature sensor, carrying the timestamp for each value is stupid. What we should have instead is the initial timestamp and the increase between the values. Some payload could also have values that do not change over a period of time, but they still need to be transmitted. Let's review this
 
 * Find a way to gather data into the same dataset
-* But doing so without the need to define a new schema. 
-* Having a solution to group similar values that do not often changes
-* Add a known offset to some values to retrieve the time increment. 
-* `i * factor + offset` would cover 99% of the use-cases
+* But doing so without the need to define a new schema.
+* Having a solution to group similar values that do not often change
+* Add a known offset to some values to retrieve the time increment.
+* `i * factor + offset` would cover 99% of the use cases
 
 ```yaml
 !acc-seq: !schema !seq(
-  min: 1, 
-  max: 255, 
+  min: 1,
+  max: 255,
 ) [ !3d-accelerometer ]
 
 data: !acc-seq(index: .time, offset: 5433335321, increment: 250) [
     {x: 12.43 m/s², y: 32.5 m/s², z: 0.05 m/s²},
     {x: 12.43 m/s², y: 32.5 m/s², z: 0.05 m/s²},
-    {x: 12.43 m/s², y: 32.5 m/s², z: 0.05 m/s²}    
+    {x: 12.43 m/s², y: 32.5 m/s², z: 0.05 m/s²}
 ]
 ```
 
@@ -1508,28 +1508,28 @@ data: !acc-seq(index: .time, offset: 5433335321, increment: 250) [
     january(capitalize: true, coerce: {!!int: 1}),
     february(capitalize: true, coerce: {!!int: 2}),
   }
-  
+
   # How to translate month names in another language?
   # More generally, how to inherit a type, and set a property
   #
   #     "2" == !!str !!int 2
   #
-  # Int is coerced into a string, it becomes a string, so it keeps all the 
+  # Int is coerced into a string, it becomes a string, so it keeps all the
   # properties from the closest parent, such as `comment` and `description`,
   # but it loose the coerce property (TODO: does it?)
-  # 
-  # Possible hint? By writing !!prop(content), we pick-up the content property 
+  #
+  # Possible hint? By writing !!prop(content), we pick-up the content property
   # which is a string. No, it is not the solution... Bad guess...
-  # 
+  #
   # Woot, I need a property to inherit properties...
-  # 
+  #
   #     !!str(inherit-prop: {foo}) !!int(foo: 42) 23
   #
   !month-fr: !schema !match({
     january: "Janvier",
     february: "Février",
   }) !month
-  
+
   # http://uon-language.io/type/country
   !country: !!schema(
     id: !!uuid d925fe72-6e69-11e8-adc0-fa7ae01bbebc,
@@ -1542,7 +1542,7 @@ data: !acc-seq(index: .time, offset: 5433335321, increment: 250) [
     ax("Åland Islands"),
     al("Albania")
   },
-  
+
   # Countries according to ISO 3166-1
   # http://uon-language.io/type/country
   !country: !schema(
@@ -1581,12 +1581,12 @@ data: !acc-seq(index: .time, offset: 5433335321, increment: 250) [
         longitude: {
           deg: "$1",
           min: "$2",
-          sec: "$3"        
+          sec: "$3"
         },
         height: !!number(unit: meter) "$8"
       }
     }
-  ), 
+  ),
 
   !person: !schema(
     dependencies: {
@@ -1610,7 +1610,7 @@ data: !acc-seq(index: .time, offset: 5433335321, increment: 250) [
 
 ## Regulations and standards
 
-*UON* must be as standard as possible against existing standards for expressing data such as IP address, timestamp or mathematical notation. 
+*UON* must be as standard as possible against existing standards for expressing data such as IP address, timestamp or mathematical notation.
 
 | UON Type          | Standards                                                | Example                                                  |
 | ----------------- | -------------------------------------------------------- | -------------------------------------------------------- |
@@ -1638,7 +1638,7 @@ data: !acc-seq(index: .time, offset: 5433335321, increment: 250) [
 Consensus matters, *UON* aims to use the largest consensus, by considering several aspects:
 
 * How many languages agree on type names?
-* Which language has better credit for a chosen type (high level, low level language)?
+* Which language has better credit for a chosen type (high level, low-level language)?
 * Tradition over time
 * Simplicity, shorter is better, simple is better
 
