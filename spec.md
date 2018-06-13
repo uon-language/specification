@@ -1496,6 +1496,93 @@ data: !acc-seq(index: .time, offset: 5433335321, increment: 250) [
 ]
 ```
 
+## Evaluations
+
+*UON* should allow simple evaluations using the postfix notation because it is easier to implement in different languages and can easily be represented with a sequence. 
+
+```yaml
+!!eval: !!schema() !!seq(min: 2) [
+  !!number, 
+  !!add, !!sub, !!mul, !!div
+  !!not, !!and, !!or,
+  !!ref(resolve: false)
+]
+```
+
+Adding the support for evaluations would allow to provide support for a new unit conversion. Presenting a temperature value into a different compatible unit should be possible. Units are not types, they are built into the number class. 
+
+To coerce a unit into another we must make sure the values we use as input are good. In other words, we must check the quantity of both sides are the same. How to properly do this? 
+
+Let's start from this: 
+
+```yaml
+!!number: !!schema(
+    coerce: {
+      !!number(unit: celsius): !!number(quantity: temperature) !!eval [212.234, @@.content, 543.1, !!mul, !!add],
+      !!number(unit: farheneit): !!number(quantity: temperature) !!eval [212.234, @@.content, 543.1, !!mul, !!add],
+      !!number(unit: kelvin): !!number(quantity: temperature) !!eval [212.234, @@.content, 543.1, !!mul, !!add],
+    }
+) 
+```
+
+As *UON* would not allow to change the quantity of a given number. One must check this quantity is not changed. This possible by coercing the result of the evaluation with a number associated to a given quantity. We should notice that the following will fail at parsing the schema:
+
+```yaml
+# Error because quantity a length cannot be converted into temperature. 
+!!number(quantity: temperature) !!number(unit: meter) 42
+```
+
+Again, UON does not allow to transform data. It only offers to represent data differently without content loss. It means, quantity of a number has to be preserved 
+
+## Encryption 
+
+One true important problem is the payload encryption. If two parties have to exchange a known set of data such as this public schema:
+
+```yaml
+!missile-codes = !!schema {
+    alpha: !!str(pattern: /(\da-z){12}/),
+    beta:  !!str(pattern: /(\da-z){12}/),
+    gamma: !!str(pattern: /(\da-z){12}/)
+}
+```
+
+The refined schema is private and only known by both parties (Bob and Alice). The exchange mechanism is not part of *UON* because addressing this problem is complex thanks to a MITM. So common solutions most likely relies on a third-party authority that sign certificates. 
+
+```yaml
+!!schema(refine: !missile-codes) !!map(encryption: aes128, password: "random")
+```
+
+So when Bob sends the data to Alice using 
+
+```python
+password = "random"
+parser = Parser(schema: """
+    !!schema(refine: !@(http://somewhere.com/missile-codes)) 
+    !!map(encryption: aes128, password: "%s")
+""" % password)
+
+# Bob
+>>> client.write(parser.from_dict({
+...     'alpha': 'abfw594324qi',
+...     'beta':  'a59fjc432wqe',
+...     'gamma': '95jgfl324nfs',    
+... }).to_binary())
+
+# Alice
+>>> parser.from_binary(client.read()).to_dict()
+{
+    'alpha': 'abfw594324qi',
+    'beta':  'a59fjc432wqe',
+    'gamma': '95jgfl324nfs',    
+}
+
+# Eve
+>>> from uon import Parser
+>>> parser = Parser(schema: "http://somewhere.com/missile-codes")
+>>> parser.from_binary(sniffer.read()).to_uon()
+"XWTrUQIavBWU58SXjpdmZAe/NX4C7Xc1nMQenvK0oKzzyWnwfe8Y5UkmMibT1mwG"
+```
+
 
 
 ## Sandbox
