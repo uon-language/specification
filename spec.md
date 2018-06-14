@@ -432,6 +432,8 @@ The number type is much more complete than JSON, XML or YAML. It aims to serve g
   * Fractional values for frequency ratio
   * Fixed-Point values in
 
+![](C:\Users\ycr\Data\specification\assets\numbers.png)
+
 | Type         | Based on  | Description                                                  |
 | ------------ | --------- | ------------------------------------------------------------ |
 | `!!dec`       | `!!number` | Decimal (i.e. Base 10) number e.g. `12345`                   |
@@ -1693,6 +1695,44 @@ parser = Parser(schema: """
 
 
 
+# Binary Encoding
+
+### !!ipv4
+
+| Offset in B | Value  | Type      |
+| ----------- | ------ | --------- |
+| 0           | Byte 0 | `!!uint8` |
+| 1           | Byte 1 | `!!uint8` |
+| 2           | Byte 2 | `!!uint8` |
+| 3           | Byte 3 | `!!uint8` |
+
+### !!jwt
+
+| Offset | Value  | Type     |
+| ------ | ------ | -------- |
+| 0      | xxx    | `!!blob` |
+| 1      | yyy    | `!!blob` |
+| 2      | zzz    | `!!blob` |
+| 3      | Byte 3 | `!!blob` |
+
+### !!blob
+
+```yaml
+coerce: {
+  !!binary: [
+    !!uint(desc: "Blob Length") @@...length,
+    !$iterate(start: 0, iteration: @...length: @@...content)
+  ]
+}
+```
+
+
+
+| Offset | Value  | Type     |
+| ------ | ------ | -------- |
+| 0      | length | `!!uint` |
+| 1      | data   | `!!blob` |
+
 # Annexes
 
 ## Regulations and standards
@@ -1717,6 +1757,7 @@ parser = Parser(schema: """
 | `!req`            | [RFC  2119](https://www.ietf.org/rfc/rfc2119.txt)        | `!req(must) "Be portable and interoperable"`             |
 | `!log`            | [RFC 5424](https://tools.ietf.org/html/rfc5424)          | `!log(error) "Unable to bind socket"`                    |
 | `!!str`           | [RFC 3629](https://tools.ietf.org/html/rfc3629)          | `"𝚄O𝙽™ ı𝘴 𝛼 𝒇𝛼𝐧𝜏𝓪𝕤𝕥⍳ⲥ 𝓈𝙚𝓻𝚤𝕒lℹ𝙯𝝰𝜏ｉο𝓃 l𝙖ϖℊʋ𝙖𝗀𝕖"`          |
+| `!!float`         | [IEEE 754:2008](https://en.wikipedia.org/wiki/IEEE_754)  | `3.1415926535`                                           |
 
 
 
@@ -1732,24 +1773,24 @@ Consensus matters, *UON* aims to use the largest consensus, by considering sever
 | UON    | Math    | C/C++ | Java    | Python | Go     | Ruby   | C#     | PHP     |
 | ------ | ------- | ------ | ------- | ------ | ------ | ------ | ------ | ------- |
 | `!!int8` | - | `int8_t` | `byte` | `c_byte` |        |        |        | - |
-| `!!uint8` | - |  | - |  | | | | - |
+| `!!uint8` | - | `uint8_t` | - | `c_ubyte` | | | | - |
 | `!!int16` | - | `int16_t` | `short` | `c_short` |        |        |        | - |
-| `!!uint16` | - |  | - |  | | | | - |
+| `!!uint16` | - | `uint16_t` | `char` | `c_ushort` | | | | - |
 | `!!int32` | - | `int32_t` | `int` | `c_int` |        |        |        | int |
-| `!!uint32` | - |  | `uint` |  | | | | - |
-| `!!int64` | - |  | `long` |  | | | | int |
-| `!!uint64` | - |  | `ulong` |  | | | | |
+| `!!uint32` | - | `uint32_t` | `uint` | `c_uint` | | | | - |
+| `!!int64` | - | `int64_t` | `long` | `c_longlong` | | | | int |
+| `!!uint64` | - | `uint64_t` | `ulong` | `c_ulonglong` | | | | |
 | `!!int` | integer | - | `BigInteger` | `int` | | | | |
 | `!!uint` | natural | - | `BigInteger` | `int` | | | | |
-| `!!number` |  | - |  |  | | | | |
-| `!!frac` | rational |  |  |  | | | | |
-| `!!bool` | -       | bool   | boolean |        |        |        |        | boolean |
-| `!!str` | -       | char * | String  | str    | string | String | string | string  |
-| `!!float` | real |        |         |        |        |        |        |         |
-| `!!float32` | - |        |         |        |        |        |        |         |
-| `!!float64` | - |        |         |        |        |        |        |         |
-| `!!float128` | - |        |         |        |        |        |        |         |
-| `!!decimal32` | - |        |         |        |        |        |        |         |
-| `!!decimal64` | - |        |         |        |        |        |        |         |
-| `!!decimal128` | - |        |         |        |        |        |        |         |
-| `!!complex` | complex |        |         |        |        |        |        |         |
+| `!!number` |  | - | - | `decimal` | | | | |
+| `!!frac` | rational | - | - | - | | | | |
+| `!!bool` | -       | `bool` | `boolean` | `bool` |        |        |        | boolean |
+| `!!str` | -       | `char *` | `String` | str    | string | String | string | string  |
+| `!!float` | real | - | `BigDecimal` | `float` |        |        |        |         |
+| `!!bfloat32` | - | `float` | `float` | `c_float` |        |        |        |         |
+| `!!bfloat64` | - | `double` | `double` | `c_double` |        |        |        |         |
+| `!!bfloat128` | - | - | - | `c_longdouble` |        |        |        |         |
+| `!!dfloatl32` | - | - | - | - |        |        |        |         |
+| `!!dfloat64` | - | - | - | - |        |        |        |         |
+| `!!dfloat128` | - | - | - | - |        |        |        |         |
+| `!!complex` | complex | - | - | - |        |        |        |         |
