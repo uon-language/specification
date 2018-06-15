@@ -776,6 +776,26 @@ The IPv4 type is defined in UON
 )
 ```
 
+### Blob
+
+Blob are binary content that can be represented with as string with a chosen encoding.
+
+| Encoding | Pattern                                             | Padding | Standard                                            |
+| -------- | --------------------------------------------------- | ------- | --------------------------------------------------- |
+| `base85` | `/[0-9a-zA-Z\.-:\+=\^!\/\*\?&<>\(\)\[\]\{\}@%$#]+/` | No      | Z85 variant                                         |
+| `base58` | `/[A-HJ-NP-Za-km-z1-9]*=*/`                         | `=`     | Bitcoin, `base58.cpp`                               |
+| `base64` | `/[A-Za-z0-9+\/]*=*/`                               | `=`     | [RFC 4648](https://tools.ietf.org/html/rfc4648) § 4 |
+| `base32` | `/[A-Z2-7]*=*/`                                     | `=`     | [RFC 4648](https://tools.ietf.org/html/rfc4648) § 6 |
+| `base16` | `/[0-9a-f]*/`                                       | No      | [RFC 4648](https://tools.ietf.org/html/rfc4648) § 8 |
+
+| Prop-ID | Prop-Type    | Name                                              | Description                                      |
+| ------- | ------------ | ------------------------------------------------- | ------------------------------------------------ |
+| `0xff`  | Presentation | `encoding: !!key(set: $bin2str, default: base64)` | Type of encoding used for presentation           |
+| `0xfe`  | Validation   | `modulo: !!uint(default: 1)`                      | Binary size in byte must be multiple of `modulo` |
+|         |              |                                                   |                                                  |
+
+
+
 ## Physics
 
 Physical constants
@@ -1365,7 +1385,7 @@ Now this refined schema has to be exchanged from the BLE temperature sensor to t
 * The refined schema is stored on a global server and a URI gives the access to it. The data receiver should then ask the device for the URI of the refined schema. This is possible in MQTT by simply subscribing to `/my-device/.schema`
 
 ```yaml
-!schema(http://my-sensor.com/schemas/s231abx)
+!@(http://my-sensor.com/schemas/s231abx)
 ```
 
 The generated binary payload for this will be still heavy because it contains the string:  `http://my-sensor.com/schemas/s231abx`. With additional data such as `0x80` (schema), and the property identifiers.
@@ -1758,6 +1778,87 @@ coerce: {
 | `!log`            | [RFC 5424](https://tools.ietf.org/html/rfc5424)          | `!log(error) "Unable to bind socket"`                    |
 | `!!str`           | [RFC 3629](https://tools.ietf.org/html/rfc3629)          | `"𝚄O𝙽™ ı𝘴 𝛼 𝒇𝛼𝐧𝜏𝓪𝕤𝕥⍳ⲥ 𝓈𝙚𝓻𝚤𝕒lℹ𝙯𝝰𝜏ｉο𝓃 l𝙖ϖℊʋ𝙖𝗀𝕖"`          |
 | `!!float`         | [IEEE 754:2008](https://en.wikipedia.org/wiki/IEEE_754)  | `3.1415926535`                                           |
+
+## Available Types
+
+This annex lists all the native *UON* types. Currently 80 types have been reserved. *UON* supports 256 different types as a type identifier is encoded using a `!!uint8` type. 
+
+| ID   | Name          | Description                                          | Derived from |
+| ---- | ------------- | ---------------------------------------------------- | ------------ |
+| 0x00 | `!!type`      | Base type                                            | -            |
+| 0x01 | `!!seq`       | Ordered sequence                                     | `!!type`     |
+| 0x02 | `!!map`       | Unordered list of key-value pairs                    | `!!type`     |
+| 0x03 | `!!set`       | Unordered set of unique data                         | `!!seq`      |
+| 0x04 | `!!omap`      | Ordered list of key-value pairs                      | `!!seq`      |
+| 0x05 | `!!oset`      | Ordered set of unique data                           | `!!seq`      |
+| 0x06 | `!!scalar`    | Any scalar representable with a string               | `!!type`     |
+| 0x07 | -             | Reserved                                             |              |
+| 0x08 | -             | Reserved                                             |              |
+| 0x09 | -             | Reserved                                             |              |
+| 0x0a | `!!oneof`     | Only used in validation schemas                      | `!!set`      |
+| 0x0b | -             | Reserved                                             |              |
+| 0x0c | -             | Reserved                                             |              |
+| 0x0d | -             | Reserved                                             |              |
+| 0x0e | -             | Reserved                                             |              |
+| 0x0f | -             | Reserved                                             |              |
+| 0x10 | `!!null`      | Null value                                           | `!!scalar`   |
+| 0x11 | `!!str`       | String                                               | `!!scalar`   |
+| 0x12 | `!!key`       | Keyword `/[a-z][a-z0-9-]*(?=-)/`                     | `!!str`      |
+| 0x13 | `!!bool`      | Boolean value `/false|true/`                         | `!!key`      |
+| 0x14 | `!!num`       | Any real number `/[+-](0|[1-9]|[1-9\d*)(\.?\d*)?/`   | `!!scalar`   |
+| 0x15 | `!!ref`       | Reference to another value                           | `!!str`      |
+| 0x16 | `!!blob`      | Raw Binary Content                                   | `!!scalar`   |
+| 0x17 | -             | Reserved                                             |              |
+| 0x18 | -             | Reserved                                             |              |
+| 0x19 | -             | Reserved                                             |              |
+| 0x1a | -             | Reserved                                             |              |
+| 0x1b | -             | Reserved                                             |              |
+| 0x1c | -             | Reserved                                             |              |
+| 0x1d | -             | Reserved                                             |              |
+| 0x1e | -             | Reserved                                             |              |
+| 0x1f | -             | Reserved                                             |              |
+| 0x20 | `!!real`      | Any kind of representable number (TODO: Keep it?)    | `!!num`      |
+| 0x21 | `!!floatb`    | Binary Floating point number encoded using IEEE 754  | `!!real`     |
+| 0x22 | `!!floatd`    | Decimal Floating point number encoded using IEEE 754 | `!!real`     |
+| 0x23 | `!!floatb32`  | 32-bit binary float                                  | `!!floatb`   |
+| 0x24 | `!!floatb64`  | 64-bit binary float                                  | `!!floatb`   |
+| 0x25 | `!!float128`  | 128-bit binary float                                 | `!!floatb`   |
+| 0x26 | `!!floatd32`  | 32-bit decimal float                                 | `!!floatd`   |
+| 0x27 | `!!floatd64`  | 64-bit decimal float                                 | `!!floatd`   |
+| 0x28 | `!!floatd128` | 128-bit decimal float                                | `!!floatd`   |
+| 0x29 | `!!int`       | Variable length integer value $\in \mathbb{N} $      | `!!real`     |
+| 0x30 | `!!uint`      | Variable length unsigned integer $\in \mathbb{Z} $   | `!!int`      |
+| 0x31 | `!!int8`      | 8-bit signed integer                                 | `!!int`      |
+| 0x32 | `!!int16`     | 16-bit signed integer                                | `!!int`      |
+| 0x33 | `!!int32`     | 32-bit signed integer                                | `!!int`      |
+| 0x34 | `!!int64`     | 64-bit signed integer                                | `!!int`      |
+| 0x35 | `!!int128`    | 128-bit signed integer                               | `!!int`      |
+| 0x36 | `!!int256`    | 256-bit signed integer                               | `!!int`      |
+| 0x37 | `!!unt8`      | 8-bit unsigned integer                               | `!!int`      |
+| 0x38 | `!!unt16`     | 16-bit unsigned integer                              | `!!int`      |
+| 0x39 | `!!unt32`     | 32-bit unsigned integer                              | `!!int`      |
+| 0x3a | `!!unt64`     | 64-bit unsigned integer                              | `!!int`      |
+| 0x3b | `!!unt128`    | 128-bit unsigned integer                             | `!!int`      |
+| 0x3c | `!!unt256`    | 256-bit unsigned integer                             | `!!int`      |
+| 0x3d | -             | Reserved                                             |              |
+| 0x3e | `!!complex`   | Complex number $\in \mathbb{C} $                     | `!!real`     |
+| 0x3f | `!!frac`      | Rational number $\in \mathbb{Q} $                    | `!!real`     |
+| 0x40 | `!!version`   | Semantic version number x.y.z                        | `!!str`      |
+| 0x41 | `!!regex`     | Regular expression, with default PCRE flavor         | `!!str`      |
+| 0x42 | `!!datetime`  | Date time value according to ISO 8601                | `!!str`      |
+| 0x43 | `!!date`      | Only date value                                      | `!!datetime` |
+| 0x44 | `!!time`      | Only time value                                      | `!!datetime` |
+| 0x45 | `!!ipv4`      | IP Version 4 e.g. `192.168.1.4/23`                   | `!!uint32`   |
+| 0x46 | `!!ipv6`      | IP Version 6                                         | `!!uint128`  |
+| 0x47 | `!!jwt`       | JSON Web Token                                       | `!!str`      |
+| 0x48 | `!!uuid`      | 128-bit Universal Unique Identifier                  | `!!uint128`  |
+| 0x49 | `!!epoch`     | UNIX timestamp                                       | `!!uint32`   |
+| 0x4a | `!!math`      | Mathematical expression                              | `!!str`      |
+| 0x4b | `!!uri`       | Unique resource identifier                           | `!!str`      |
+| 0x4c | `!!url`       |                                                      | `!!uri`      |
+| 0x4d | `!!urn`       |                                                      | `!!uri`      |
+| 0x4e | `!!log`       | Log entry (severity, datetime, module)               | `!!str`      |
+| 0x4f | `!!req`       | Requirement Specification (must, should, ...)        | `!!str`      |
 
 
 
