@@ -508,6 +508,22 @@ Constraint data types are only used for validation schema
 
 ## Properties
 
+Three kind of properties exist:
+
+### Application
+
+These properties can only be read from *UON* using the `!prop` type. They are accessible from the application (Python, JavaScript, ...). They are used to generate a serialized file (binary, or UON), but they are never explicitly passed.
+
+### Presentation
+
+Presentation properties are any property that influence the presentation of a value, such as `!seq(orderd: true) [9, 8, 7]` a resolved payload will be `[7, 8, 9]`
+
+### Validation
+
+Validation properties are used to validate, constrain and describe a *UON* file. 
+
+### Example
+
 Properties can be seen as attributes passed to a constructor of a class. When writing:
 
 ```yaml
@@ -522,7 +538,7 @@ You essentially instantiate a `!uon` class with the attribute `version` set to `
   {foo: 1, bar: 2}(ordered:true)
 
   # Correct
-  !!map(ordered:true) {foo: 1, bar: 2}
+  !map(ordered:true) {foo: 1, bar: 2}
 }
 ```
 
@@ -556,11 +572,11 @@ Type is the base type of all other types
 
 | Property Name         | Description                                     | Example                              |
 | --------------------- | ----------------------------------------------- | ------------------------------------ |
-| `comment: !!str`       | Add a comment to an object                      | `!dec(comment: "The Answer") 42`     |
-| `description: !!str`   | Description for documentation purposes          | `!dec(description: "The Answer") 42` |
-| `binformat: !!keyword` | Encoding format used for binary payload         | `!dec(binformat: int32) 42`          |
-| `optional: !!bool`     | Is the value optional?                          |                                      |
-| `content: !!type`      | This is the content value of object (read only) |                                      |
+| `comment: !str`       | Add a comment to an object                      | `!dec(comment: "The Answer") 42`     |
+| `description: !str`   | Description for documentation purposes          | `!dec(description: "The Answer") 42` |
+| `binformat: !keyword` | Encoding format used for binary payload         | `!dec(binformat: int32) 42`          |
+| `optional: !bool`     | Is the value optional?                          |                                      |
+| `content: !type`      | This is the content value of object (read only) |                                      |
 
 The `content`property is not meant to be used directly, but it appears in the `UON` DOM.
 
@@ -573,16 +589,16 @@ TBD: I am not sure whether or not I should keep this type... Perhaps not very us
 Boolean value defined by this schema
 
 ```yaml
-!!uon(version: 0.0.1) {
-  !!bool: !!schema(urn:uon:2018:types:bool)
-    !!oneof(
+!uon(version: 0.0.1) {
+  !bool: !type(urn:uon:2018:types:bool)
+    !oneof(
       set: {
-        !!keyword(coercion: {!!number: 0}) false,
-        !!keyword(coercion: {!!number: 1}) true
+        !keyword(coercion: {!number: 0}) false,
+        !keyword(coercion: {!number: 1}) true
       },
       properties: {
-        alias: !!set {
-          !!keyword: !!oneof(set: {false, true})
+        alias: !set {
+          !key: !oneof(set: {false, true})
         }
       }
     )
@@ -591,7 +607,7 @@ Boolean value defined by this schema
 
 | Property Name | Description                           | Example                       |
 | ------------- | ------------------------------------- | ----------------------------- |
-| `alias: !!set` | Adds accepted alternative for Boolean | `!bool(alias: {on: true}) on` |
+| `alias: !set` | Adds accepted alternative for Boolean | `!bool(alias: {on: true}) on` |
 
 ### String
 
@@ -607,13 +623,13 @@ A string is an arbitrary sequence of characters encoded in [UTF-8](https://www.i
 
 
 ```yaml
-!!uon(version: 0.0.1) {
-  !!str: !!schema(urn:uon:2018:types:string)
-    !!type(
+!uon(version: 0.0.1) {
+  !str: !type(urn:uon:2018:types:string)
+    !type(
       properties: {
-      pattern: !!regex,
-        min: !!uint,
-        max: !!uint(ge: @.min)
+      pattern: !regex,
+        min: !uint,
+        max: !uint(ge: @.min)
       }
     )
 }
@@ -621,9 +637,9 @@ A string is an arbitrary sequence of characters encoded in [UTF-8](https://www.i
 
 | Property Name     | Description                                          | Example                         |
 | ----------------- | ---------------------------------------------------- | ------------------------------- |
-| `pattern: !!regex` | Acceptance pattern                                   | `!str(pattern: /0x[0-9a-f]+/i)` |
-| `min: !!uint`      | Minimum length                                       | `!str(min: 2)`                  |
-| `max: !!uint`      | Maximum length (must be greater or equal than `min`) | `!str(min: 2, max: 18)`         |
+| `pattern: !regex` | Acceptance pattern                                   | `!str(pattern: /0x[0-9a-f]+/i)` |
+| `min: !uint`      | Minimum length                                       | `!str(min: 2)`                  |
+| `max: !uint`      | Maximum length (must be greater or equal than `min`) | `!str(min: 2, max: 18)`         |
 
 ### Number
 
@@ -689,10 +705,32 @@ A keyword is essentially a string which can be represented without double quotes
 
 A reference refers to another field on a *UON* document. A reference can be resolved or not when generating a document. It can be a local reference or a remote reference when the target has to be fetched outside from the document. References can also act as hyperlinks, this is especially the case when representing a UON document in a Web browser.
 
-| Explicit                        | Syntactic sugar |
-| ------------------------------- | --------------- |
-| `!ref ..foo.bar`                | `@(..foo.bar)`  |
-| `!ref(resolve: true) ..foo.bar` | `@@(.foo.bar)`  |
+```yaml
+!ref: !type(
+  resolve(default: false): !bool,
+  type: !str
+) !oneof {
+  !url,
+  !str(pattern: /^\.\w+/ )
+}
+```
+
+You can do absolute or relative references. 
+
+| Reference | Description    |
+| --------- | -------------- |
+| `@.foo`   | This level     |
+| `@..foo`  | First parent   |
+| `@...foo` | Second parent  |
+| `!@`      | Link to a type |
+
+Parenthesis are not required, but recommended. 
+
+| Explicit                          | Syntactic sugar |
+| --------------------------------- | --------------- |
+| `!ref "..foo.bar"`                | `@(..foo.bar)`  |
+| `!ref(resolve: true) "..foo.bar"` | `@@(.foo.bar)`  |
+| `!ref(type: ".foo.bar")`          | `!@(.foo.bar)`  |
 
 ```yaml
 {
@@ -713,6 +751,7 @@ A reference refers to another field on a *UON* document. A reference can be reso
 | Property Name                    | Description                             | Example                        |
 | -------------------------------- | --------------------------------------- | ------------------------------ |
 | `resolve(default: false): !!bool` | Resolve reference at payload generation | `!ref(resolve=true) ..foo.bar` |
+| `type(default: !null): !ref(resolve: true)` | Used as type |  |
 
 The schema of a reference is expressed as follows:
 
@@ -1648,13 +1687,13 @@ parser = Parser(schema: """
   }) !month
 
   # http://uon-language.io/type/country
-  !country: !!schema(
-    id: !!uuid d925fe72-6e69-11e8-adc0-fa7ae01bbebc,
+  !!country: !type(
+    id: !uuid d925fe72-6e69-11e8-adc0-fa7ae01bbebc,
     desc: "Standardized country code with associated country name",
     example: "!country ch",
     rank: 1,
     version: 0.0.1
-  ) !!oneof {
+  ) !oneof {
     af("Afghanistan"),
     ax("Åland Islands"),
     al("Albania")
@@ -1662,13 +1701,13 @@ parser = Parser(schema: """
 
   # Countries according to ISO 3166-1
   # http://uon-language.io/type/country
-  !country: !schema(
-    id: !!uuid d925fe72-6e69-11e8-adc0-fa7ae01bbebc,
+  !!country: !type(
+    id: !uuid d925fe72-6e69-11e8-adc0-fa7ae01bbebc,
     desc: "Standardized country code with associated country name",
     example: "!country ch",
     rank: 1,
     version: 0.0.1
-  ) !!oneof {
+  ) !oneof {
     af("Afghanistan"),
     ax("Åland Islands"),
     al("Albania")
@@ -1676,9 +1715,9 @@ parser = Parser(schema: """
 
   # Country-name
   # Read name property and render it as a string
-  !country-name: !schema(
+  !country-name: !type(
     desc: "Cast a !country into its name (access name property)",
-  ) !!str !!prop(name) !country,
+  ) !str !prop(name) !country,
 
   # International geographic point location (ISO 6709:2008)
   !geo: !!schema(
@@ -1777,7 +1816,6 @@ coerce: {
 | `!regex`         | [PCRE](https://www.pcre.org/)                            | `/foo|[bBar]/`                                           |
 | `!unit`          | [ISO 80000-1](https://en.wikipedia.org/wiki/ISO_80000-1) | `celsius`                                                |
 | `!math`          | [MathJax](https://www.mathjax.org/)                      | `$x_{1,2}=-b\pm\frac{\sqrt{b^2-4\cdota\cdotc}{2\cdota}$` |
-| `!number-system` | -                                                        | `real`                                                   |
 | `!ipv4`           | [RFC 791](https://tools.ietf.org/html/rfc791)            | `192.168.1.42`                                           |
 | `!ipv6`          | [RFC 2732](https://www.ietf.org/rfc/rfc2732.txt)         | `1080::8:800:200C:417A`                                  |
 | `!urn`           | [RFC 8141](https://tools.ietf.org/html/rfc8141)          | `urn:example:foo-bar-baz-qux?+CCResolve:cc=ch`           |
@@ -1802,13 +1840,13 @@ This annex lists all the native *UON* types. Currently 80 types have been reserv
 | 0x06 | `!scalar`    | Any scalar representable with a string               | `!type`     |
 | 0x07 | -             | Reserved                                             |              |
 | 0x08 | `!oneof`     | Validation only                              | `!set` |
-| 0x09 | `!and`        | Validation only                              | `!key` |
-| 0x0a | `!or` | Validation only       | `!key` |
-| 0x0b | `!add`     | Validation only                         | `!key` |
-| 0x0c | `!sub`       | Validation only                              | `!key` |
-| 0x0d | `!mul`        | Validation only                              | `!key` |
-| 0x0e | `!div`       | Validation only                              | `!key` |
-| 0x0f | -             | Reserved                                             |              |
+| 0x09 | `!and`        | Validation only                              | `!seq` |
+| 0x0a | `!or` | Validation only       | `!seq` |
+| 0x0b | `!add`     | Validation only `10 == !add [ 5, 5 ]` | `!seq` |
+| 0x0c | `!sub`       | Validation only `0 == !sub [ 10, 10 ]` | `!seq` |
+| 0x0d | `!mul`        | Validation only `10 == !mul [ 10, 2 ]` | `!seq` |
+| 0x0e | `!div`       | Validation only `5 == !div [ 10, 2 ]` | `!seq` |
+| 0x0f | `!prop`    | Validation only, read the referred property as value | `!type` |
 | 0x10 | `!null`      | Null value                                           | `!scalar`   |
 | 0x11 | `!str`       | String                                               | `!scalar`   |
 | 0x12 | `!key`       | Keyword `/[a-z][a-z0-9-]*(?=-)/`                     | `!str`      |
@@ -1862,9 +1900,9 @@ This annex lists all the native *UON* types. Currently 80 types have been reserv
 | 0x48 | `!uuid`      | 128-bit Universal Unique Identifier                  | `!uint128`  |
 | 0x49 | `!epoch`     | UNIX timestamp                                       | `!uint32`   |
 | 0x4a | `!math`      | Mathematical expression                              | `!str`      |
-| 0x4b | `!uri`       | Unique resource identifier                           | `!str`      |
-| 0x4c | `!url`       |                                                      | `!uri`      |
-| 0x4d | `!urn`       |                                                      | `!uri`      |
+| 0x4b | `!uri`       | Uniform Resource Identifier                 | `!str`      |
+| 0x4c | `!url`       | Uniform Resource Locator | `!uri`      |
+| 0x4d | `!urn`       | Uniform Resource Name | `!uri`      |
 | 0x4e | `!log`       | Log entry (severity, datetime, module)               | `!str`      |
 | 0x4f | `!req`       | Requirement Specification (must, should, ...)        | `!str`      |
 | 0x80 | `!markdown`  | Markdown text                                        | `!str`      |
@@ -1875,30 +1913,35 @@ Consensus matters, *UON* aims to use the largest consensus, by considering sever
 
 * How many languages agree on type names?
 * Which language has better credit for a chosen type (high level, low-level language)?
+  * C/C++ within C99/C11 is the most used language at bare-metal level. The type names is coherent.
 * Tradition over time
-* Simplicity, shorter is better, simple is better
+  * Tradition for numbers is to use the system names such as `real`, `natural`, `rational`
+* Simplicity: shorter is better, simple is better
+  * It is largely agreed that `str`means string, but with 3 chars shorter, despite most languages use the full name.
 
-| UON    | Math    | C/C++ | Java    | Python | Go     | Ruby   | C#     | PHP     |
-| ------ | ------- | ------ | ------- | ------ | ------ | ------ | ------ | ------- |
-| `!int8` | - | `int8_t` | `byte` | `c_byte` |        |        |        | - |
-| `!uint8` | - | `uint8_t` | - | `c_ubyte` | | | | - |
-| `!int16` | - | `int16_t` | `short` | `c_short` |        |        |        | - |
-| `!uint16` | - | `uint16_t` | `char` | `c_ushort` | | | | - |
-| `!int32` | - | `int32_t` | `int` | `c_int` |        |        |        | int |
-| `!uint32` | - | `uint32_t` | `uint` | `c_uint` | | | | - |
-| `!int64` | - | `int64_t` | `long` | `c_longlong` | | | | int |
-| `!uint64` | - | `uint64_t` | `ulong` | `c_ulonglong` | | | | |
-| `!int` | integer | - | `BigInteger` | `int` | | | | |
-| `!uint` | natural | - | `BigInteger` | `int` | | | | |
-| `!number` |  | - | - | `decimal` | | | | |
-| `!frac` | rational | - | - | - | | | | |
-| `!bool` | -       | `bool` | `boolean` | `bool` |        |        |        | boolean |
-| `!str` | -       | `char *` | `String` | str    | string | String | string | string  |
-| `!float` | real | - | `BigDecimal` | `float` |        |        |        |         |
-| `!bfloat32` | - | `float` | `float` | `c_float` |        |        |        |         |
-| `!bfloat64` | - | `double` | `double` | `c_double` |        |        |        |         |
-| `!bfloat128` | - | - | - | `c_longdouble` |        |        |        |         |
-| `!dfloatl32` | - | - | - | - |        |        |        |         |
-| `!dfloat64` | - | - | - | - |        |        |        |         |
-| `!dfloat128` | - | - | - | - |        |        |        |         |
-| `!complex` | complex | - | - | - |        |        |        |         |
+| UON    | Math    | C/C++ | Java    | Python | Go     | C#     | PHP     |
+| ------ | ------- | ------ | ------- | ------ | ------ | ------ | ------- |
+| `!int8` | - | `int8_t` | `byte` | `c_byte` | `byte` | `byte` | - |
+| `!uint8` | - | `uint8_t` | - | `c_ubyte` | `rune` | `sbyte` | - |
+| `!int16` | - | `int16_t` | `short` | `c_short` | `int16` | `short` | - |
+| `!uint16` | - | `uint16_t` | `char` | `c_ushort` | `uint16` | `ushort` | - |
+| `!int32` | - | `int32_t` | `int` | `c_int` | `int32` | `int` | `int` |
+| `!uint32` | - | `uint32_t` | `uint` | `c_uint` | `uint32` | `uint` | - |
+| `!int64` | - | `int64_t` | `long` | `c_longlong` | `int64` | `long` | `int` |
+| `!uint64` | - | `uint64_t` | `ulong` | `c_ulonglong` | `uint64` | `ulong` | - |
+| `!int128` | - | - | - | - | - | - | - |
+| `!uint128` | - | - | - | - | - | - | - |
+| `!int` | integer | - | `BigInteger` | `int` | `int` | - | `int` |
+| `!uint` | natural | `size_t` | `BigInteger` | `int` | `uint` | - | - |
+| `!number` | - | - | - | `decimal` | - | - | - |
+| `!frac` | rational | - | - | - | - | - | - |
+| `!bool` | -       | `bool` | `boolean` | `bool` | `bool` | `bool` | `boolean` |
+| `!str` | -       | `char *` | `String` | `str`  | `string` | `string` | `string` |
+| `!float` | real | - | `BigDecimal` | `float` | - | - |         |
+| `!bfloat32` | - | `float` | `float` | `c_float` | `float32` | `float` |         |
+| `!bfloat64` | - | `double` | `double` | `c_double` | `float64` | `double` |         |
+| `!bfloat128` | - | - | - | `c_longdouble` | - | - |         |
+| `!dfloatl32` | - | - | - | - | - | - |         |
+| `!dfloat64` | - | - | - | - | - | - |         |
+| `!dfloat128` | - | - | - | - | - | `decimal` |         |
+| `!complex` | complex | - | - | - | `complex64` | - |         |
