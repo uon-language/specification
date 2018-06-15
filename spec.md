@@ -94,7 +94,7 @@ Comments in YAML are not formally part of the object tree, but they are somehow 
 
 ![](C:\Users\ycr\Data\specification\assets\supersets.png)
 
-One major difference with YAML is the tag notations. On YAML native tags are noted using two exclamation marks e.g. `!!int`, but user types have only one `! `, so called "non-specific tag". *UON* aims to be simple and lightweight. Using an additional `! ` for native types would encourage user types. In *UON* native tags are primary tags.  
+One major difference with YAML is the tag notations. On YAML native tags are noted using two exclamation marks e.g. `!int`, but user types have only one `! `, so called "non-specific tag". *UON* aims to be simple and lightweight. Using an additional `! ` for native types would encourage user types. In *UON* native tags are primary tags.  
 
 #### Related to XML
 
@@ -121,11 +121,11 @@ Symbol pairs are syntactic sugars used to enhance readability by associating a s
 
 | Symbol Pairs | Description           | Type     |
 | ------------ | --------------------- | -------- |
-| `[ ]`        | Ordered Sequence      | `!!seq`   |
-| `{ }`        | Mapping (by default unordered) | `!!map`   |
-| `" "`        | String                | `!!str`   |
-| `/ /`        | Regular expression    | `!!regex` |
-| `$ $`        | Mathematical expression | `!!math`  |
+| `[ ]`        | Ordered Sequence      | `!seq`   |
+| `{ }`        | Mapping (by default unordered) | `!map`   |
+| `" "`        | String                | `!str`   |
+| `/ /`        | Regular expression    | `!regex` |
+| `$ $`        | Mathematical expression | `!math`  |
 | `( )`        | Properties            | -        |
 | `< >`        | Structural container  | -        |
 
@@ -172,11 +172,11 @@ The only reserved language symbols are the following
 | `,`     | Element separator                                            |
 | `@`     | Reference                                                    |
 | `#`     | Comment                                                      |
-| `.inf`  | Infinity (used within `!!number`, `!!float`, or `!!decimal`)    |
-| `.nan`  | Not a Number (used within `!!number`, `!!float`, or `!!decimal`) |
-| `true`  | Boolean (`!!bool`) value `true`                               |
-| `false` | Boolean (`!!bool`) value `false`                              |
-| `null`  | Null (`!!null`) value                                         |
+| `.inf`  | Infinity (used within `!number`, `!float`, or `!decimal`)    |
+| `.nan`  | Not a Number (used within `!number`, `!float`, or `!decimal`) |
+| `true`  | Boolean (`!bool`) value `true`                               |
+| `false` | Boolean (`!bool`) value `false`                              |
+| `null`  | Null (`!null`) value                                         |
 
 ## Syntax
 
@@ -391,17 +391,17 @@ One important feature of *UON* is that any kind of information belongs to a type
 
 ![](C:\Users\ycr\Data\specification\assets\type-base.svg)
 
-They are primitive data types all derived from the `!!type` master data type.
+They are primitive data types all derived from the `!type` master data type.
 
 | Type      | Based on | Description                                                |
 | --------- | -------- | ---------------------------------------------------------- |
-| `!!type`   | -        | Base type                                                  |
-| `!!map`    | `!!type`  | Unordered Mapping (also called *HashMap* or *Dictionary* ) |
-| `!!omap`   | `!!type`  | Ordered Mapping                                            |
-| `!!seq`    | `!!type`  | Ordered Sequence (also called *List* or *Array*)           |
-| `!!scalar` | `!!type`  | Scalar value representable with a string                   |
-| `!!set`    | `!!map`   | Unordered set of values                                    |
-| `!!oset`   | `!!omap`  | Ordered set of values                                      |
+| `!type`   | -        | Base type                                                  |
+| `!map`    | `!type`  | Unordered Mapping (also called *HashMap* or *Dictionary* ) |
+| `!omap`   | `!type`  | Ordered Mapping                                            |
+| `!seq`    | `!type`  | Ordered Sequence (also called *List* or *Array*)           |
+| `!scalar` | `!type`  | Scalar value representable with a string                   |
+| `!set`    | `!map`   | Unordered set of values                                    |
+| `!oset`   | `!omap`  | Ordered set of values                                      |
 
 *UON* aims to represent static data which are therefore immutable by design. This explains the absence of Records or Tuples. However, when a composite type is used as a key, it will be parsed as an immutable type if the destination language allows it.
 
@@ -411,7 +411,7 @@ They are primitive data types all derived from the `!!type` master data type.
 {(1,2):[1,2]}
 ```
 
-Unordered mapping (`!!map`, `!!set`) are always sorted naturally when serialized e.g. `[1, 2, 10, 100, a]`
+Unordered mapping (`!map`, `!set`) are always sorted naturally when serialized e.g. `[1, 2, 10, 100, a]`
 
 Sets are mapping with null values
 
@@ -421,12 +421,12 @@ Scalar values are any kind of values that may be represented as a string
 
 | Type       | Based on  | Description                                                  |
 | ---------- | --------- | ------------------------------------------------------------ |
-| `!!null`    | `!!scalar` | Null type, can be associated to other type e.g. `!!null(!!str)` |
-| `!!bool`    | `!!scalar` | Boolean, `true` or `false`                                   |
-| `!!str`     | `!!scalar` | String encoded in `UTF-8`                                    |
-| `!!number`  | `!!scalar` | Any kind of representable numeric value                      |
-| `!!keyword` | `!!str`    | Keyword used for mapping keys and references (`/^[a-z](?:(?:[a-z0-9-])*[a-z0-9])?$/i`) |
-| `!!ref`     | `!!str`    | Reference to another type                                    |
+| `!null`    | `!scalar` | Null type, can be associated to other type e.g. `!null(!!str)` |
+| `!bool`    | `!scalar` | Boolean, `true` or `false`                                   |
+| `!str`     | `!scalar` | String encoded in `UTF-8`                                    |
+| `!number`  | `!scalar` | Any kind of representable numeric value                      |
+| `!keyword` | `!str`    | Keyword used for mapping keys and references (`/^[a-z](?:(?:[a-z0-9-])*[a-z0-9])?$/i`) |
+| `!ref`     | `!str`    | Reference to another type                                    |
 
 #### Numbers Datatypes
 
@@ -444,15 +444,15 @@ The number type is much more complete than JSON, XML or YAML. It aims to serve g
 
 | Type         | Based on  | Description                                                  |
 | ------------ | --------- | ------------------------------------------------------------ |
-| `!!dec`       | `!!number` | Decimal (i.e. Base 10) number e.g. `12345`                   |
-| `!!float`     | `!!number` | Floating point `IEEE-754`                                    |
-| `!!bin`       | `!!dec`    | Binary representation of decimal number                      |
-| `!!oct`       | `!!dec`    | Octal representation of decimal number                       |
-| `!!hex`       | `!!dec`    | Hexadecimal representation of decimal number                 |
-| `!!complex`   | `!!float`  | Complex value e.g. `42+7j`                                   |
-| `!!magnitude` | `!!number` | Physical value with an associated unit                       |
-| `!!frac`      | `!!seq`    | Fraction of two integers, to represent repeating such as `0.33333` |
-| `!!fixpoint`  | `!!dec`    | Fixed point value                                            |
+| `!dec`       | `!number` | Decimal (i.e. Base 10) number e.g. `12345`                   |
+| `!float`     | `!number` | Floating point `IEEE-754`                                    |
+| `!bin`       | `!dec`    | Binary representation of decimal number                      |
+| `!oct`       | `!dec`    | Octal representation of decimal number                       |
+| `!hex`       | `!dec`    | Hexadecimal representation of decimal number                 |
+| `!complex`   | `!float`  | Complex value e.g. `42+7j`                                   |
+| `!magnitude` | `!number` | Physical value with an associated unit                       |
+| `!frac`      | `!seq`    | Fraction of two integers, to represent repeating such as `0.33333` |
+| `!fixpoint`  | `!dec`    | Fixed point value                                            |
 
 ### Sized Datatypes
 
@@ -460,42 +460,42 @@ When serialized in binary format, the size of the payload has to be provided. If
 
 | Type         | Based on | Description                                              |
 | ------------ | -------- | -------------------------------------------------------- |
-| `!!int8`      | `!!dec`   | `8 b` Signed Integer                                     |
-| `!!int16`     | `!!dec`   | `16 b` Signed Integer                                    |
-| `!!int32`     | `!!dec`   | `32 b` Signed Integer                                    |
-| `!!int64`     | `!!dec`   | `64 b` Signed Integer                                    |
-| `!!int128`    | `!!dec`   | `128 b` Signed Integer                                   |
-| `!!uint8`     | `!!dec`   | `8 b` Unsigned Integer                                   |
-| `!!uint16`    | `!!dec`   | `16 b` Unsigned Integer                                  |
-| `!!uint32`    | `!!dec`   | `32 b` Unsigned Integer                                  |
-| `!!uint64`    | `!!dec`   | `64 b` Unsigned Integer                                  |
-| `!!uint128`   | `!!dec`   | `128 b` Unsigned Integer                                 |
-| `!!float32`   | `!!float` | `32 b` Single precision floating point number            |
-| `!!float64`   | `!!float` | `64 b` Double precision floating point number            |
-| `!!float128`  | `!!float` | `128 b` Quadruple precision floating point number        |
-| `!!decimal16` | `!!float` | `16 b` Single precision floating point number in base 10 |
-| `!!decimal32` | `!!float` | `32 b` Single precision floating point number in base 10 |
-| `!!decimal64` | `!!float` | `64 b` Single precision floating point number in base 10 |
+| `!int8`      | `!dec`   | `8 b` Signed Integer                                     |
+| `!int16`     | `!dec`   | `16 b` Signed Integer                                    |
+| `!int32`     | `!dec`   | `32 b` Signed Integer                                    |
+| `!int64`     | `!dec`   | `64 b` Signed Integer                                    |
+| `!int128`    | `!dec`   | `128 b` Signed Integer                                   |
+| `!uint8`     | `!dec`   | `8 b` Unsigned Integer                                   |
+| `!uint16`    | `!dec`   | `16 b` Unsigned Integer                                  |
+| `!uint32`    | `!dec`   | `32 b` Unsigned Integer                                  |
+| `!uint64`    | `!dec`   | `64 b` Unsigned Integer                                  |
+| `!uint128`   | `!dec`   | `128 b` Unsigned Integer                                 |
+| `!float32`   | `!float` | `32 b` Single precision floating point number            |
+| `!float64`   | `!float` | `64 b` Double precision floating point number            |
+| `!float128`  | `!float` | `128 b` Quadruple precision floating point number        |
+| `!decimal16` | `!float` | `16 b` Single precision floating point number in base 10 |
+| `!decimal32` | `!float` | `32 b` Single precision floating point number in base 10 |
+| `!decimal64` | `!float` | `64 b` Single precision floating point number in base 10 |
 
 ### Rich Datatypes
 
-Rich data types are always based on the `!!str` but they can be parsed using a regex pattern. Each rich type can be coerced into different format.
+Rich data types are always based on the `!str` but they can be parsed using a regex pattern. Each rich type can be coerced into different format.
 
 All these formats have a strict binary encoding format when the data is transmitted in binary.
 
 | Type        | Based on | Description                                                  | Coercible in                                      |
 | ----------- | -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| `!!version`  | `!!str`   | [SemVer](https://semver.org/) 2.0.0 version number           | `!!seq`, `!!map` |
-| `!!regex`    | `!!str`   | PCRE2 Regular expression                                     |                                     |
-| `!!time`     | `!!str`   | Time value e.g. `12:43:01` (`ISO 8601`)                      | `!!seq`, `!!map`       |
-| `!!date`     | `!!str`   | Date value e.g. `1982-02-16` ( `ISO 8601`)                   | `!!seq`, `!!map` |
-| `!!datetime` | `!!str`   | Full date time e.g. ` 2018-06-08T23:02:51+00:00 ` ( `ISO 8601`) | `!!seq`, `!!map`, `!!epoch` |
-| `!!ipv4` | `!!str`   | IP version 4 described in [RFC 791](https://tools.ietf.org/html/rfc791) | `!!seq`, `!!uint32` |
-| `!!ipv6` | `!!str`   | IP version 4 described in [RFC 8200](https://tools.ietf.org/html/rfc8200) | `!!seq`, `!!uint128` |
-| `!!jwt` | `!!str` | JSON Web Token | `!!seq`, `!!map` |
-| `!!uuid` | `!!str` | Unique User Identifier, a 128-bit data |  |
-| `!!epoch` | `!!dec` | UNIX timestamp | `!!datetime` |
-| `!!math` | `!!str` | Mathematical notation `$\frac{2}{3}$` |  |
+| `!version`  | `!str`   | [SemVer](https://semver.org/) 2.0.0 version number           | `!seq`, `!map` |
+| `!regex`    | `!str`   | PCRE2 Regular expression                                     |                                     |
+| `!time`     | `!str`   | Time value e.g. `12:43:01` (`ISO 8601`)                      | `!seq`, `!map`       |
+| `!date`     | `!str`   | Date value e.g. `1982-02-16` ( `ISO 8601`)                   | `!seq`, `!map` |
+| `!datetime` | `!str`   | Full date time e.g. ` 2018-06-08T23:02:51+00:00 ` ( `ISO 8601`) | `!seq`, `!map`, `!epoch` |
+| `!ipv4` | `!str`   | IP version 4 described in [RFC 791](https://tools.ietf.org/html/rfc791) | `!seq`, `!uint32` |
+| `!ipv6` | `!str`   | IP version 4 described in [RFC 8200](https://tools.ietf.org/html/rfc8200) | `!seq`, `!uint128` |
+| `!jwt` | `!str` | JSON Web Token | `!seq`, `!map` |
+| `!uuid` | `!str` | Unique User Identifier, a 128-bit data |  |
+| `!epoch` | `!dec` | UNIX timestamp | `!datetime` |
+| `!math` | `!str` | Mathematical notation `$\frac{2}{3}$` |  |
 
 ### Constraint Datatypes
 
@@ -503,8 +503,8 @@ Constraint data types are only used for validation schema
 
 | Type      | Based on | Description                                       |
 | --------- | -------- | ------------------------------------------------- |
-| `!!oneof`    | `!!map`   | Alternative possibility e.g. `!!oneof( !!str, !!null)` |
-| `!!schema` | `!!type`  | *UON* Validation schema                           |
+| `!oneof`    | `!map`   | Alternative possibility e.g. `!oneof( !!str, !!null)` |
+| `!schema` | `!type`  | *UON* Validation schema                           |
 
 ## Properties
 
@@ -514,7 +514,7 @@ Properties can be seen as attributes passed to a constructor of a class. When wr
 !!uon(version: 0.0.1) {}
 ```
 
-You essentially instantiate a `!!uon` class with the attribute `version` set to `0.0.1`. This instance is inherited automatically by the following argument here `{}` which is a `!!map`.  In *UON* only types can be instantiated, but since everything is static on a *UON* document, `!!uon` and `!!uon()` performs the same. It is not allowed to add properties to objects such as:
+You essentially instantiate a `!uon` class with the attribute `version` set to `0.0.1`. This instance is inherited automatically by the following argument here `{}` which is a `!map`.  In *UON* only types can be instantiated, but since everything is static on a *UON* document, `!uon` and `!uon()` performs the same. It is not allowed to add properties to objects such as:
 
 ```yaml
 {
@@ -556,9 +556,9 @@ Type is the base type of all other types
 
 | Property Name         | Description                                     | Example                              |
 | --------------------- | ----------------------------------------------- | ------------------------------------ |
-| `comment: !!str`       | Add a comment to an object                      | `!!dec(comment: "The Answer") 42`     |
-| `description: !!str`   | Description for documentation purposes          | `!!dec(description: "The Answer") 42` |
-| `binformat: !!keyword` | Encoding format used for binary payload         | `!!dec(binformat: int32) 42`          |
+| `comment: !!str`       | Add a comment to an object                      | `!dec(comment: "The Answer") 42`     |
+| `description: !!str`   | Description for documentation purposes          | `!dec(description: "The Answer") 42` |
+| `binformat: !!keyword` | Encoding format used for binary payload         | `!dec(binformat: int32) 42`          |
 | `optional: !!bool`     | Is the value optional?                          |                                      |
 | `content: !!type`      | This is the content value of object (read only) |                                      |
 
@@ -591,7 +591,7 @@ Boolean value defined by this schema
 
 | Property Name | Description                           | Example                       |
 | ------------- | ------------------------------------- | ----------------------------- |
-| `alias: !!set` | Adds accepted alternative for Boolean | `!!bool(alias: {on: true}) on` |
+| `alias: !!set` | Adds accepted alternative for Boolean | `!bool(alias: {on: true}) on` |
 
 ### String
 
@@ -621,9 +621,9 @@ A string is an arbitrary sequence of characters encoded in [UTF-8](https://www.i
 
 | Property Name     | Description                                          | Example                         |
 | ----------------- | ---------------------------------------------------- | ------------------------------- |
-| `pattern: !!regex` | Acceptance pattern                                   | `!!str(pattern: /0x[0-9a-f]+/i)` |
-| `min: !!uint`      | Minimum length                                       | `!!str(min: 2)`                  |
-| `max: !!uint`      | Maximum length (must be greater or equal than `min`) | `!!str(min: 2, max: 18)`         |
+| `pattern: !!regex` | Acceptance pattern                                   | `!str(pattern: /0x[0-9a-f]+/i)` |
+| `min: !!uint`      | Minimum length                                       | `!str(min: 2)`                  |
+| `max: !!uint`      | Maximum length (must be greater or equal than `min`) | `!str(min: 2, max: 18)`         |
 
 ### Number
 
@@ -649,17 +649,17 @@ Numbers accept the [E-notation](https://en.wikipedia.org/wiki/Scientific_notatio
 
 | Property Name                | Description                                          | Example                          |
 | ---------------------------- | ---------------------------------------------------- | -------------------------------- |
-| `magnitude: !!prefix`         | Order of magnitude                                   | `!!number(magnitude: k) 12`       |
-| `base: !!uint(min:2, max:62)` | Positional notation (base-2, base-10...)             | `!!number(base: 4) 222 # 42`      |
-| `min: !!number`               | Minimum accepted number                              | `!!number(min: 2)`                |
-| `max: !!number(min: @.min)`   | Maximum length (must be greater or equal than `min`) | `!!number(min: 2, max: 18)`       |
-| `le: @.max`                  | Less than or equal to                                | `!!number(le: 2)`                 |
-| `ge: @.min`                  | Greater than or equal to                             | `!!number(ge: 2)`                 |
-| `lt: !!number`                | Less than                                            | `!!number(lt: 2)`                 |
-| `gt: !!number(min: @.lt)`     | Greater than                                         | `!!number(gt: 2)`                 |
-| `uncertainty: !!number`       | Uncertainty value such as in `12 ± 0.01`             | `!!number(uncertainty: 0.1) 12`   |
+| `magnitude: !!prefix`         | Order of magnitude                                   | `!number(magnitude: k) 12`       |
+| `base: !!uint(min:2, max:62)` | Positional notation (base-2, base-10...)             | `!number(base: 4) 222 # 42`      |
+| `min: !!number`               | Minimum accepted number                              | `!number(min: 2)`                |
+| `max: !!number(min: @.min)`   | Maximum length (must be greater or equal than `min`) | `!number(min: 2, max: 18)`       |
+| `le: @.max`                  | Less than or equal to                                | `!number(le: 2)`                 |
+| `ge: @.min`                  | Greater than or equal to                             | `!number(ge: 2)`                 |
+| `lt: !!number`                | Less than                                            | `!number(lt: 2)`                 |
+| `gt: !!number(min: @.lt)`     | Greater than                                         | `!number(gt: 2)`                 |
+| `uncertainty: !!number`       | Uncertainty value such as in `12 ± 0.01`             | `!number(uncertainty: 0.1) 12`   |
 | `unit: !!unit`                | Associated unit                                      | `number(unit: celsius) 21.3`     |
-| `fix(default: 0): !!uint`     | Fixpoint representation, value is divided by `!!uint` | `number(base: 2, fix: 2) 110010` |
+| `fix(default: 0): !!uint`     | Fixpoint representation, value is divided by `!uint` | `number(base: 2, fix: 2) 110010` |
 
 Positional notation uses the representable symbols in this order `"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"`, which makes the maximum possible representable base 62
 
@@ -683,7 +683,7 @@ A keyword is essentially a string which can be represented without double quotes
 
 | Property Name | Description       | Example                    |
 | ------------- | ----------------- | -------------------------- |
-| `enum: !!dec`  | Enumeration value | `!!keyword(enum: 1e3) kilo` |
+| `enum: !!dec`  | Enumeration value | `!keyword(enum: 1e3) kilo` |
 
 ### References
 
@@ -691,8 +691,8 @@ A reference refers to another field on a *UON* document. A reference can be reso
 
 | Explicit                        | Syntactic sugar |
 | ------------------------------- | --------------- |
-| `!!ref ..foo.bar`                | `@(..foo.bar)`  |
-| `!!ref(resolve: true) ..foo.bar` | `@@(.foo.bar)`  |
+| `!ref ..foo.bar`                | `@(..foo.bar)`  |
+| `!ref(resolve: true) ..foo.bar` | `@@(.foo.bar)`  |
 
 ```yaml
 {
@@ -712,7 +712,7 @@ A reference refers to another field on a *UON* document. A reference can be reso
 
 | Property Name                    | Description                             | Example                        |
 | -------------------------------- | --------------------------------------- | ------------------------------ |
-| `resolve(default: false): !!bool` | Resolve reference at payload generation | `!!ref(resolve=true) ..foo.bar` |
+| `resolve(default: false): !!bool` | Resolve reference at payload generation | `!ref(resolve=true) ..foo.bar` |
 
 The schema of a reference is expressed as follows:
 
@@ -728,7 +728,7 @@ The schema of a reference is expressed as follows:
 }
 ```
 
-URN references rely on an external UON document that resolve a urn. The resolve document is usually passed as follows `!!uon(urn-resolve: @(http://some-domain.com))`. A set can be passed to `urn-resolve`
+URN references rely on an external UON document that resolve a urn. The resolve document is usually passed as follows `!uon(urn-resolve: @(http://some-domain.com))`. A set can be passed to `urn-resolve`
 
 A possible value for this resolver is:
 
@@ -962,7 +962,7 @@ Quantities are represented and written using UTF-8 special chars. It is perfectl
 value: 12.35±0.01 J/(m²⋅s)
 ```
 
-If coerced in `!!map`, it would become:
+If coerced in `!map`, it would become:
 
 ```yaml
 value: !!magnitude {
@@ -988,8 +988,8 @@ Units can be parsed in any order, but they are always serialized in the same man
 | `exclusive`    | Cannot be present along with                                 | `foo-or-bar: { !!exclusive( foo: !!str, bar: !!dec ) } |
 | `min`          | Minimum length or value (equivalent to `le`)                 | `age: !!int(min: 0, max: 200)`                       |
 | `max`          | Maximum length or value (equivalent to `ge`)                 |                                                     |
-| `repr`         | Representation format (coercive)                             | `!!seq(repr: !!complex)`, `[1, 20]` becomes `1+20j`   |
-| `quantity`     | Quantity value for physical magnitudes                       | `!!dec(quantity: "temperature")`                     |
+| `repr`         | Representation format (coercive)                             | `!seq(repr: !!complex)`, `[1, 20]` becomes `1+20j`   |
+| `quantity`     | Quantity value for physical magnitudes                       | `!dec(quantity: "temperature")`                     |
 | `dummy`        | The value is dummy and does not appear in the payload. Usually used as a reference on other fields |                                                     |
 | `default`      | Default value when missing                                   | `enabled: !!bool(default: false)`                    |
 | `merge`        | Merge the value with the inherited type, false by default    |                                                     |
@@ -1001,7 +1001,7 @@ Units can be parsed in any order, but they are always serialized in the same man
 | `le`           | Lesser or equal                                              |                                                     |
 | `description`  | Description of the key or type                               |                                                     |
 | `link`         | List of hyperlinks                                           |                                                     |
-| `alias`        | Used to accept values as an alias of another one             | `!!bool(alias: {on: true, off: false})`              |
+| `alias`        | Used to accept values as an alias of another one             | `!bool(alias: {on: true, off: false})`              |
 | `resolve`      | Resolve reference when serializing, default `false`          |                                                     |
 | `hash`         | Hash of the associated value computed on the binary format. This is useful to make sure a document as not been modified. The hash value can be an external reference. It is computed in SHA256 |                                                     |
 | `signature`    | Any value can be signed using a digital signature.            |                                                     |
@@ -1043,7 +1043,7 @@ As UON is made to increase interoperability, the UON standard may not be fully s
 
 ## Destructuring
 
-With the help of references (`!!ref`), *UON* data can be easily destructured to only access a subset of data. This might be useful when used within a RESTful API.
+With the help of references (`!ref`), *UON* data can be easily destructured to only access a subset of data. This might be useful when used within a RESTful API.
 
 ```yaml
 !!uon(version: 0.0.1) {
@@ -1368,7 +1368,7 @@ One important application of this feature is IoT. Let's imagine a small temperat
 }
 ```
 
-The above schema is device-agnostic. It does not define any unit nor any sized types allowing small devices to transmit data using `!!uint8` or `!!float32`. So the data consumer that receives the binary data shall be able to interpret the data by only knowing this reference schema. However, the payload should be lightweight and it should not include details such as encoding type.
+The above schema is device-agnostic. It does not define any unit nor any sized types allowing small devices to transmit data using `!uint8` or `!float32`. So the data consumer that receives the binary data shall be able to interpret the data by only knowing this reference schema. However, the payload should be lightweight and it should not include details such as encoding type.
 
 In the case of our, temperature sensor the binary representation looks like this, eight-bit long.
 
@@ -1385,11 +1385,11 @@ The data consumer that listens to this sensor (imagine a MQTT payload), will nee
 }
 ```
 
-That's it! The new refined schema is compatible with `!temperature-sensor` the temperature value is still a `!!number`, it has the same quantity (temperature). The optional `sampling-time` is still optional so if it is transmitted, the device will need to encode it using a full-type notation i.e. the type identifier (0xab for a `!!float64`) followed by the 64-bit data.
+That's it! The new refined schema is compatible with `!temperature-sensor` the temperature value is still a `!number`, it has the same quantity (temperature). The optional `sampling-time` is still optional so if it is transmitted, the device will need to encode it using a full-type notation i.e. the type identifier (0xab for a `!float64`) followed by the 64-bit data.
 
 Now this refined schema has to be exchanged from the BLE temperature sensor to the data consumer as a contract that describes the payload. How is it done? Well, I am not yet sure of the best solution but here some possibility:
 
-* The refined schema is transmitted once by the device either in plain or binary data. Notice that binary format get rid of properties unless it belongs to  `!!schema` so in Python doing `my_refined_schema.to_binary()` gives full binary payload that can be parsed and understood. The good thing is only the altered properties and types are mentioned.
+* The refined schema is transmitted once by the device either in plain or binary data. Notice that binary format get rid of properties unless it belongs to  `!schema` so in Python doing `my_refined_schema.to_binary()` gives full binary payload that can be parsed and understood. The good thing is only the altered properties and types are mentioned.
 * The refined schema is stored on a global server and a URI gives the access to it. The data receiver should then ask the device for the URI of the refined schema. This is possible in MQTT by simply subscribing to `/my-device/.schema`
 
 ```yaml
@@ -1465,7 +1465,7 @@ This is great, but *UON* is powerful enough to do it on its own. Let's suppose t
 temp.to_uon(version: '0.0.1', describe: true)
 ```
 
-Let's now imagine we want to transmit the payload to another very lightweight device that understands the temperature sensor, but in Kelvin with a negative offset, and with data given in `!!float32`. I simply need to refine the original schema and coerce the received payload into it:
+Let's now imagine we want to transmit the payload to another very lightweight device that understands the temperature sensor, but in Kelvin with a negative offset, and with data given in `!float32`. I simply need to refine the original schema and coerce the received payload into it:
 
 ```python
 refined = """!schema(!temperature sensor) {
@@ -1476,7 +1476,7 @@ def on_message(client, userdata, msg):
        parser.from_binary(msg.payload).coerce(refined).to_binary())
 ```
 
-Why would it work that smoothly? Because the payload is still a derived version of `temperature-sensor` so the properties of `temperature` can be modified without changing the original type `!!number`.
+Why would it work that smoothly? Because the payload is still a derived version of `temperature-sensor` so the properties of `temperature` can be modified without changing the original type `!number`.
 
 ## Aggregation
 
@@ -1729,19 +1729,19 @@ parser = Parser(schema: """
 
 | Offset in B | Value  | Type      |
 | ----------- | ------ | --------- |
-| 0           | Byte 0 | `!!uint8` |
-| 1           | Byte 1 | `!!uint8` |
-| 2           | Byte 2 | `!!uint8` |
-| 3           | Byte 3 | `!!uint8` |
+| 0           | Byte 0 | `!uint8` |
+| 1           | Byte 1 | `!uint8` |
+| 2           | Byte 2 | `!uint8` |
+| 3           | Byte 3 | `!uint8` |
 
 ### !!jwt
 
 | Offset | Value  | Type     |
 | ------ | ------ | -------- |
-| 0      | xxx    | `!!blob` |
-| 1      | yyy    | `!!blob` |
-| 2      | zzz    | `!!blob` |
-| 3      | Byte 3 | `!!blob` |
+| 0      | xxx    | `!blob` |
+| 1      | yyy    | `!blob` |
+| 2      | zzz    | `!blob` |
+| 3      | Byte 3 | `!blob` |
 
 ### !!blob
 
@@ -1758,8 +1758,8 @@ coerce: {
 
 | Offset | Value  | Type     |
 | ------ | ------ | -------- |
-| 0      | length | `!!uint` |
-| 1      | data   | `!!blob` |
+| 0      | length | `!uint` |
+| 1      | data   | `!blob` |
 
 # Annexes
 
@@ -1769,53 +1769,53 @@ coerce: {
 
 | UON Type          | Standards                                                | Example                                                  |
 | ----------------- | -------------------------------------------------------- | -------------------------------------------------------- |
-| `!!uuid`          | [RFC 4122](https://tools.ietf.org/html/rfc4122)          | `uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6`              |
-| `!!jwt`           | [RFC 7797](https://tools.ietf.org/html/rfc7797)          | `xxxxx.yyyyy.zzzzz`                                      |
-| `!!datetime`      | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)       | `2018-06-10T16:25:17+00:00`                              |
-| `!!date`          | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)       | `2018-06-10`                                             |
-| ``!!time``        | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)       | `16:25:17`                                               |
-| `!!regex`         | [PCRE](https://www.pcre.org/)                            | `/foo|[bBar]/`                                           |
-| `!!unit`          | [ISO 80000-1](https://en.wikipedia.org/wiki/ISO_80000-1) | `celsius`                                                |
-| `!!math`          | [MathJax](https://www.mathjax.org/)                      | `$x_{1,2}=-b\pm\frac{\sqrt{b^2-4\cdota\cdotc}{2\cdota}$` |
-| `!!number-system` | -                                                        | `real`                                                   |
+| `!uuid`          | [RFC 4122](https://tools.ietf.org/html/rfc4122)          | `uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6`              |
+| `!jwt`           | [RFC 7797](https://tools.ietf.org/html/rfc7797)          | `xxxxx.yyyyy.zzzzz`                                      |
+| `!datetime`      | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)       | `2018-06-10T16:25:17+00:00`                              |
+| `!date`          | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)       | `2018-06-10`                                             |
+| ``!time``        | [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)       | `16:25:17`                                               |
+| `!regex`         | [PCRE](https://www.pcre.org/)                            | `/foo|[bBar]/`                                           |
+| `!unit`          | [ISO 80000-1](https://en.wikipedia.org/wiki/ISO_80000-1) | `celsius`                                                |
+| `!math`          | [MathJax](https://www.mathjax.org/)                      | `$x_{1,2}=-b\pm\frac{\sqrt{b^2-4\cdota\cdotc}{2\cdota}$` |
+| `!number-system` | -                                                        | `real`                                                   |
 | `!ipv4`           | [RFC 791](https://tools.ietf.org/html/rfc791)            | `192.168.1.42`                                           |
-| `!!ipv6`          | [RFC 2732](https://www.ietf.org/rfc/rfc2732.txt)         | `1080::8:800:200C:417A`                                  |
-| `!!urn`           | [RFC 8141](https://tools.ietf.org/html/rfc8141)          | `urn:example:foo-bar-baz-qux?+CCResolve:cc=ch`           |
-| `!!uri`           | [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)         | `news:comp.infosystems.www.servers.unix`                 |
+| `!ipv6`          | [RFC 2732](https://www.ietf.org/rfc/rfc2732.txt)         | `1080::8:800:200C:417A`                                  |
+| `!urn`           | [RFC 8141](https://tools.ietf.org/html/rfc8141)          | `urn:example:foo-bar-baz-qux?+CCResolve:cc=ch`           |
+| `!uri`           | [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)         | `news:comp.infosystems.www.servers.unix`                 |
 | `!req`            | [RFC  2119](https://www.ietf.org/rfc/rfc2119.txt)        | `!req(must) "Be portable and interoperable"`             |
 | `!log`            | [RFC 5424](https://tools.ietf.org/html/rfc5424)          | `!log(error) "Unable to bind socket"`                    |
-| `!!str`           | [RFC 3629](https://tools.ietf.org/html/rfc3629)          | `"𝚄O𝙽™ ı𝘴 𝛼 𝒇𝛼𝐧𝜏𝓪𝕤𝕥⍳ⲥ 𝓈𝙚𝓻𝚤𝕒lℹ𝙯𝝰𝜏ｉο𝓃 l𝙖ϖℊʋ𝙖𝗀𝕖"`          |
-| `!!float`         | [IEEE 754:2008](https://en.wikipedia.org/wiki/IEEE_754)  | `3.1415926535`                                           |
+| `!str`           | [RFC 3629](https://tools.ietf.org/html/rfc3629)          | `"𝚄O𝙽™ ı𝘴 𝛼 𝒇𝛼𝐧𝜏𝓪𝕤𝕥⍳ⲥ 𝓈𝙚𝓻𝚤𝕒lℹ𝙯𝝰𝜏ｉο𝓃 l𝙖ϖℊʋ𝙖𝗀𝕖"`          |
+| `!float`         | [IEEE 754:2008](https://en.wikipedia.org/wiki/IEEE_754)  | `3.1415926535`                                           |
 
 ## Available Types
 
-This annex lists all the native *UON* types. Currently 80 types have been reserved. *UON* supports 256 different types as a type identifier is encoded using a `!!uint8` type. 
+This annex lists all the native *UON* types. Currently 80 types have been reserved. *UON* supports 256 different types as a type identifier is encoded using a `!uint8` type. 
 
 | ID   | Name          | Description                                          | Derived from |
 | ---- | ------------- | ---------------------------------------------------- | ------------ |
-| 0x00 | `!!type`      | Base type                                            | -            |
-| 0x01 | `!!seq`       | Ordered sequence                                     | `!!type`     |
-| 0x02 | `!!map`       | Unordered list of key-value pairs                    | `!!type`     |
-| 0x03 | `!!set`       | Unordered set of unique data                         | `!!seq`      |
-| 0x04 | `!!omap`      | Ordered list of key-value pairs                      | `!!seq`      |
-| 0x05 | `!!oset`      | Ordered set of unique data                           | `!!seq`      |
-| 0x06 | `!!scalar`    | Any scalar representable with a string               | `!!type`     |
+| 0x00 | `!type`      | Base type                                            | -            |
+| 0x01 | `!seq`       | Ordered sequence                                     | `!type`     |
+| 0x02 | `!map`       | Unordered list of key-value pairs                    | `!type`     |
+| 0x03 | `!set`       | Unordered set of unique data                         | `!seq`      |
+| 0x04 | `!omap`      | Ordered list of key-value pairs                      | `!seq`      |
+| 0x05 | `!oset`      | Ordered set of unique data                           | `!seq`      |
+| 0x06 | `!scalar`    | Any scalar representable with a string               | `!type`     |
 | 0x07 | -             | Reserved                                             |              |
-| 0x08 | -             | Reserved                                             |              |
-| 0x09 | -             | Reserved                                             |              |
-| 0x0a | `!!oneof`     | Only used in validation schemas                      | `!!set`      |
-| 0x0b | -             | Reserved                                             |              |
-| 0x0c | -             | Reserved                                             |              |
-| 0x0d | -             | Reserved                                             |              |
-| 0x0e | -             | Reserved                                             |              |
+| 0x08 | `!oneof`     | Validation only                              | `!set` |
+| 0x09 | `!and`        | Validation only                              | `!key` |
+| 0x0a | `!or` | Validation only       | `!key` |
+| 0x0b | `!add`     | Validation only                         | `!key` |
+| 0x0c | `!sub`       | Validation only                              | `!key` |
+| 0x0d | `!mul`        | Validation only                              | `!key` |
+| 0x0e | `!div`       | Validation only                              | `!key` |
 | 0x0f | -             | Reserved                                             |              |
-| 0x10 | `!!null`      | Null value                                           | `!!scalar`   |
-| 0x11 | `!!str`       | String                                               | `!!scalar`   |
-| 0x12 | `!!key`       | Keyword `/[a-z][a-z0-9-]*(?=-)/`                     | `!!str`      |
-| 0x13 | `!!bool`      | Boolean value `/false|true/`                         | `!!key`      |
-| 0x14 | `!!num`       | Any real number `/[+-](0|[1-9]|[1-9\d*)(\.?\d*)?/`   | `!!scalar`   |
-| 0x15 | `!!ref`       | Reference to another value                           | `!!str`      |
-| 0x16 | `!!blob`      | Raw Binary Content                                   | `!!scalar`   |
+| 0x10 | `!null`      | Null value                                           | `!scalar`   |
+| 0x11 | `!str`       | String                                               | `!scalar`   |
+| 0x12 | `!key`       | Keyword `/[a-z][a-z0-9-]*(?=-)/`                     | `!str`      |
+| 0x13 | `!bool`      | Boolean value `/false|true/`                         | `!key`      |
+| 0x14 | `!num`       | Any real number `/[+-](0|[1-9]|[1-9\d*)(\.?\d*)?/`   | `!scalar`   |
+| 0x15 | `!ref`       | Reference to another value                           | `!str`      |
+| 0x16 | `!blob`      | Raw Binary Content                                   | `!scalar`   |
 | 0x17 | -             | Reserved                                             |              |
 | 0x18 | -             | Reserved                                             |              |
 | 0x19 | -             | Reserved                                             |              |
@@ -1825,49 +1825,49 @@ This annex lists all the native *UON* types. Currently 80 types have been reserv
 | 0x1d | -             | Reserved                                             |              |
 | 0x1e | -             | Reserved                                             |              |
 | 0x1f | -             | Reserved                                             |              |
-| 0x20 | `!!real`      | Any kind of representable number (TODO: Keep it?)    | `!!num`      |
-| 0x21 | `!!floatb`    | Binary Floating point number encoded using IEEE 754  | `!!real`     |
-| 0x22 | `!!floatd`    | Decimal Floating point number encoded using IEEE 754 | `!!real`     |
-| 0x23 | `!!floatb32`  | 32-bit binary float                                  | `!!floatb`   |
-| 0x24 | `!!floatb64`  | 64-bit binary float                                  | `!!floatb`   |
-| 0x25 | `!!float128`  | 128-bit binary float                                 | `!!floatb`   |
-| 0x26 | `!!floatd32`  | 32-bit decimal float                                 | `!!floatd`   |
-| 0x27 | `!!floatd64`  | 64-bit decimal float                                 | `!!floatd`   |
-| 0x28 | `!!floatd128` | 128-bit decimal float                                | `!!floatd`   |
-| 0x29 | `!!int`       | Variable length integer value $\in \mathbb{N} $      | `!!real`     |
-| 0x30 | `!!uint`      | Variable length unsigned integer $\in \mathbb{Z} $   | `!!int`      |
-| 0x31 | `!!int8`      | 8-bit signed integer                                 | `!!int`      |
-| 0x32 | `!!int16`     | 16-bit signed integer                                | `!!int`      |
-| 0x33 | `!!int32`     | 32-bit signed integer                                | `!!int`      |
-| 0x34 | `!!int64`     | 64-bit signed integer                                | `!!int`      |
-| 0x35 | `!!int128`    | 128-bit signed integer                               | `!!int`      |
-| 0x36 | `!!int256`    | 256-bit signed integer                               | `!!int`      |
-| 0x37 | `!!unt8`      | 8-bit unsigned integer                               | `!!int`      |
-| 0x38 | `!!unt16`     | 16-bit unsigned integer                              | `!!int`      |
-| 0x39 | `!!unt32`     | 32-bit unsigned integer                              | `!!int`      |
-| 0x3a | `!!unt64`     | 64-bit unsigned integer                              | `!!int`      |
-| 0x3b | `!!unt128`    | 128-bit unsigned integer                             | `!!int`      |
-| 0x3c | `!!unt256`    | 256-bit unsigned integer                             | `!!int`      |
+| 0x20 | `!real`      | Any kind of representable number (TODO: Keep it?)    | `!num`      |
+| 0x21 | `!floatb`    | Binary Floating point number encoded using IEEE 754  | `!real`     |
+| 0x22 | `!floatd`    | Decimal Floating point number encoded using IEEE 754 | `!real`     |
+| 0x23 | `!floatb32`  | 32-bit binary float                                  | `!floatb`   |
+| 0x24 | `!floatb64`  | 64-bit binary float                                  | `!floatb`   |
+| 0x25 | `!float128`  | 128-bit binary float                                 | `!floatb`   |
+| 0x26 | `!floatd32`  | 32-bit decimal float                                 | `!floatd`   |
+| 0x27 | `!floatd64`  | 64-bit decimal float                                 | `!floatd`   |
+| 0x28 | `!floatd128` | 128-bit decimal float                                | `!floatd`   |
+| 0x29 | `!int`       | Variable length integer value $\in \mathbb{N} $      | `!real`     |
+| 0x30 | `!uint`      | Variable length unsigned integer $\in \mathbb{Z} $   | `!int`      |
+| 0x31 | `!int8`      | 8-bit signed integer                                 | `!int`      |
+| 0x32 | `!int16`     | 16-bit signed integer                                | `!int`      |
+| 0x33 | `!int32`     | 32-bit signed integer                                | `!int`      |
+| 0x34 | `!int64`     | 64-bit signed integer                                | `!int`      |
+| 0x35 | `!int128`    | 128-bit signed integer                               | `!int`      |
+| 0x36 | `!int256`    | 256-bit signed integer                               | `!int`      |
+| 0x37 | `!unt8`      | 8-bit unsigned integer                               | `!int`      |
+| 0x38 | `!unt16`     | 16-bit unsigned integer                              | `!int`      |
+| 0x39 | `!unt32`     | 32-bit unsigned integer                              | `!int`      |
+| 0x3a | `!unt64`     | 64-bit unsigned integer                              | `!int`      |
+| 0x3b | `!unt128`    | 128-bit unsigned integer                             | `!int`      |
+| 0x3c | `!unt256`    | 256-bit unsigned integer                             | `!int`      |
 | 0x3d | -             | Reserved                                             |              |
-| 0x3e | `!!complex`   | Complex number $\in \mathbb{C} $                     | `!!real`     |
-| 0x3f | `!!frac`      | Rational number $\in \mathbb{Q} $                    | `!!real`     |
-| 0x40 | `!!version`   | Semantic version number x.y.z                        | `!!str`      |
-| 0x41 | `!!regex`     | Regular expression, with default PCRE flavor         | `!!str`      |
-| 0x42 | `!!datetime`  | Date time value according to ISO 8601                | `!!str`      |
-| 0x43 | `!!date`      | Only date value                                      | `!!datetime` |
-| 0x44 | `!!time`      | Only time value                                      | `!!datetime` |
-| 0x45 | `!!ipv4`      | IP Version 4 e.g. `192.168.1.4/23`                   | `!!uint32`   |
-| 0x46 | `!!ipv6`      | IP Version 6                                         | `!!uint128`  |
-| 0x47 | `!!jwt`       | JSON Web Token                                       | `!!str`      |
-| 0x48 | `!!uuid`      | 128-bit Universal Unique Identifier                  | `!!uint128`  |
-| 0x49 | `!!epoch`     | UNIX timestamp                                       | `!!uint32`   |
-| 0x4a | `!!math`      | Mathematical expression                              | `!!str`      |
-| 0x4b | `!!uri`       | Unique resource identifier                           | `!!str`      |
-| 0x4c | `!!url`       |                                                      | `!!uri`      |
-| 0x4d | `!!urn`       |                                                      | `!!uri`      |
-| 0x4e | `!!log`       | Log entry (severity, datetime, module)               | `!!str`      |
-| 0x4f | `!!req`       | Requirement Specification (must, should, ...)        | `!!str`      |
-| 0x80 | `!!markdown`  | Markdown text                                        | `!!str`      |
+| 0x3e | `!complex`   | Complex number $\in \mathbb{C} $                     | `!real`     |
+| 0x3f | `!frac`      | Rational number $\in \mathbb{Q} $                    | `!real`     |
+| 0x40 | `!version`   | Semantic version number x.y.z                        | `!str`      |
+| 0x41 | `!regex`     | Regular expression, with default PCRE flavor         | `!str`      |
+| 0x42 | `!datetime`  | Date time value according to ISO 8601                | `!str`      |
+| 0x43 | `!date`      | Only date value                                      | `!datetime` |
+| 0x44 | `!time`      | Only time value                                      | `!datetime` |
+| 0x45 | `!ipv4`      | IP Version 4 e.g. `192.168.1.4/23`                   | `!uint32`   |
+| 0x46 | `!ipv6`      | IP Version 6                                         | `!uint128`  |
+| 0x47 | `!jwt`       | JSON Web Token                                       | `!str`      |
+| 0x48 | `!uuid`      | 128-bit Universal Unique Identifier                  | `!uint128`  |
+| 0x49 | `!epoch`     | UNIX timestamp                                       | `!uint32`   |
+| 0x4a | `!math`      | Mathematical expression                              | `!str`      |
+| 0x4b | `!uri`       | Unique resource identifier                           | `!str`      |
+| 0x4c | `!url`       |                                                      | `!uri`      |
+| 0x4d | `!urn`       |                                                      | `!uri`      |
+| 0x4e | `!log`       | Log entry (severity, datetime, module)               | `!str`      |
+| 0x4f | `!req`       | Requirement Specification (must, should, ...)        | `!str`      |
+| 0x80 | `!markdown`  | Markdown text                                        | `!str`      |
 
 ## Type names vs other languages
 
@@ -1880,25 +1880,25 @@ Consensus matters, *UON* aims to use the largest consensus, by considering sever
 
 | UON    | Math    | C/C++ | Java    | Python | Go     | Ruby   | C#     | PHP     |
 | ------ | ------- | ------ | ------- | ------ | ------ | ------ | ------ | ------- |
-| `!!int8` | - | `int8_t` | `byte` | `c_byte` |        |        |        | - |
-| `!!uint8` | - | `uint8_t` | - | `c_ubyte` | | | | - |
-| `!!int16` | - | `int16_t` | `short` | `c_short` |        |        |        | - |
-| `!!uint16` | - | `uint16_t` | `char` | `c_ushort` | | | | - |
-| `!!int32` | - | `int32_t` | `int` | `c_int` |        |        |        | int |
-| `!!uint32` | - | `uint32_t` | `uint` | `c_uint` | | | | - |
-| `!!int64` | - | `int64_t` | `long` | `c_longlong` | | | | int |
-| `!!uint64` | - | `uint64_t` | `ulong` | `c_ulonglong` | | | | |
-| `!!int` | integer | - | `BigInteger` | `int` | | | | |
-| `!!uint` | natural | - | `BigInteger` | `int` | | | | |
-| `!!number` |  | - | - | `decimal` | | | | |
-| `!!frac` | rational | - | - | - | | | | |
-| `!!bool` | -       | `bool` | `boolean` | `bool` |        |        |        | boolean |
-| `!!str` | -       | `char *` | `String` | str    | string | String | string | string  |
-| `!!float` | real | - | `BigDecimal` | `float` |        |        |        |         |
-| `!!bfloat32` | - | `float` | `float` | `c_float` |        |        |        |         |
-| `!!bfloat64` | - | `double` | `double` | `c_double` |        |        |        |         |
-| `!!bfloat128` | - | - | - | `c_longdouble` |        |        |        |         |
-| `!!dfloatl32` | - | - | - | - |        |        |        |         |
-| `!!dfloat64` | - | - | - | - |        |        |        |         |
-| `!!dfloat128` | - | - | - | - |        |        |        |         |
-| `!!complex` | complex | - | - | - |        |        |        |         |
+| `!int8` | - | `int8_t` | `byte` | `c_byte` |        |        |        | - |
+| `!uint8` | - | `uint8_t` | - | `c_ubyte` | | | | - |
+| `!int16` | - | `int16_t` | `short` | `c_short` |        |        |        | - |
+| `!uint16` | - | `uint16_t` | `char` | `c_ushort` | | | | - |
+| `!int32` | - | `int32_t` | `int` | `c_int` |        |        |        | int |
+| `!uint32` | - | `uint32_t` | `uint` | `c_uint` | | | | - |
+| `!int64` | - | `int64_t` | `long` | `c_longlong` | | | | int |
+| `!uint64` | - | `uint64_t` | `ulong` | `c_ulonglong` | | | | |
+| `!int` | integer | - | `BigInteger` | `int` | | | | |
+| `!uint` | natural | - | `BigInteger` | `int` | | | | |
+| `!number` |  | - | - | `decimal` | | | | |
+| `!frac` | rational | - | - | - | | | | |
+| `!bool` | -       | `bool` | `boolean` | `bool` |        |        |        | boolean |
+| `!str` | -       | `char *` | `String` | str    | string | String | string | string  |
+| `!float` | real | - | `BigDecimal` | `float` |        |        |        |         |
+| `!bfloat32` | - | `float` | `float` | `c_float` |        |        |        |         |
+| `!bfloat64` | - | `double` | `double` | `c_double` |        |        |        |         |
+| `!bfloat128` | - | - | - | `c_longdouble` |        |        |        |         |
+| `!dfloatl32` | - | - | - | - |        |        |        |         |
+| `!dfloat64` | - | - | - | - |        |        |        |         |
+| `!dfloat128` | - | - | - | - |        |        |        |         |
+| `!complex` | complex | - | - | - |        |        |        |         |
