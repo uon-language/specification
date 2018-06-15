@@ -65,7 +65,9 @@ For the purposes of this document, the following terms and definitions apply.
 
 ![](C:\Users\ycr\Data\specification\assets\complexity-levels.png)
 
-### Related to JSON
+### Related to other standards
+
+#### Related to JSON
 
 Both JSON and UON aim to be human readable data interchange formats. UON extends JSON capabilities and readability with:
 
@@ -76,7 +78,7 @@ Both JSON and UON aim to be human readable data interchange formats. UON extends
 * Add support for comments
 * Add support for set, and ordered mapping
 
-### Related to YAML
+#### Related to YAML
 
 YAML is very complete, it supports references (recursive references), comments, complex types, but it syntax lack of rigidity. They are multiple way of writing a YAML which can be confusing to some people and hard to validate. UON extends YAML capabilities by adding:
 
@@ -92,11 +94,13 @@ Comments in YAML are not formally part of the object tree, but they are somehow 
 
 ![](C:\Users\ycr\Data\specification\assets\supersets.png)
 
-### Related to XML
+One major difference with YAML is the tag notations. On YAML native tags are noted using two exclamation marks e.g. `!!int`, but user types have only one `! `, so called "non-specific tag". *UON* aims to be simple and lightweight. Using an additional `! ` for native types would encourage user types. In *UON* native tags are primary tags.  
+
+#### Related to XML
 
 XML has proven its strength over many years. It is still a very complete language, but it is also more verbose than other serialization languages which make it difficult to use with lightweight infrastructure such as MCU and battery powered telemetry devices. However it provides a full support for validation (XSD) and presentation (XSLT). UON took the tags attributes that are missing from JSON and YAML.
 
-## Related to (Google) Protocol Buffers
+#### Related to Protocol Buffers
 
 Protocol buffers is a relatively new standard developed by Google which allows binary payload generations. So it defined some advanced types. Platform neutral serialization language developed by Google.
 
@@ -106,6 +110,10 @@ Protocol buffers is a relatively new standard developed by Google which allows b
 * Fixed size scalar values e.g. `int32`, `uint64`, `sint32`
 * Enumerations
 * One-of keyword
+
+### Information Model
+
+![](C:\Users\ycr\Data\specification\assets\information-model.png)
 
 ### Symbol Pairs
 
@@ -1859,8 +1867,7 @@ This annex lists all the native *UON* types. Currently 80 types have been reserv
 | 0x4d | `!!urn`       |                                                      | `!!uri`      |
 | 0x4e | `!!log`       | Log entry (severity, datetime, module)               | `!!str`      |
 | 0x4f | `!!req`       | Requirement Specification (must, should, ...)        | `!!str`      |
-
-
+| 0x80 | `!!markdown`  | Markdown text                                        | `!!str`      |
 
 ## Type names vs other languages
 
