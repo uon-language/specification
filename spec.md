@@ -94,7 +94,7 @@ Comments in YAML are not formally part of the object tree, but they are somehow 
 
 ![](C:\Users\ycr\Data\specification\assets\supersets.png)
 
-One major difference with YAML is the tag notations. On YAML native tags are noted using two exclamation marks e.g. `!int`, but user types have only one `! `, so called "non-specific tag". *UON* aims to be simple and lightweight. Using an additional `! ` for native types would encourage user types. In *UON* native tags are primary tags.  
+One major difference with YAML is the tag notations. On YAML native tags are noted using two exclamation marks e.g. `!int`, but user types have only one `! `, so called "non-specific tag". *UON* aims to be simple and lightweight. Using an additional `! ` for native types would encourage user types. In *UON* native tags are primary tags.
 
 #### Related to XML
 
@@ -127,6 +127,9 @@ Symbol pairs are syntactic sugars used to enhance readability by associating a s
 | `/ /`        | Regular expression    | `!regex` |
 | `$ $`        | Mathematical expression | `!math`  |
 | `( )`        | Properties            | -        |
+| `@( )` | Unresolved reference | `!ref` |
+| `@@( )` | Resolved reference | `!ref` |
+| `!@()` | Reference to a type | `!ref` |
 | `< >`        | Structural container  | -        |
 
 Structural containers are not meant to be directly used, but they can show how data are imbricated.
@@ -180,7 +183,59 @@ The only reserved language symbols are the following
 
 ## Syntax
 
+*UON* is a PPSG as Parsing Permissive - Strict Generation. It means the language is tolerant and flexible to parsed documents, but it always generates a strict and identical output.
+
+For example, UON accept different kind of indentation (tabs, 2 spaces, 4 spaces, ...), but it only generates a 2 space indentation.
+
 ![](C:\Users\ycr\Data\specification\assets\syntax.png)
+
+```yaml
+[
+  !!int !!uint !!int8 42,
+  {
+    !!str: !!int !!uint
+    !!int: !!str "Hello"
+    !foo: 42
+  }
+]
+```
+
+```
+Is the sequence above inconsistent? No
+
+Type can be followed by a type, but a value cannot be followed by a type:
+!!str 42 !!str 42 (Wrong)
+
+if someone forgot a comma (it often happen), it can be detected. Here above it is detected.
+
+!!str : !!int !!uint !!int : !!str
+
+In this case does !!uint belong to the left or to the right?. The answer is: There is a missing comma somewhere between uint and int
+
+start-array
+type(int)
+type(uint)
+type(int8)
+42
+
+
+```
+
+## Semantic
+
+| Term                     | Definition                                  |
+| ------------------------ | ------------------------------------------- |
+| Decimal separator        | SHALL be a dot `.`                          |
+| Digit grouping           | SHALL be a space ` ` (ISO 80000-1 standard) |
+| Quantity                 | Physical quantity                           |
+| Numerical value          |                                             |
+| Base unit                |                                             |
+| Derived unit             |                                             |
+| Presentation             |                                             |
+| Validation               |                                             |
+| Canonical representation |                                             |
+
+
 
 ## Example
 
@@ -216,14 +271,14 @@ The only reserved language symbols are the following
       aligned: m"Multiline string where new lines are preserved"
     },
     number: {
-      decimal: -1432879.09,
+      decimal: -1 432 879.09,
       int: 1408,
       hex: 0x24321,
       oct: 0o19283,
       bin: 0b10001,
       float: [12.132e6, -.inf, .nan]
-      complex: 12+4j,
-      quaternion: 12+12i+23j+43k,
+      complex: 12 + 4j,
+      quaternion: 12 + 12i + 23j + 43k,
       quantity: {
          length: 12m,
          information: 120Gio
@@ -246,7 +301,7 @@ The only reserved language symbols are the following
   rich: {
      uuid: !uuid "82584ce5-d086-41ff-978f-57323ebf5b9d",
      jwt: !jwt "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjF9.9GeY7G6YbEh90kFhyhqsL29uFQCbIlk2Y-YVhae61g0",
-     base64: !base64 "W55IGNhcm5hbCBwbGVhc3VyZS4="
+     base64: !blob(encoding: base64) "W55IGNhcm5hbCBwbGVhc3VyZS4="
   }
   # Validation schema
   schema: !!schema("http://schema.org/Book") {
@@ -278,6 +333,117 @@ The only reserved language symbols are the following
       pattern(optional: true): !!regex,
     }
   )
+}
+```
+### Overview
+#### Numbers
+##### Quantities and uncertainties
+
+```yaml
+{
+  quantities: {
+    length: 12 m,
+    duration: 24 h,
+    acceleration: 35.12e3 m/s^2
+  uncertainty: [
+    12±0.01,
+    -122.075e6±0.01 Ω,
+    23.22±0.125 °C,
+    12 + 6i W
+  ]
+}
+```
+
+##### Rational, Complex and Quaternion
+
+```yaml
+{
+  rational: 643 / 123
+  complex: 12 + 6i,
+  quaternion: 6 + 3i + 9j - 8k,
+}
+```
+
+##### Variable size
+
+```yaml
+{
+  int: -564 645 543 123 241e143
+  uint: +483813344e-122
+  float: -1345.392828482943833e-44
+  decimal: -1 345.392 828 482 943 833e-44
+}
+```
+
+##### Fixed size
+
+```yaml
+{
+  natural: {
+    uint256: 115792089237316195423570985008687907853269984665640564039457584007913129,
+    uint128: 340282366920938463463374607431768211455,
+    uint64: 18446744073709551615,
+    uint32: 4 294 967 295,
+    uint16: 65 535,
+    uint8: 255
+  }
+  integer: {
+    int256: -5789604461865809771178549250434395392663499233282028201972879200395656481
+    int128: -170141183460469231731687303715884105728
+    int64: -9223372036854775808,
+    int32: -2 147 483 648
+    int16: -32 768
+  }
+  real: {
+    radix-binary: {
+      float128: .inf
+      float64: .inf
+      float32: 3.402823e+38,
+    }
+    radix-decimal: {
+      floatd128: .inf
+      floatd64: .inf
+      floatd32: 3.402823e+38,
+    }
+  }
+}
+```
+
+#### Rich types
+
+```yaml
+{
+  urn: urn:oasis:names:specification:docbook:dtd:xml:4.1.2,
+  url: http://www.google.com,
+  math: $\x_{1,2}=-b\pm\frac{\sqrt{b^2-4ac}}{2a}$,
+  uuid: c339822f-c28d-4d30-b205-f4763820efb2,
+  version: [
+    1.2.35,
+    1.0.0-alpha,
+    1.0.0-x.7.z.92,
+    1.0.0+20130313144700
+  ]
+  regex: /^#?([a-f0-9]{6}|[a-f0-9]{3})$/,
+  datetime: [
+    2018-06-16T18:58:54+00:00,
+    2018-06-16T18:58:54Z,
+    20180616T185854Z
+  ]
+  date: [
+    2018-12-09,
+    2018-W24,
+    2018-W24-6
+  ]
+  time: 12:32:42
+  ipv4: 192.168.1.6/23,
+  ipv6: [
+    2001:0db8:0000:0000:0000:ff00:0042:8329,
+    2001:db8:0:0:0:ff00:42:8329,
+    2001:db8::ff00:42:8329,
+    ::1/128,
+    ::ffff:0:0:0/96
+  ]
+  epoch: !epoch 1529178670,
 }
 ```
 
@@ -520,7 +686,7 @@ Presentation properties are any property that influence the presentation of a va
 
 ### Validation
 
-Validation properties are used to validate, constrain and describe a *UON* file. 
+Validation properties are used to validate, constrain and describe a *UON* file.
 
 ### Example
 
@@ -715,7 +881,7 @@ A reference refers to another field on a *UON* document. A reference can be reso
 }
 ```
 
-You can do absolute or relative references. 
+You can do absolute or relative references.
 
 | Reference | Description    |
 | --------- | -------------- |
@@ -724,7 +890,7 @@ You can do absolute or relative references.
 | `@...foo` | Second parent  |
 | `!@`      | Link to a type |
 
-Parenthesis are not required, but recommended. 
+Parenthesis are not required, but recommended.
 
 | Explicit                          | Syntactic sugar |
 | --------------------------------- | --------------- |
@@ -1567,22 +1733,22 @@ data: !acc-seq(index: .time, offset: 5433335321, increment: 250) [
 
 ## Evaluations
 
-*UON* should allow simple evaluations using the postfix notation because it is easier to implement in different languages and can easily be represented with a sequence. 
+*UON* should allow simple evaluations using the postfix notation because it is easier to implement in different languages and can easily be represented with a sequence.
 
 ```yaml
 !!eval: !!schema() !!seq(min: 2) [
-  !!number, 
+  !!number,
   !!add, !!sub, !!mul, !!div
   !!not, !!and, !!or,
   !!ref(resolve: false)
 ]
 ```
 
-Adding the support for evaluations would allow to provide support for a new unit conversion. Presenting a temperature value into a different compatible unit should be possible. Units are not types, they are built into the number class. 
+Adding the support for evaluations would allow to provide support for a new unit conversion. Presenting a temperature value into a different compatible unit should be possible. Units are not types, they are built into the number class.
 
-To coerce a unit into another we must make sure the values we use as input are good. In other words, we must check the quantity of both sides are the same. How to properly do this? 
+To coerce a unit into another we must make sure the values we use as input are good. In other words, we must check the quantity of both sides are the same. How to properly do this?
 
-Let's start from this: 
+Let's start from this:
 
 ```yaml
 !!number: !!schema(
@@ -1591,19 +1757,19 @@ Let's start from this:
       !!number(unit: farheneit): !!number(quantity: temperature) !!eval [212.234, @@.content, 543.1, !!mul, !!add],
       !!number(unit: kelvin): !!number(quantity: temperature) !!eval [212.234, @@.content, 543.1, !!mul, !!add],
     }
-) 
+)
 ```
 
 As *UON* would not allow to change the quantity of a given number. One must check this quantity is not changed. This possible by coercing the result of the evaluation with a number associated to a given quantity. We should notice that the following will fail at parsing the schema:
 
 ```yaml
-# Error because quantity a length cannot be converted into temperature. 
+# Error because quantity a length cannot be converted into temperature.
 !!number(quantity: temperature) !!number(unit: meter) 42
 ```
 
-Again, UON does not allow to transform data. It only offers to represent data differently without content loss. It means, quantity of a number has to be preserved 
+Again, UON does not allow to transform data. It only offers to represent data differently without content loss. It means, quantity of a number has to be preserved
 
-## Encryption 
+## Encryption
 
 One true important problem is the payload encryption. If two parties have to exchange a known set of data such as this public schema:
 
@@ -1615,18 +1781,18 @@ One true important problem is the payload encryption. If two parties have to exc
 }
 ```
 
-The refined schema is private and only known by both parties (Bob and Alice). The exchange mechanism is not part of *UON* because addressing this problem is complex thanks to a MITM. So common solutions most likely relies on a third-party authority that sign certificates. 
+The refined schema is private and only known by both parties (Bob and Alice). The exchange mechanism is not part of *UON* because addressing this problem is complex thanks to a MITM. So common solutions most likely relies on a third-party authority that sign certificates.
 
 ```yaml
 !!schema(refine: !missile-codes) !!map(encryption: aes128, password: "random")
 ```
 
-So when Bob sends the data to Alice using 
+So when Bob sends the data to Alice using
 
 ```python
 password = "random"
 parser = Parser(schema: """
-    !!schema(refine: !@(http://somewhere.com/missile-codes)) 
+    !!schema(refine: !@(http://somewhere.com/missile-codes))
     !!map(encryption: aes128, password: "%s")
 """ % password)
 
@@ -1634,7 +1800,7 @@ parser = Parser(schema: """
 >>> client.write(parser.from_dict({
 ...     'alpha': 'abfw594324qi',
 ...     'beta':  'a59fjc432wqe',
-...     'gamma': '95jgfl324nfs',    
+...     'gamma': '95jgfl324nfs',
 ... }).to_binary())
 
 # Alice
@@ -1642,7 +1808,7 @@ parser = Parser(schema: """
 {
     'alpha': 'abfw594324qi',
     'beta':  'a59fjc432wqe',
-    'gamma': '95jgfl324nfs',    
+    'gamma': '95jgfl324nfs',
 }
 
 # Eve
@@ -1827,7 +1993,7 @@ coerce: {
 
 ## Available Types
 
-This annex lists all the native *UON* types. Currently 80 types have been reserved. *UON* supports 256 different types as a type identifier is encoded using a `!uint8` type. 
+This annex lists all the native *UON* types. Currently 80 types have been reserved. *UON* supports 256 different types as a type identifier is encoded using a `!uint8` type.
 
 | ID   | Name          | Description                                          | Derived from |
 | ---- | ------------- | ---------------------------------------------------- | ------------ |
@@ -1886,8 +2052,8 @@ This annex lists all the native *UON* types. Currently 80 types have been reserv
 | 0x3a | `!unt64`     | 64-bit unsigned integer                              | `!int`      |
 | 0x3b | `!unt128`    | 128-bit unsigned integer                             | `!int`      |
 | 0x3c | `!unt256`    | 256-bit unsigned integer                             | `!int`      |
-| 0x3d | -             | Reserved                                             |              |
-| 0x3e | `!complex`   | Complex number $\in \mathbb{C} $                     | `!real`     |
+| 0x3d | `!complex`   | Complex number $\in \mathbb{C} $                     | `!seq`      |
+| 0x3e | `!quaternion`| Quaternion number $\in \mathbb{H} $                  | `!seq`      |
 | 0x3f | `!frac`      | Rational number $\in \mathbb{Q} $                    | `!real`     |
 | 0x40 | `!version`   | Semantic version number x.y.z                        | `!str`      |
 | 0x41 | `!regex`     | Regular expression, with default PCRE flavor         | `!str`      |
