@@ -94,7 +94,7 @@ Comments in YAML are not formally part of the object tree, but they are somehow 
 
 ![](C:\Users\ycr\Data\specification\assets\supersets.png)
 
-One major difference with YAML is the tag notations. On YAML native tags are noted using two exclamation marks e.g. `!int`, but user types have only one `! `, so called "non-specific tag". *UON* aims to be simple and lightweight. Using an additional `! ` for native types would encourage user types. In *UON* native tags are primary tags.
+One major difference with YAML is the tag notations. On YAML native tags are noted using two exclamation marks e.g. `!int`, but user types have only one `! `, so called "non-specific tag". *UON* aims to be simple and lightweight. Using an additional `! ` for native types would encourage user types. In *UON* native tags are primary tags.  
 
 #### Related to XML
 
@@ -183,9 +183,7 @@ The only reserved language symbols are the following
 
 ## Syntax
 
-*UON* is a PPSG as Parsing Permissive - Strict Generation. It means the language is tolerant and flexible to parsed documents, but it always generates a strict and identical output.
-
-For example, UON accept different kind of indentation (tabs, 2 spaces, 4 spaces, ...), but it only generates a 2 space indentation.
+*UON* is a PPSG
 
 ![](C:\Users\ycr\Data\specification\assets\syntax.png)
 
@@ -203,10 +201,10 @@ For example, UON accept different kind of indentation (tabs, 2 spaces, 4 spaces,
 ```
 Is the sequence above inconsistent? No
 
-Type can be followed by a type, but a value cannot be followed by a type:
+Type can be followed by a type, but a value cannot be followed by a type: 
 !!str 42 !!str 42 (Wrong)
 
-if someone forgot a comma (it often happen), it can be detected. Here above it is detected.
+if someone forgot a comma (it often happen), it can be detected. Here above it is detected. 
 
 !!str : !!int !!uint !!int : !!str
 
@@ -335,8 +333,11 @@ type(int8)
   )
 }
 ```
+
 ### Overview
+
 #### Numbers
+
 ##### Quantities and uncertainties
 
 ```yaml
@@ -360,7 +361,7 @@ type(int8)
 {
   rational: 643 / 123
   complex: 12 + 6i,
-  quaternion: 6 + 3i + 9j - 8k,
+  quaternion: 6 + 3i + 9j - 8k,    
 }
 ```
 
@@ -369,7 +370,7 @@ type(int8)
 ```yaml
 {
   int: -564 645 543 123 241e143
-  uint: +483813344e-122
+  uint: +483813344e-122 
   float: -1345.392828482943833e-44
   decimal: -1 345.392 828 482 943 833e-44
 }
@@ -389,25 +390,34 @@ type(int8)
   }
   integer: {
     int256: -5789604461865809771178549250434395392663499233282028201972879200395656481
-    int128: -170141183460469231731687303715884105728
+    int128: -170141183460469231731687303715884105728 
     int64: -9223372036854775808,
     int32: -2 147 483 648
-    int16: -32 768
+    int16: -32 768  
   }
   real: {
     radix-binary: {
       float128: .inf
       float64: .inf
-      float32: 3.402823e+38,
+      float32: 3.402823e+38,            
     }
     radix-decimal: {
       floatd128: .inf
       floatd64: .inf
-      floatd32: 3.402823e+38,
+      floatd32: 3.402823e+38,         
     }
   }
 }
 ```
+
+
+
+```yaml
+  null: null,
+  bool: true,
+```
+
+
 
 #### Rich types
 
@@ -443,9 +453,11 @@ type(int8)
     ::1/128,
     ::ffff:0:0:0/96
   ]
-  epoch: !epoch 1529178670,
+  epoch: !epoch 1529178670,  
 }
 ```
+
+
 
 ### Other examples
 
@@ -686,7 +698,7 @@ Presentation properties are any property that influence the presentation of a va
 
 ### Validation
 
-Validation properties are used to validate, constrain and describe a *UON* file.
+Validation properties are used to validate, constrain and describe a *UON* file. 
 
 ### Example
 
@@ -881,7 +893,7 @@ A reference refers to another field on a *UON* document. A reference can be reso
 }
 ```
 
-You can do absolute or relative references.
+You can do absolute or relative references. 
 
 | Reference | Description    |
 | --------- | -------------- |
@@ -890,7 +902,7 @@ You can do absolute or relative references.
 | `@...foo` | Second parent  |
 | `!@`      | Link to a type |
 
-Parenthesis are not required, but recommended.
+Parenthesis are not required, but recommended. 
 
 | Explicit                          | Syntactic sugar |
 | --------------------------------- | --------------- |
@@ -1541,6 +1553,24 @@ In the context of this draft, no implementation is fully available, however, pro
 | Python     | http://github.com/uon-language/py-uon | TBD    |
 | PHP        | -                                     | TBD    |
 
+### Parser
+
+UON Parser aims to be very fast so it relies on two passes:
+
+* Rough pass to identify the base structure of the document. A PreParsed object is created with the original text content and a dictionary of `Element` which have
+  * start position
+  * end position
+  * identified type (if identified)
+  * object, the parsed object when available
+  * The idea is to not descend through all the tree. Long and complex strings can be parsed at a glance by just looking at the first non-escaped closing `"`.  The preparsed scalar. 
+    * The type is identified so we have `(0, 32, 'int')`
+    * The type isn't identified yet so we have `(0, 32, None)`
+    * The type can only be a list of some types `(0, 32, ('int', 'float'))`
+* Second pass
+  * The Object representation is built from the first pass but it is built on request.
+
+
+
 ## Syntax Highlight and support in text editors
 
 I believe *UON* will only be used by others when its syntax is fully supported by the major text editors. This chapter will be removed from this specification when released...
@@ -1733,22 +1763,22 @@ data: !acc-seq(index: .time, offset: 5433335321, increment: 250) [
 
 ## Evaluations
 
-*UON* should allow simple evaluations using the postfix notation because it is easier to implement in different languages and can easily be represented with a sequence.
+*UON* should allow simple evaluations using the postfix notation because it is easier to implement in different languages and can easily be represented with a sequence. 
 
 ```yaml
 !!eval: !!schema() !!seq(min: 2) [
-  !!number,
+  !!number, 
   !!add, !!sub, !!mul, !!div
   !!not, !!and, !!or,
   !!ref(resolve: false)
 ]
 ```
 
-Adding the support for evaluations would allow to provide support for a new unit conversion. Presenting a temperature value into a different compatible unit should be possible. Units are not types, they are built into the number class.
+Adding the support for evaluations would allow to provide support for a new unit conversion. Presenting a temperature value into a different compatible unit should be possible. Units are not types, they are built into the number class. 
 
-To coerce a unit into another we must make sure the values we use as input are good. In other words, we must check the quantity of both sides are the same. How to properly do this?
+To coerce a unit into another we must make sure the values we use as input are good. In other words, we must check the quantity of both sides are the same. How to properly do this? 
 
-Let's start from this:
+Let's start from this: 
 
 ```yaml
 !!number: !!schema(
@@ -1757,19 +1787,19 @@ Let's start from this:
       !!number(unit: farheneit): !!number(quantity: temperature) !!eval [212.234, @@.content, 543.1, !!mul, !!add],
       !!number(unit: kelvin): !!number(quantity: temperature) !!eval [212.234, @@.content, 543.1, !!mul, !!add],
     }
-)
+) 
 ```
 
 As *UON* would not allow to change the quantity of a given number. One must check this quantity is not changed. This possible by coercing the result of the evaluation with a number associated to a given quantity. We should notice that the following will fail at parsing the schema:
 
 ```yaml
-# Error because quantity a length cannot be converted into temperature.
+# Error because quantity a length cannot be converted into temperature. 
 !!number(quantity: temperature) !!number(unit: meter) 42
 ```
 
-Again, UON does not allow to transform data. It only offers to represent data differently without content loss. It means, quantity of a number has to be preserved
+Again, UON does not allow to transform data. It only offers to represent data differently without content loss. It means, quantity of a number has to be preserved 
 
-## Encryption
+## Encryption 
 
 One true important problem is the payload encryption. If two parties have to exchange a known set of data such as this public schema:
 
@@ -1781,18 +1811,18 @@ One true important problem is the payload encryption. If two parties have to exc
 }
 ```
 
-The refined schema is private and only known by both parties (Bob and Alice). The exchange mechanism is not part of *UON* because addressing this problem is complex thanks to a MITM. So common solutions most likely relies on a third-party authority that sign certificates.
+The refined schema is private and only known by both parties (Bob and Alice). The exchange mechanism is not part of *UON* because addressing this problem is complex thanks to a MITM. So common solutions most likely relies on a third-party authority that sign certificates. 
 
 ```yaml
 !!schema(refine: !missile-codes) !!map(encryption: aes128, password: "random")
 ```
 
-So when Bob sends the data to Alice using
+So when Bob sends the data to Alice using 
 
 ```python
 password = "random"
 parser = Parser(schema: """
-    !!schema(refine: !@(http://somewhere.com/missile-codes))
+    !!schema(refine: !@(http://somewhere.com/missile-codes)) 
     !!map(encryption: aes128, password: "%s")
 """ % password)
 
@@ -1800,7 +1830,7 @@ parser = Parser(schema: """
 >>> client.write(parser.from_dict({
 ...     'alpha': 'abfw594324qi',
 ...     'beta':  'a59fjc432wqe',
-...     'gamma': '95jgfl324nfs',
+...     'gamma': '95jgfl324nfs',    
 ... }).to_binary())
 
 # Alice
@@ -1808,7 +1838,7 @@ parser = Parser(schema: """
 {
     'alpha': 'abfw594324qi',
     'beta':  'a59fjc432wqe',
-    'gamma': '95jgfl324nfs',
+    'gamma': '95jgfl324nfs',    
 }
 
 # Eve
@@ -1930,7 +1960,7 @@ parser = Parser(schema: """
 
 # Binary Encoding
 
-### !!ipv4
+### !ipv4
 
 | Offset in B | Value  | Type      |
 | ----------- | ------ | --------- |
@@ -1939,7 +1969,7 @@ parser = Parser(schema: """
 | 2           | Byte 2 | `!uint8` |
 | 3           | Byte 3 | `!uint8` |
 
-### !!jwt
+### !jwt
 
 | Offset | Value  | Type     |
 | ------ | ------ | -------- |
@@ -1948,7 +1978,7 @@ parser = Parser(schema: """
 | 2      | zzz    | `!blob` |
 | 3      | Byte 3 | `!blob` |
 
-### !!blob
+### !blob
 
 ```yaml
 coerce: {
@@ -1993,7 +2023,7 @@ coerce: {
 
 ## Available Types
 
-This annex lists all the native *UON* types. Currently 80 types have been reserved. *UON* supports 256 different types as a type identifier is encoded using a `!uint8` type.
+This annex lists all the native *UON* types. Currently 80 types have been reserved. *UON* supports 256 different types as a type identifier is encoded using a `!uint8` type. 
 
 | ID   | Name          | Description                                          | Derived from |
 | ---- | ------------- | ---------------------------------------------------- | ------------ |
@@ -2004,7 +2034,7 @@ This annex lists all the native *UON* types. Currently 80 types have been reserv
 | 0x04 | `!omap`      | Ordered list of key-value pairs                      | `!seq`      |
 | 0x05 | `!oset`      | Ordered set of unique data                           | `!seq`      |
 | 0x06 | `!scalar`    | Any scalar representable with a string               | `!type`     |
-| 0x07 | -             | Reserved                                             |              |
+| 0x07 | `!uon`      | UON document                           |              |
 | 0x08 | `!oneof`     | Validation only                              | `!set` |
 | 0x09 | `!and`        | Validation only                              | `!seq` |
 | 0x0a | `!or` | Validation only       | `!seq` |
@@ -2030,14 +2060,14 @@ This annex lists all the native *UON* types. Currently 80 types have been reserv
 | 0x1e | -             | Reserved                                             |              |
 | 0x1f | -             | Reserved                                             |              |
 | 0x20 | `!real`      | Any kind of representable number (TODO: Keep it?)    | `!num`      |
-| 0x21 | `!floatb`    | Binary Floating point number encoded using IEEE 754  | `!real`     |
-| 0x22 | `!floatd`    | Decimal Floating point number encoded using IEEE 754 | `!real`     |
-| 0x23 | `!floatb32`  | 32-bit binary float                                  | `!floatb`   |
-| 0x24 | `!floatb64`  | 64-bit binary float                                  | `!floatb`   |
+| 0x21 | `!float`    | Binary Floating point number encoded using IEEE 754  | `!real`     |
+| 0x22 | `!decimal` | Decimal Floating point number encoded using IEEE 754 | `!real`     |
+| 0x23 | `!float32`  | 32-bit binary float                                  | `!floatb`   |
+| 0x24 | `!float64`  | 64-bit binary float                                  | `!floatb`   |
 | 0x25 | `!float128`  | 128-bit binary float                                 | `!floatb`   |
-| 0x26 | `!floatd32`  | 32-bit decimal float                                 | `!floatd`   |
-| 0x27 | `!floatd64`  | 64-bit decimal float                                 | `!floatd`   |
-| 0x28 | `!floatd128` | 128-bit decimal float                                | `!floatd`   |
+| 0x26 | `!decimal32` | 32-bit decimal float                                 | `!floatd`   |
+| 0x27 | `!decimal64` | 64-bit decimal float                                 | `!floatd`   |
+| 0x28 | `!decimal128` | 128-bit decimal float                                | `!floatd`   |
 | 0x29 | `!int`       | Variable length integer value $\in \mathbb{N} $      | `!real`     |
 | 0x30 | `!uint`      | Variable length unsigned integer $\in \mathbb{Z} $   | `!int`      |
 | 0x31 | `!int8`      | 8-bit signed integer                                 | `!int`      |
@@ -2052,9 +2082,9 @@ This annex lists all the native *UON* types. Currently 80 types have been reserv
 | 0x3a | `!unt64`     | 64-bit unsigned integer                              | `!int`      |
 | 0x3b | `!unt128`    | 128-bit unsigned integer                             | `!int`      |
 | 0x3c | `!unt256`    | 256-bit unsigned integer                             | `!int`      |
-| 0x3d | `!complex`   | Complex number $\in \mathbb{C} $                     | `!seq`      |
-| 0x3e | `!quaternion`| Quaternion number $\in \mathbb{H} $                  | `!seq`      |
-| 0x3f | `!frac`      | Rational number $\in \mathbb{Q} $                    | `!real`     |
+| 0x3d | `!complex` | Complex number $\in \mathbb{C} $          | `!seq` |
+| 0x3e | `!quaternion` | Quaternion number $\in \mathbb{H} $ | `!seq`  |
+| 0x3f | `!frac`      | Rational number $\in \mathbb{Q} $                    | `!seq`   |
 | 0x40 | `!version`   | Semantic version number x.y.z                        | `!str`      |
 | 0x41 | `!regex`     | Regular expression, with default PCRE flavor         | `!str`      |
 | 0x42 | `!datetime`  | Date time value according to ISO 8601                | `!str`      |
@@ -2071,7 +2101,6 @@ This annex lists all the native *UON* types. Currently 80 types have been reserv
 | 0x4d | `!urn`       | Uniform Resource Name | `!uri`      |
 | 0x4e | `!log`       | Log entry (severity, datetime, module)               | `!str`      |
 | 0x4f | `!req`       | Requirement Specification (must, should, ...)        | `!str`      |
-| 0x80 | `!markdown`  | Markdown text                                        | `!str`      |
 
 ## Type names vs other languages
 
