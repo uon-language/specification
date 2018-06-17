@@ -163,23 +163,6 @@ Or in the minimal version:
 {brand:"Toyota",model:"Prius",year:"2016"}
 ```
 
-### Symbols
-
-The only reserved language symbols are the following
-
-| Symbol  | Description                                                  |
-| ------- | ------------------------------------------------------------ |
-| `!!`    | Standard type (cannot be defined at the user level)          |
-| `!`     | User type used to extend *UON* capabilities.                  |
-| `$`     | Reserved keyword (may be removed on a future *UON* release)  |
-| `,`     | Element separator                                            |
-| `@`     | Reference                                                    |
-| `#`     | Comment                                                      |
-| `.inf`  | Infinity (used within `!number`, `!float`, or `!decimal`)    |
-| `.nan`  | Not a Number (used within `!number`, `!float`, or `!decimal`) |
-| `true`  | Boolean (`!bool`) value `true`                               |
-| `false` | Boolean (`!bool`) value `false`                              |
-| `null`  | Null (`!null`) value                                         |
 
 ## Syntax
 
@@ -331,129 +314,6 @@ type(int8)
       pattern(optional: true): !!regex,
     }
   )
-}
-```
-
-### Overview
-
-#### Numbers
-
-##### Quantities and uncertainties
-
-```yaml
-{
-  quantities: {
-    length: 12 m,
-    duration: 24 h,
-    acceleration: 35.12e3 m/s^2
-  uncertainty: [
-    12±0.01,
-    -122.075e6±0.01 Ω,
-    23.22±0.125 °C,
-    12 + 6i W
-  ]
-}
-```
-
-##### Rational, Complex and Quaternion
-
-```yaml
-{
-  rational: 643 / 123
-  complex: 12 + 6i,
-  quaternion: 6 + 3i + 9j - 8k,    
-}
-```
-
-##### Variable size
-
-```yaml
-{
-  int: -564 645 543 123 241e143
-  uint: +483813344e-122 
-  float: -1345.392828482943833e-44
-  decimal: -1 345.392 828 482 943 833e-44
-}
-```
-
-##### Fixed size
-
-```yaml
-{
-  natural: {
-    uint256: 115792089237316195423570985008687907853269984665640564039457584007913129,
-    uint128: 340282366920938463463374607431768211455,
-    uint64: 18446744073709551615,
-    uint32: 4 294 967 295,
-    uint16: 65 535,
-    uint8: 255
-  }
-  integer: {
-    int256: -5789604461865809771178549250434395392663499233282028201972879200395656481
-    int128: -170141183460469231731687303715884105728 
-    int64: -9223372036854775808,
-    int32: -2 147 483 648
-    int16: -32 768  
-  }
-  real: {
-    radix-binary: {
-      float128: .inf
-      float64: .inf
-      float32: 3.402823e+38,            
-    }
-    radix-decimal: {
-      floatd128: .inf
-      floatd64: .inf
-      floatd32: 3.402823e+38,         
-    }
-  }
-}
-```
-
-
-
-```yaml
-  null: null,
-  bool: true,
-```
-
-
-
-#### Rich types
-
-```yaml
-{
-  urn: urn:oasis:names:specification:docbook:dtd:xml:4.1.2,
-  url: http://www.google.com,
-  math: $\x_{1,2}=-b\pm\frac{\sqrt{b^2-4ac}}{2a}$,
-  uuid: c339822f-c28d-4d30-b205-f4763820efb2,
-  version: [
-    1.2.35,
-    1.0.0-alpha,
-    1.0.0-x.7.z.92,
-    1.0.0+20130313144700
-  ]
-  regex: /^#?([a-f0-9]{6}|[a-f0-9]{3})$/,
-  datetime: [
-    2018-06-16T18:58:54+00:00,
-    2018-06-16T18:58:54Z,
-    20180616T185854Z
-  ]
-  date: [
-    2018-12-09,
-    2018-W24,
-    2018-W24-6
-  ]
-  time: 12:32:42
-  ipv4: 192.168.1.6/23,
-  ipv6: [
-    2001:0db8:0000:0000:0000:ff00:0042:8329,
-    2001:db8:0:0:0:ff00:42:8329,
-    2001:db8::ff00:42:8329,
-    ::1/128,
-    ::ffff:0:0:0/96
-  ]
-  epoch: !epoch 1529178670,  
 }
 ```
 
@@ -857,6 +717,24 @@ Numbers accept the [E-notation](https://en.wikipedia.org/wiki/Scientific_notatio
 
 Positional notation uses the representable symbols in this order `"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"`, which makes the maximum possible representable base 62
 
+#### Precision
+
+The fact that floating-point numbers cannot precisely represent all real numbers justifies the difference between `!num` and `!float`. 
+
+For example the `!float32 0.1` is not representable in IEEE 754 binary format:
+
+```
+!num 0.100000001490116119384765625 == !float32 0.1 
+```
+
+IEEE 754:2008 introduces a new format named `decimal` which has a radix of 10. This allows to represent exactly emulated decimal which is useful for financial and tax computations. However, most implementation and processors do not support this format:
+
+```
+!num 0.1 == !decimal32 0.1 
+```
+
+
+
 ### Keyword
 
 A keyword is essentially a string which can be represented without double quotes. It can be either `undefined` or `defined`. An undefined keyword is not defined in the search path, while the defined keyword is documented and defined somewhere in the search path.
@@ -1195,33 +1073,157 @@ value: !!magnitude {
 
 Units can be parsed in any order, but they are always serialized in the same manner
 
+## Coercion
+
+In *UON* data can be coerced into any compatible data. This is usually written by specifying the type of a value. 
+
+Here the value `42` is a `!uint` because it does not have any decimal information. However it is coerced into a signed integer with the explicit casting `!!int`. 
+
+```yaml
+!!int 42
+```
+
+In the example, one tries to coerce a signed integer into an unsigned one. This is not possible because the equality is not met anymore: `-42 != 42`
+
+```yaml
+!!uint -42
+```
+
+However, in this example, the coercion is acceptable. It is possible to convert a Celsius temperature into a Kelvin temperature without information loss `!num(unit = celsius) 23.2 == !num(unit = kelvin) 296.35`. The criteria is the quantity. Both types have the same quantity. 
+
+```yaml
+!float32(unit: kelvin) 23.2 °C
+```
+
+Again here, there is a information loss. Conversion is not reversible, 
+
+```yaml
+!int 42.15 # Acceptable
+!int !float 42.15 # Unacceptable
+```
+
+When coercing from one type to another, some properties cannot be altered. 
+
+```yaml
+!num(base: 2, scale: 3, offset: 4) !num(base: 10, scale: 2, offset: 3) 12345 
+```
+
+This is possible
+
 ## Validation
 
-### Properties
+### Validation schemas
 
-| Property       | Description                                                  | Example                                             |
-| -------------- | ------------------------------------------------------------ | --------------------------------------------------- |
-| `optional`     | Type or key is optional, default `false`                     | `foo(optional: false): !!str(min: 10)`               |
-| `exclusive`    | Cannot be present along with                                 | `foo-or-bar: { !!exclusive( foo: !!str, bar: !!dec ) } |
-| `min`          | Minimum length or value (equivalent to `le`)                 | `age: !!int(min: 0, max: 200)`                       |
-| `max`          | Maximum length or value (equivalent to `ge`)                 |                                                     |
-| `repr`         | Representation format (coercive)                             | `!seq(repr: !!complex)`, `[1, 20]` becomes `1+20j`   |
-| `quantity`     | Quantity value for physical magnitudes                       | `!dec(quantity: "temperature")`                     |
-| `dummy`        | The value is dummy and does not appear in the payload. Usually used as a reference on other fields |                                                     |
-| `default`      | Default value when missing                                   | `enabled: !!bool(default: false)`                    |
-| `merge`        | Merge the value with the inherited type, false by default    |                                                     |
-| `offset`       | Offset added to the serialized value (used in binary transmissions) |                                                     |
-| `scale-factor` | Multiplication factor (used in binary transmissions)         |                                                     |
-| `gt`           | The value must be greater than this value                    |                                                     |
-| `lt`           | The value must be greater than this value                    |                                                     |
-| `ge`           | Greater or equal                                             |                                                     |
-| `le`           | Lesser or equal                                              |                                                     |
-| `description`  | Description of the key or type                               |                                                     |
-| `link`         | List of hyperlinks                                           |                                                     |
-| `alias`        | Used to accept values as an alias of another one             | `!bool(alias: {on: true, off: false})`              |
-| `resolve`      | Resolve reference when serializing, default `false`          |                                                     |
-| `hash`         | Hash of the associated value computed on the binary format. This is useful to make sure a document as not been modified. The hash value can be an external reference. It is computed in SHA256 |                                                     |
-| `signature`    | Any value can be signed using a digital signature.            |                                                     |
+Validation is mostly related to *schemas*. *UON* offers 4 types of strategies: 
+
+* Embedded schema
+* Included schema
+* Linked schema
+* Separated schema
+
+Each solution has advantages and disadvantages
+
+#### Embedded schema
+
+An embedded schema is mixing data and constraints on the same dataset. The advantage is that the filler directly knows what's expected. The disadvantages is that the filler can modify the constraints. 
+
+```yaml
+# Person with embedded schema
+{
+    firstname: !str(pattern=/[A-Z][a-z]+/) "John",
+    lastname: !str(min: 2, max: 32) "Doe",
+    age: !uint(
+      min: 7, 
+      max: 77,
+      desc: "Age of the person that is able to play table games"
+    ) 35
+}
+```
+
+#### Included schema
+
+Included schema is pretty similar to embedded schema. The validation document is also included with the dataset. 
+
+The main advantage is readability. data set and data validation are therefore separated. The advantage is still that the filler can look at the schema, and self validate the content. Again the disadvantage is that schema could be modified. This can be prevented by adding a signature which needs to be validated against a trusted authority or certificate. 
+
+```yaml
+# Person with included schema
+!uon {
+  data: {
+    firstname: "John",
+    lastname: "Doe",
+    age: 35
+  }
+  schema: !type(
+    signature: "absbdb3b2HJG43hreklj430932rHvdsj"
+  ) {
+    firstname: !str(pattern=/[A-Z][a-z]+/),
+    lastname: !str(min: 2, max: 32),
+    age: !uint(min: 7, max: 77, desc: "Age of the person that is able to play table games")
+  }
+}
+```
+
+#### Linked schema
+
+Here the validation schema is linked to the dataset. The schema can still be accessible, but not modifiable. The main disadvantage is that the schema needs to be fetched from an external source. 
+
+```yaml
+# Person with linked schema
+!@(http://schema.example.com/person) {
+    firstname: "John",
+    lastname: "Doe",
+    age: 35
+}
+```
+
+#### Separated schema
+
+In this strategy data and validation are separated and unrelated.
+
+```yaml
+# Person dataset
+!!person {
+    firstname: "John",
+    lastname: "Doe",
+    age: 35
+}
+```
+
+```yaml
+# Person schema
+!!person: {
+  firstname: !str(pattern=/[A-Z][a-z]+/),
+  lastname: !str(min: 2, max: 32),
+  age: !uint(min: 7, max: 77, desc: "Age of the person that is able to play table games")
+}
+```
+
+### Validation Properties
+
+| Property       | Description                                                  | Example                                                 |
+| -------------- | ------------------------------------------------------------ | ------------------------------------------------------- |
+| `optional`     | Type or key is optional, default `false`                     | `foo(optional: false): !!str(min: 10)`                  |
+| `exclusive`    | Cannot be present along with                                 | `foo-or-bar: { !!exclusive( foo: !!str, bar: !!dec ) }` |
+| `min`          | Minimum length or value (equivalent to `le`)                 | `age: !!int(min: 0, max: 200)`                          |
+| `max`          | Maximum length or value (equivalent to `ge`)                 |                                                         |
+| `repr`         | Representation format (coercive)                             | `!seq(repr: !!complex)`, `[1, 20]` becomes `1+20j`      |
+| `quantity`     | Quantity value for physical magnitudes                       | `!dec(quantity: "temperature")`                         |
+| `dummy`        | The value is dummy and does not appear in the payload. Usually used as a reference on other fields |                                                         |
+| `default`      | Default value when missing                                   | `enabled: !!bool(default: false)`                       |
+| `merge`        | Merge the value with the inherited type, false by default    |                                                         |
+| `offset`       | Offset added to the serialized value (used in binary transmissions) |                                                         |
+| `scale-factor` | Multiplication factor (used in binary transmissions)         |                                                         |
+| `gt`           | The value must be greater than this value                    |                                                         |
+| `lt`           | The value must be greater than this value                    |                                                         |
+| `ge`           | Greater or equal                                             |                                                         |
+| `le`           | Lesser or equal                                              |                                                         |
+| `description`  | Description of the key or type                               |                                                         |
+| `link`         | List of hyperlinks                                           |                                                         |
+| `alias`        | Used to accept values as an alias of another one             | `!bool(alias: {on: true, off: false})`                  |
+| `resolve`      | Resolve reference when serializing, default `false`          |                                                         |
+| `hash`         | Hash of the associated value computed on the binary format. This is useful to make sure a document as not been modified. The hash value can be an external reference. It is computed in SHA256 |                                                         |
+| `signature`    | Any value can be signed using a digital signature.           |                                                         |
 
 ## Encryption
 
@@ -1294,101 +1296,6 @@ Therefore accessing to `subset` would return:
 ```
 
 Notice that references are resolved because they are no longer accessible from the subset.
-
-### Linked list
-
-The example below represents a Git repository with linked references. When serialized, one can choose to flatten or not the references.
-
-Editors that supports the UON syntax highlight SHOULD be able to resolve references.
-
-```yaml
-!git-repository {
-  head: @(refs.master)
-  refs: {
-    master: @(b43f2c2f661030e2cd4129787e71052567d4ef5a)
-  }
-  authors: {
-    "jdoe@example.com": "John Doe"
-  }
-  objects: {
-    b43f2c2f661030e2cd4129787e71052567d4ef5a: !commit {
-      tree: @(ee313d61f4eb880e14003a28690ea63980673d9c),
-      parent: @(c9825517d028c352af89a3229f011bdf085f7443),
-      author: {
-        identity: @(authors."jdoe@example.com"),
-        date: !!epoch 1528555907
-      }
-    },
-    c9825517d028c352af89a3229f011bdf085f7443: !commit {
-      tree: @(ea41dba10b54a794284e0be009a11f0ff3716a28),
-      parent: @(2770d3625580ecd3bd4cf57cb5bff9751f8cbb3c),
-      author: {
-        identity: @(authors."jdoe@example.com"),
-        date: !!epoch 1528555894
-      }
-    },
-    2770d3625580ecd3bd4cf57cb5bff9751f8cbb3c: !commit {
-      tree: @(4d5fcadc293a348e88f777dc0920f11e7d71441c),
-      parent: @(2770d3625580ecd3bd4cf57cb5bff9751f8cbb3c),
-      author: {
-        identity: @(authors."jdoe@example.com"),
-        date: !!epoch 1528555881
-      }
-    },
-    ee313d61f4eb880e14003a28690ea63980673d9c: !tree {
-      "bar": {
-        permissions: 100644,
-        ref: @(e69de29bb2d1d6434b8b29ae775ad8c2e48c5391)
-      },
-      "foo": {
-        permissions: 100644,
-        ref: @(d9e80f6f7602c18d035af9659303047b30204182)
-      }
-    },
-    e69de29bb2d1d6434b8b29ae775ad8c2e48c5391: !blob "",
-  }
-}
-```
-
-Here is the schema of this data structure, allowing validation:
-
-```yaml
-!!uon(version: 0.0.1) {
-  !git-repository: !!schema {
-    head: !!ref(base: "refs"),
-    refs: {
-      !!keyword: !!str
-    },
-    authors: {
-      !!str(desc: "email"): !!str
-    },
-    objects: {
-      !!keyword: !!oneof(
-        !commit,
-        !blob,
-        !tree
-      )
-    }
-  },
-  !ref: !!schema !!ref(base: "objects"),
-  !filename: !!schema !!str,
-  !blob: !!schema !!oneof([!!blob, !!str]),
-  !commit: !!schema {
-    tree: !ref,
-    parent(optional: true): !ref,
-    author: {
-      identity: !!ref(base: "authors"),
-      date: !!datetime
-    }
-  },
-  !tree: !!schema {
-    !filename: {
-      permission: !ref,
-      ref: !ref
-    }
-  }
-}
-```
 
 ## RESTful access
 
@@ -1799,55 +1706,6 @@ As *UON* would not allow to change the quantity of a given number. One must chec
 
 Again, UON does not allow to transform data. It only offers to represent data differently without content loss. It means, quantity of a number has to be preserved 
 
-## Encryption 
-
-One true important problem is the payload encryption. If two parties have to exchange a known set of data such as this public schema:
-
-```yaml
-!missile-codes = !!schema {
-    alpha: !!str(pattern: /(\da-z){12}/),
-    beta:  !!str(pattern: /(\da-z){12}/),
-    gamma: !!str(pattern: /(\da-z){12}/)
-}
-```
-
-The refined schema is private and only known by both parties (Bob and Alice). The exchange mechanism is not part of *UON* because addressing this problem is complex thanks to a MITM. So common solutions most likely relies on a third-party authority that sign certificates. 
-
-```yaml
-!!schema(refine: !missile-codes) !!map(encryption: aes128, password: "random")
-```
-
-So when Bob sends the data to Alice using 
-
-```python
-password = "random"
-parser = Parser(schema: """
-    !!schema(refine: !@(http://somewhere.com/missile-codes)) 
-    !!map(encryption: aes128, password: "%s")
-""" % password)
-
-# Bob
->>> client.write(parser.from_dict({
-...     'alpha': 'abfw594324qi',
-...     'beta':  'a59fjc432wqe',
-...     'gamma': '95jgfl324nfs',    
-... }).to_binary())
-
-# Alice
->>> parser.from_binary(client.read()).to_dict()
-{
-    'alpha': 'abfw594324qi',
-    'beta':  'a59fjc432wqe',
-    'gamma': '95jgfl324nfs',    
-}
-
-# Eve
->>> from uon import Parser
->>> parser = Parser(schema: "http://somewhere.com/missile-codes")
->>> parser.from_binary(sniffer.read()).to_uon()
-"XWTrUQIavBWU58SXjpdmZAe/NX4C7Xc1nMQenvK0oKzzyWnwfe8Y5UkmMibT1mwG"
-```
-
 
 
 ## Sandbox
@@ -2101,6 +1959,42 @@ This annex lists all the native *UON* types. Currently 80 types have been reserv
 | 0x4d | `!urn`       | Uniform Resource Name | `!uri`      |
 | 0x4e | `!log`       | Log entry (severity, datetime, module)               | `!str`      |
 | 0x4f | `!req`       | Requirement Specification (must, should, ...)        | `!str`      |
+
+## Regex validation
+
+| Type        | Regex                            |
+| ----------- | -------------------------------- |
+| `!datetime` | https://regex101.com/r/1AhuPW/1/ |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+|             |                                  |
+
+
 
 ## Type names vs other languages
 
