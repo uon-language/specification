@@ -135,13 +135,13 @@ Symbol pairs are syntactic sugars used to enhance readability by associating a s
 Structural containers are not meant to be directly used, but they can show how data are imbricated.
 
 ```yaml
-!!uon<version: !!version<0.0.1>>
+!uon<version: !version<0.0.1>>
 <
-  !!map<comment: <Basic Example>>
+  !map<comment: <Basic Example>>
   <
-    <!!keyword<brand>: !!str<Toyota>>,
-    <!!keyword<model>: !!str<Prius>>,
-    <!!keyword<year>: !!int<2016>>
+    <!keyword<brand>: !str<Toyota>>,
+    <!keyword<model>: !str<Prius>>,
+    <!keyword<year>: !int<2016>>
   >
 >
 ```
@@ -168,14 +168,14 @@ Or in the minimal version:
 
 *UON* is a PPSG
 
-![](C:\Users\ycr\Data\specification\assets\syntax.png)
+![](assets\syntax.png)
 
 ```yaml
 [
-  !!int !!uint !!int8 42,
+  !int !uint !int8 42,
   {
-    !!str: !!int !!uint
-    !!int: !!str "Hello"
+    !str: !int !uint
+    !int: !str "Hello"
     !foo: 42
   }
 ]
@@ -185,13 +185,13 @@ Or in the minimal version:
 Is the sequence above inconsistent? No
 
 Type can be followed by a type, but a value cannot be followed by a type: 
-!!str 42 !!str 42 (Wrong)
+!str 42 !str 42 (Wrong)
 
 if someone forgot a comma (it often happen), it can be detected. Here above it is detected. 
 
-!!str : !!int !!uint !!int : !!str
+!str : !int !uint !int : !str
 
-In this case does !!uint belong to the left or to the right?. The answer is: There is a missing comma somewhere between uint and int
+In this case does !uint belong to the left or to the right?. The answer is: There is a missing comma somewhere between uint and int
 
 start-array
 type(int)
@@ -224,14 +224,14 @@ type(int8)
 
 ```yaml
 # Overview of what UON is capable of
-!!uon(version: 0.0.1) {
+!uon(version: 0.0.1) {
   # Mapping, a dictionary of key-value pairs with unique keys
   map: {
     key-1: "A value",
     key-2: "Another value"
   },
   # Ordered mapping, but keys are unique
-  omap: !!omap {
+  omap: !omap {
     foo: 1,
     bar: 2
   },
@@ -240,7 +240,7 @@ type(int8)
   # Unordered set of unique values
   set: {"foo", "bar"},
   # Ordered set of unique values
-  oset: !!oset {"bar", "foo"},
+  oset: !oset {"bar", "foo"},
   # Scalars
   scalar: {
     bool: false,
@@ -274,7 +274,7 @@ type(int8)
   # References
   reference: {
   	ref: @(scalar.number.decimal),
-  	merge: !!map(merge: @scalar.number) {
+  	merge: !map(merge: @scalar.number) {
        int: 1409 # Override existing value
   	}
   },
@@ -285,33 +285,33 @@ type(int8)
      base64: !blob(encoding: base64) "W55IGNhcm5hbCBwbGVhc3VyZS4="
   }
   # Validation schema
-  schema: !!schema("http://schema.org/Book") {
-    abridged: !!bool,
-    bookEdition: !!str,
+  schema: !schema("http://schema.org/Book") {
+    abridged: !bool,
+    bookEdition: !str,
     bookFormat: !@("http://schema.org/Person"),
     isbn(optional: true): !@("urn:uon:isbn"),
-    numberOfPages: !!uint32(
+    numberOfPages: !uint32(
     	description: "Represent the number of page of a book"
     	min: 1
     ),
-    text(dummy: true): !!str(
+    text(dummy: true): !str(
       description: "This dummy field can be used as a reference by other fields"
     ),
     about: !@(.dummy),
     accessMode: !@(.dummy)
-    genre: !!oneof("Male", "Female"),
-    link: !!oneof(!url, !urn, !uri)
+    genre: !oneof("Male", "Female"),
+    link: !oneof(!url, !urn, !uri)
   },
 
   # Schema Type
-  !!str: !!schema("http://uon.io/str") !!type(
+  !str: !schema("http://uon.io/str") !type(
     description: """
        Base string encoded in UTF-8
     """t,
     properties: {
-      min(optional: true): !!uint(default: 0),
-      max(optional: true): !!uint(default: .inf), greater-than: @.min),
-      pattern(optional: true): !!regex,
+      min(optional: true): !uint(default: 0),
+      max(optional: true): !uint(default: .inf), greater-than: @.min),
+      pattern(optional: true): !regex,
     }
   )
 }
@@ -323,25 +323,25 @@ type(int8)
 
 ```yaml
 # Basic UON example
-!!uon(version: 0.0.1) !("urn:car") {
+!uon(version: 0.0.1) !("urn:car") {
   brand: "Toyota",
   model: "Prius",
   year: 2016
 },
 
 # Type description for a !car, and validation schema
-!!uon(version: 0.0.1) !!schema("urn:car") {
-  brand: !!str(pattern: /[A-Z]\w+/),
-  model: !!str(pattern: /[A-Z]\w+/),
-  year(required: false): !!dec(min: 1930)
-  color(required: false): !!oneof(
-     !!str,
-     !!number
+!uon(version: 0.0.1) !schema("urn:car") {
+  brand: !str(pattern: /[A-Z]\w+/),
+  model: !str(pattern: /[A-Z]\w+/),
+  year(required: false): !dec(min: 1930)
+  color(required: false): !oneof(
+     !str,
+     !number
   )
 }
 
 # Coersion is implicit, the parsed result is `12.`
-!!uon !!float !!str 12
+!uon !float !str 12
 ```
 
 ## Comments
@@ -371,9 +371,9 @@ Inline comments with `#`are never serialized when transmitted unless explicitly 
 If requested, the comment can be transmitted along with the data. They are therefore encoded as a property of the associated element. Thus the following is equivalent:
 
 ```yaml
-!!map(comment: "Comment global to the document")
+!map(comment: "Comment global to the document")
 {
-  !!keyword(comment: "Comment associated to the key-pair { brand: "Toyota" }") brand: "Toyota",
+  !keyword(comment: "Comment associated to the key-pair { brand: "Toyota" }") brand: "Toyota",
 }
 ```
 
@@ -393,7 +393,7 @@ In minimal format:
 * Comments are removed unless configured differently
 
 ```yaml
-!!uon(version:0.0.1)!car{brand:"Toyota",model:"Prius",year:2016}
+!uon(version:0.0.1)car{brand:"Toyota",model:"Prius",year:2016}
 ```
 
 ### Binary
@@ -414,7 +414,7 @@ In minimal format:
 
 ```yaml
 # This is a car...
-!!uon(version: 0.0.1) !car {
+!uon(version: 0.0.1) !car {
   brand: "Toyota"
   model: "Prius"
   year: 2016
@@ -427,7 +427,7 @@ One important feature of *UON* is that any kind of information belongs to a type
 
 ### Data Structures (or Structural types)
 
-![](C:\Users\ycr\Data\specification\assets\type-base.svg)
+![](assets\type-base.svg)
 
 They are primitive data types all derived from the `!type` master data type.
 
@@ -478,7 +478,7 @@ The number type is much more complete than JSON, XML or YAML. It aims to serve g
   * Fractional values for frequency ratio
   * Fixed-Point values in
 
-![](C:\Users\ycr\Data\specification\assets\numbers.png)
+![](assets\numbers.png)
 
 | Type         | Based on  | Description                                                  |
 | ------------ | --------- | ------------------------------------------------------------ |
@@ -565,7 +565,7 @@ Validation properties are used to validate, constrain and describe a *UON* file.
 Properties can be seen as attributes passed to a constructor of a class. When writing:
 
 ```yaml
-!!uon(version: 0.0.1) {}
+!uon(version: 0.0.1) {}
 ```
 
 You essentially instantiate a `!uon` class with the attribute `version` set to `0.0.1`. This instance is inherited automatically by the following argument here `{}` which is a `!map`.  In *UON* only types can be instantiated, but since everything is static on a *UON* document, `!uon` and `!uon()` performs the same. It is not allowed to add properties to objects such as:
@@ -703,17 +703,17 @@ Numbers accept the [E-notation](https://en.wikipedia.org/wiki/Scientific_notatio
 
 | Property Name                | Description                                          | Example                          |
 | ---------------------------- | ---------------------------------------------------- | -------------------------------- |
-| `magnitude: !!prefix`         | Order of magnitude                                   | `!number(magnitude: k) 12`       |
-| `base: !!uint(min:2, max:62)` | Positional notation (base-2, base-10...)             | `!number(base: 4) 222 # 42`      |
-| `min: !!number`               | Minimum accepted number                              | `!number(min: 2)`                |
-| `max: !!number(min: @.min)`   | Maximum length (must be greater or equal than `min`) | `!number(min: 2, max: 18)`       |
+| `magnitude: !prefix`         | Order of magnitude                                   | `!number(magnitude: k) 12`       |
+| `base: !uint(min:2, max:62)` | Positional notation (base-2, base-10...)             | `!number(base: 4) 222 # 42`      |
+| `min: !number`               | Minimum accepted number                              | `!number(min: 2)`                |
+| `max: !number(min: @.min)`   | Maximum length (must be greater or equal than `min`) | `!number(min: 2, max: 18)`       |
 | `le: @.max`                  | Less than or equal to                                | `!number(le: 2)`                 |
 | `ge: @.min`                  | Greater than or equal to                             | `!number(ge: 2)`                 |
-| `lt: !!number`                | Less than                                            | `!number(lt: 2)`                 |
-| `gt: !!number(min: @.lt)`     | Greater than                                         | `!number(gt: 2)`                 |
-| `uncertainty: !!number`       | Uncertainty value such as in `12 ± 0.01`             | `!number(uncertainty: 0.1) 12`   |
-| `unit: !!unit`                | Associated unit                                      | `number(unit: celsius) 21.3`     |
-| `fix(default: 0): !!uint`     | Fixpoint representation, value is divided by `!uint` | `number(base: 2, fix: 2) 110010` |
+| `lt: !number`                | Less than                                            | `!number(lt: 2)`                 |
+| `gt: !number(min: @.lt)`     | Greater than                                         | `!number(gt: 2)`                 |
+| `uncertainty: !number`       | Uncertainty value such as in `12 ± 0.01`             | `!number(uncertainty: 0.1) 12`   |
+| `unit: !unit`                | Associated unit                                      | `number(unit: celsius) 21.3`     |
+| `fix(default: 0): !uint`     | Fixpoint representation, value is divided by `!uint` | `number(base: 2, fix: 2) 110010` |
 
 Positional notation uses the representable symbols in this order `"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"`, which makes the maximum possible representable base 62
 
@@ -740,13 +740,13 @@ IEEE 754:2008 introduces a new format named `decimal` which has a radix of 10. T
 A keyword is essentially a string which can be represented without double quotes. It can be either `undefined` or `defined`. An undefined keyword is not defined in the search path, while the defined keyword is documented and defined somewhere in the search path.
 
 ```yaml
-!!uon(version: 0.0.1) {
-  !!keyword: !!schema(urn:uon:2018:types:keyword) !!str(
+!uon(version: 0.0.1) {
+  !keyword: !schema(urn:uon:2018:types:keyword) !!str(
      pattern: /^[a-z][a-z0-9-]+(?!-)$/i,
      properties: {
        enum: !!dec,
        coercion: {
-         !!number: @..enum
+         !number: @..enum
        }
      }
   )
@@ -755,7 +755,7 @@ A keyword is essentially a string which can be represented without double quotes
 
 | Property Name | Description       | Example                    |
 | ------------- | ----------------- | -------------------------- |
-| `enum: !!dec`  | Enumeration value | `!keyword(enum: 1e3) kilo` |
+| `enum: !dec`  | Enumeration value | `!keyword(enum: 1e3) kilo` |
 
 ### References
 
@@ -812,13 +812,13 @@ Parenthesis are not required, but recommended.
 The schema of a reference is expressed as follows:
 
 ```yaml
-!!uon(version: 0.0.1) {
-  !!keyword: !!schema(urn:uon:2018:types:reference) !!oneof {
-    !!uri,
-    !!str
+!uon(version: 0.0.1) {
+  !keyword: !schema(urn:uon:2018:types:reference) !oneof {
+    !uri,
+    !str
   },
   properties: {
-    resolve(default: false): !!bool
+    resolve(default: false): !bool
   }
 }
 ```
@@ -829,10 +829,10 @@ A possible value for this resolver is:
 
 ```yaml
 # Resolver for URN
-!!uon(version: 0.0.1) {
+!uon(version: 0.0.1) {
    ietf: {
      rfc:
-       2648: !!url "https://www.ietf.org/rfc/rfc2648.txt"
+       2648: !url "https://www.ietf.org/rfc/rfc2648.txt"
    }
 }
 ```
@@ -841,14 +841,14 @@ A possible value for this resolver is:
 
 ```yaml
 
-!!uon(version: 0.0.1) {
-  !!bin: !!schema(urn:uon:2018:types:binary) !!str(
+!uon(version: 0.0.1) {
+  !bin: !schema(urn:uon:2018:types:binary) !!str(
      pattern: /^0b([01]+)$/,
      coerce: {
-       !!number: !!number(base: 2) "$1"
+       !number: !number(base: 2) "$1"
      }
      properties: {
-       size: !!uint,
+       size: !uint,
      }
   )
 }
@@ -856,7 +856,7 @@ A possible value for this resolver is:
 
 ```yaml
 # Value of this is `2.16015625`
-!!number !!bin(fix: 8) 0b1000101001
+!number !bin(fix: 8) 0b1000101001
 ```
 
 ### IPv4
@@ -864,17 +864,17 @@ A possible value for this resolver is:
 The IPv4 type is defined in UON
 
 ```yaml
-!!ipv4: !!schema("http://uon.io/ipv4") !!str(
+!ipv4: !!schema("http://uon.io/ipv4") !str(
   description: "Type representing a Internet Protocol version 4 address defined in RFC 760",
   links: [
-    !!url "https://tools.ietf.org/html/rfc760"
+    !url "https://tools.ietf.org/html/rfc760"
   ]
   pattern: /^((?&b))\.((?&b))\.((?&b))\.((?&b))(?(DEFINE)\b(?<b>25[0-5]|2[0-4]\d|[01]?\d\d?))$/,
   coerce: {
-    !!seq: [!!int "$1", !!int "$2", !!int "$3", !!int "$4"]
+    !seq: [!int "$1", !int "$2", !int "$3", !int "$4"]
   },
   properties(merge=true): {
-    mask(optional: true): !!bool(default: false)
+    mask(optional: true): !bool(default: false)
   }
 )
 ```
@@ -897,13 +897,13 @@ Blob are binary content that can be represented with as string with a chosen enc
 | `0xfe`  | Validation   | `modulo: !!uint(default: 1)`                      | Binary size in byte must be multiple of `modulo` |
 |         |              |                                                   |                                                  |
 
+### Emails
 
+Unfortunately UON does not have a type for emails. The main reason is because there is no regex that 100% works. The RFC5322 is not enough to check an email validity. One has also to refer to RFC5321, RFC3696 and RFC1034 and RFC1035. That said the email `"()<>[]:,;@\\\"!#$%&'-/=?^_{}| ~.a"@example.org` is perfectly valid, but lots of parser would not accept it. As it is not possible to satisfy everybody. UON does not define the email type. However a user type `!!email` could be defined for a specific application. 
 
 ## Physics
 
 Physical constants
-
-
 
 ## Units
 
@@ -927,7 +927,7 @@ When only the quantity is known, the unit will be assumed to be SI strict.
 
 ```yaml
 # Temperature is assumed to be given in Kelvin
-!!number(quantity: temperature) 250.24
+!number(quantity: temperature) 250.24
 ```
 
 ### Derived Units
@@ -963,7 +963,7 @@ These derived units can be used either on a payload or on a validation schema:
 
 ```yaml
 [
-  !!number(unit: "°C") 21.13,   # Explicit unit
+  !number(unit: "°C") 21.13,   # Explicit unit
   21.13 °C                     # Also valid
 ]
 ```
@@ -994,6 +994,14 @@ Other non-SI units shall also be accepted such as unit of information.
 | `B`         | Octet or Byte | Exactly 8 b   |
 | `nat`       | Nat           | Base `e`      |
 | `dit`       | Dit           | Base 10       |
+
+### Astronomical units
+
+| Unit symbol | Unit name         | Quantity name | Equivalents              |
+| ----------- | ----------------- | ------------- | ------------------------ |
+| `ly`        | Light year        | `distance`    | $9.46 \cdot \text{Gm}$   |
+| `AU`        | Astronomical Unit | `distance`    | $63'240 \cdot \text{ly}$ |
+| `pc`        | Parsec            | `distance`    | $0.3066 \cdot \text{ly}$ |
 
 ### Prefix
 
@@ -1903,12 +1911,12 @@ This annex lists all the native *UON* types. Currently 80 types have been reserv
 | 0x0f | `!prop`    | Validation only, read the referred property as value | `!type` |
 | 0x10 | `!null`      | Null value                                           | `!scalar`   |
 | 0x11 | `!str`       | String                                               | `!scalar`   |
-| 0x12 | `!key`       | Keyword `/[a-z][a-z0-9-]*(?=-)/`                     | `!str`      |
-| 0x13 | `!bool`      | Boolean value `/false|true/`                         | `!key`      |
-| 0x14 | `!num`       | Any real number `/[+-](0|[1-9]|[1-9\d*)(\.?\d*)?/`   | `!scalar`   |
-| 0x15 | `!ref`       | Reference to another value                           | `!str`      |
-| 0x16 | `!blob`      | Raw Binary Content                                   | `!scalar`   |
-| 0x17 | -             | Reserved                                             |              |
+| 0x12 | `!keyword`   | Keyword `/[a-z][a-z0-9-]*(?=-)/`                     | `!str`      |
+| 0x13 | `!rkeyword` | Reserved keyword (not directly usable) | `!keyword` |
+| 0x14 | `!bool`      | Boolean value `/false|true/`                         | `!key`      |
+| 0x15 | `!num`       | Any real number `/[+-](0|[1-9]|[1-9\d*)(\.?\d*)?/`   | `!scalar`   |
+| 0x16 | `!ref`       | Reference to another value                           | `!str`      |
+| 0x17 | `!blob`      | Raw Binary Content                                   | `!scalar`   |
 | 0x18 | -             | Reserved                                             |              |
 | 0x19 | -             | Reserved                                             |              |
 | 0x1a | -             | Reserved                                             |              |
@@ -1959,6 +1967,122 @@ This annex lists all the native *UON* types. Currently 80 types have been reserv
 | 0x4d | `!urn`       | Uniform Resource Name | `!uri`      |
 | 0x4e | `!log`       | Log entry (severity, datetime, module)               | `!str`      |
 | 0x4f | `!req`       | Requirement Specification (must, should, ...)        | `!str`      |
+
+## Reserved Keywords
+
+These are units, quantities and properties defined in the standard
+
+
+| ID   | Keyword             |
+| ---- | ------------------- |
+| 0x00 | `false`             |
+| 0x01 | `true`              |
+| 0x02 | `null`              |
+| 0x03 | `comment`           |
+| 0x04 | `description`       |
+| 0x05 | `optional`          |
+| 0x06 | `required`          |
+| 0x07 | `min`               |
+| 0x08 | `max`               |
+| 0x09 | `lt`                |
+| 0x0a | `le`                |
+| 0x0b | `gt`                |
+| 0x0c | `ge`                |
+| 0x0d | `exclusive`         |
+| 0x0e | `quantity`          |
+| 0x0f | `dummy`             |
+| 0x10 | `default`           |
+| 0x11 | `merge`             |
+| 0x12 | `inherit`           |
+| 0x13 | `offset`            |
+| 0x14 | `link`              |
+| 0x15 | `alias`             |
+| 0x16 | `hash`              |
+| 0x17 | `signature`         |
+| 0x18 | `ordered`           |
+| 0x19 |                     |
+| 0x1a |                     |
+| 0x1b |                     |
+| 0x1c |                     |
+| 0x1d |                     |
+| 0x1e |                     |
+| 0x1f |                     |
+| 0x20 | `meter`             |
+| 0x21 | `kilogram`          |
+| 0x22 | `second`            |
+| 0x23 | `ampere`            |
+| 0x24 | `kelvin`            |
+| 0x25 | `mole`              |
+| 0x26 | `candela`           |
+| 0x27 | `hertz`             |
+| 0x28 | `radian`            |
+| 0x29 | `steradian`         |
+| 0x30 | `newton`            |
+| 0x31 | `pascal`            |
+| 0x32 | `joule`             |
+| 0x33 | `watt`              |
+| 0x34 | `coulomb`           |
+| 0x35 | `volt`              |
+| 0x36 | `farad`             |
+| 0x37 | `ohm`               |
+| 0x38 | `siemens`           |
+| 0x39 | `weber`             |
+| 0x3a | `tesla`             |
+| 0x3b | `henry`             |
+| 0x3c | `celsius`           |
+| 0x3d | `lumen`             |
+| 0x3e | `lux`               |
+| 0x3f | `becquerel`         |
+| 0x40 | `gray`              |
+| 0x41 | `sievert`           |
+| 0x42 | `katal`             |
+| 0x43 | `liter`             |
+| 0x44 | `hour`              |
+| 0x45 | `minute`            |
+| 0x46 | `day`               |
+| 0x47 | `month`             |
+| 0x48 | `year`              |
+| 0x49 | `bar`               |
+| 0x50 | `mmhg`              |
+| 0x51 | `electronvolt`      |
+| 0x52 | `bit`               |
+| 0x53 | `byte`              |
+| 0x54 | `nat`               |
+| 0x55 | `nit`               |
+| 0x56 | `light-year`        |
+| 0x57 | `parsec`            |
+| 0x58 | `astronomical-unit` |
+| 0x59 |                     |
+| 0x5a |                     |
+| 0x5b |                     |
+| 0x5c |                     |
+| 0x5d |                     |
+| 0x5e |                     |
+| 0x5f |                     |
+| 0x60 | `aes128`            |
+| 0x61 |                     |
+| 0x62 |                     |
+| 0x63 |                     |
+| 0x64 | `base85`            |
+| 0x65 | `base58`            |
+| 0x66 | `base64`            |
+| 0x67 | `base32`            |
+| 0x68 | `base16`            |
+| 0x69 |                     |
+| 0x6a |                     |
+| 0x6b |                     |
+| 0x6c |                     |
+| 0x6d |                     |
+| 0x6e |                     |
+| 0x6f |                     |
+| 0x70 |                     |
+| 0x71 |                     |
+| 0x72 |                     |
+| 0x73 |                     |
+| 0x74 |                     |
+| 0x75 |                     |
+| 0x76 |                     |
+| 0x77 |                     |
 
 ## Regex validation
 
