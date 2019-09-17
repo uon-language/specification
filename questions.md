@@ -12,6 +12,6 @@ Copyright© 2018 Yves Chevallier
 
 # Opened Questions
 
-* Does a **UIP** UON Improvement Proposal make sense?
+* Does a **UIP** (*UON Improvement Proposal*) make sense?
 * Should we be able to choose endianness?
 * Should we be able to use different encoding other than UTF-8?

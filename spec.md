@@ -26,7 +26,7 @@ Seen from another perspective:
 
 *UON™* aims to steal all the amazing features of these serialization format into a single format that encompass them.
 
-Also, *UON* would like to go a step further by adding support for validation schema and magnitude units in order to extend interoperability for the Industry 4.0. Internet of Things often have to communicate between small devices with very limited computation power.
+Also, *UON* would like to go a step further by adding support for validation schema and magnitude units in order to extend interoperability for the Industry 4.0. Internet of things often have to communicate between small devices with very limited computation power.
 
 ## Scope
 
@@ -42,7 +42,7 @@ Also, *UON* would like to go a step further by adding support for validation sch
 * Standard API
 * Zero-copy operations
 * Validation schema supported by design (Inspired from [JSON-Schema](http://json-schema.org/) and [Voluptuous](https://pypi.org/project/voluptuous/))
-* Transformation schema supported by design (Inspired from what `XSLT` is to `XML`)
+* Transformation schema supported by design (inspired from what `XSLT` is to `XML`)
 * Platform neutral
 
 ## Normative references
@@ -94,7 +94,7 @@ Comments in YAML are not formally part of the object tree, but they are somehow 
 
 ![](C:\Users\ycr\Data\specification\assets\supersets.png)
 
-One major difference with YAML is the tag notations. On YAML native tags are noted using two exclamation marks e.g. `!int`, but user types have only one `! `, so called "non-specific tag". *UON* aims to be simple and lightweight. Using an additional `! ` for native types would encourage user types. In *UON* native tags are primary tags.  
+One major difference with YAML is the tag notations. On YAML native tags are noted using two exclamation marks e.g. `!int`, but user types have only one `! `, so-called non-specific tag. *UON* aims to be simple and lightweight. Using an additional `! ` for native types would encourage user types. In *UON* native tags are primary tags.
 
 #### Related to XML
 
@@ -184,10 +184,10 @@ Or in the minimal version:
 ```
 Is the sequence above inconsistent? No
 
-Type can be followed by a type, but a value cannot be followed by a type: 
+Type can be followed by a type, but a value cannot be followed by a type:
 !str 42 !str 42 (Wrong)
 
-if someone forgot a comma (it often happen), it can be detected. Here above it is detected. 
+if someone forgot a comma (it often happens), it can be detected. Here above it is detected.
 
 !str : !int !uint !int : !str
 
@@ -474,7 +474,7 @@ The number type is much more complete than JSON, XML or YAML. It aims to serve g
   * Quantities with uncertainties and units
   * Complex and Quaternions
 * Computer science
-  * Low level representation (hexadecimal, octal and binary)
+  * Low-level representation (hexadecimal, octal and binary)
   * Fractional values for frequency ratio
   * Fixed-Point values in
 
@@ -558,7 +558,7 @@ Presentation properties are any property that influence the presentation of a va
 
 ### Validation
 
-Validation properties are used to validate, constrain and describe a *UON* file. 
+Validation properties are used to validate, constrain and describe a *UON* file.
 
 ### Example
 
@@ -616,7 +616,7 @@ Type is the base type of all other types
 | `optional: !bool`     | Is the value optional?                          |                                      |
 | `content: !type`      | This is the content value of object (read only) |                                      |
 
-The `content`property is not meant to be used directly, but it appears in the `UON` DOM.
+The `content` property is not meant to be used directly, but it appears in the `UON` DOM.
 
 ### Null
 
@@ -719,18 +719,18 @@ Positional notation uses the representable symbols in this order `"0123456789abc
 
 #### Precision
 
-The fact that floating-point numbers cannot precisely represent all real numbers justifies the difference between `!num` and `!float`. 
+The fact that floating-point numbers cannot precisely represent all real numbers justifies the difference between `!num` and `!float`.
 
 For example the `!float32 0.1` is not representable in IEEE 754 binary format:
 
 ```
-!num 0.100000001490116119384765625 == !float32 0.1 
+!num 0.100000001490116119384765625 == !float32 0.1
 ```
 
-IEEE 754:2008 introduces a new format named `decimal` which has a radix of 10. This allows to represent exactly emulated decimal which is useful for financial and tax computations. However, most implementation and processors do not support this format:
+IEEE 754:2008 introduces a new format named `decimal` which has a radix of 10. This allows representing exactly emulated decimal which is useful for financial and tax computations. However, most implementation and processors do not support this format:
 
 ```
-!num 0.1 == !decimal32 0.1 
+!num 0.1 == !decimal32 0.1
 ```
 
 
@@ -771,7 +771,7 @@ A reference refers to another field on a *UON* document. A reference can be reso
 }
 ```
 
-You can do absolute or relative references. 
+You can do absolute or relative references.
 
 | Reference | Description    |
 | --------- | -------------- |
@@ -780,7 +780,7 @@ You can do absolute or relative references.
 | `@...foo` | Second parent  |
 | `!@`      | Link to a type |
 
-Parenthesis are not required, but recommended. 
+Parenthesis are not required, but recommended.
 
 | Explicit                          | Syntactic sugar |
 | --------------------------------- | --------------- |
@@ -865,7 +865,7 @@ The IPv4 type is defined in UON
 
 ```yaml
 !ipv4: !!schema("http://uon.io/ipv4") !str(
-  description: "Type representing a Internet Protocol version 4 address defined in RFC 760",
+  description: "Type representing an Internet Protocol version 4 address defined in RFC 760",
   links: [
     !url "https://tools.ietf.org/html/rfc760"
   ]
@@ -899,7 +899,7 @@ Blob are binary content that can be represented with as string with a chosen enc
 
 ### Emails
 
-Unfortunately UON does not have a type for emails. The main reason is because there is no regex that 100% works. The RFC5322 is not enough to check an email validity. One has also to refer to RFC5321, RFC3696 and RFC1034 and RFC1035. That said the email `"()<>[]:,;@\\\"!#$%&'-/=?^_{}| ~.a"@example.org` is perfectly valid, but lots of parser would not accept it. As it is not possible to satisfy everybody. UON does not define the email type. However a user type `!!email` could be defined for a specific application. 
+Unfortunately, UON does not have a type for emails. The main reason is because there is no regex that 100% works. The RFC5322 is not enough to check an email validity. One also has to refer to RFC5321, RFC3696 and RFC1034 and RFC1035. That said the email, `"()<>[]:,;@\\\"!#$%&'-/=?^_{}| ~.a"@example.org` is perfectly valid, but lots of parsers would not accept it. As it is not possible to satisfy everybody. UON does not define the email type. However a user type `!!email` could be defined for a specific application.
 
 ## Physics
 
@@ -970,7 +970,7 @@ These derived units can be used either on a payload or on a validation schema:
 
 ### Other accepted units
 
-The SI system lack some useful units as listed below. Millimeter of mercury is part of UON because of its large use in medicine. The electron-volt is widely use in fundamental physics.
+The SI system lack some useful units as listed below. Millimeter of mercury is part of UON because of its large use in medicine. The electronvolt is widely used in fundamental physics.
 
 | Unit Symbol | Unit Name             | Quantity name | Equivalents                           |
 | ----------- | --------------------- | ------------- | ------------------------------------- |
@@ -1083,9 +1083,9 @@ Units can be parsed in any order, but they are always serialized in the same man
 
 ## Coercion
 
-In *UON* data can be coerced into any compatible data. This is usually written by specifying the type of a value. 
+In *UON* data can be coerced into any compatible data. This is usually written by specifying the type of a value.
 
-Here the value `42` is a `!uint` because it does not have any decimal information. However it is coerced into a signed integer with the explicit casting `!!int`. 
+Here the value `42` is a `!uint` because it does not have any decimal information. However it is coerced into a signed integer with the explicit casting `!!int`.
 
 ```yaml
 !!int 42
@@ -1097,23 +1097,23 @@ In the example, one tries to coerce a signed integer into an unsigned one. This 
 !!uint -42
 ```
 
-However, in this example, the coercion is acceptable. It is possible to convert a Celsius temperature into a Kelvin temperature without information loss `!num(unit = celsius) 23.2 == !num(unit = kelvin) 296.35`. The criteria is the quantity. Both types have the same quantity. 
+However, in this example, the coercion is acceptable. It is possible to convert a Celsius temperature into a Kelvin temperature without information loss `!num(unit = celsius) 23.2 == !num(unit = kelvin) 296.35`. The criteria is the quantity. Both types have the same quantity.
 
 ```yaml
 !float32(unit: kelvin) 23.2 °C
 ```
 
-Again here, there is a information loss. Conversion is not reversible, 
+Again here, there is a information loss. Conversion is not reversible,
 
 ```yaml
 !int 42.15 # Acceptable
 !int !float 42.15 # Unacceptable
 ```
 
-When coercing from one type to another, some properties cannot be altered. 
+When coercing from one type to another, some properties cannot be altered.
 
 ```yaml
-!num(base: 2, scale: 3, offset: 4) !num(base: 10, scale: 2, offset: 3) 12345 
+!num(base: 2, scale: 3, offset: 4) !num(base: 10, scale: 2, offset: 3) 12345
 ```
 
 This is possible
@@ -1122,7 +1122,7 @@ This is possible
 
 ### Validation schemas
 
-Validation is mostly related to *schemas*. *UON* offers 4 types of strategies: 
+Validation is mostly related to *schemas*. *UON* offers 4 types of strategies:
 
 * Embedded schema
 * Included schema
@@ -1133,7 +1133,7 @@ Each solution has advantages and disadvantages
 
 #### Embedded schema
 
-An embedded schema is mixing data and constraints on the same dataset. The advantage is that the filler directly knows what's expected. The disadvantages is that the filler can modify the constraints. 
+An embedded schema is mixing data and constraints on the same dataset. The advantage is that the filler directly knows what's expected. The disadvantage is that the filler can modify the constraints.
 
 ```yaml
 # Person with embedded schema
@@ -1141,7 +1141,7 @@ An embedded schema is mixing data and constraints on the same dataset. The advan
     firstname: !str(pattern=/[A-Z][a-z]+/) "John",
     lastname: !str(min: 2, max: 32) "Doe",
     age: !uint(
-      min: 7, 
+      min: 7,
       max: 77,
       desc: "Age of the person that is able to play table games"
     ) 35
@@ -1150,9 +1150,9 @@ An embedded schema is mixing data and constraints on the same dataset. The advan
 
 #### Included schema
 
-Included schema is pretty similar to embedded schema. The validation document is also included with the dataset. 
+Included schema is pretty similar to embedded schema. The validation document is also included with the dataset.
 
-The main advantage is readability. data set and data validation are therefore separated. The advantage is still that the filler can look at the schema, and self validate the content. Again the disadvantage is that schema could be modified. This can be prevented by adding a signature which needs to be validated against a trusted authority or certificate. 
+The main advantage is readability. data set and data validation are therefore separated. The advantage is still that the filler can look at the schema, and self validate the content. Again the disadvantage is that schema could be modified. This can be prevented by adding a signature which needs to be validated against a trusted authority or certificate.
 
 ```yaml
 # Person with included schema
@@ -1174,7 +1174,7 @@ The main advantage is readability. data set and data validation are therefore se
 
 #### Linked schema
 
-Here the validation schema is linked to the dataset. The schema can still be accessible, but not modifiable. The main disadvantage is that the schema needs to be fetched from an external source. 
+Here the validation schema is linked to the dataset. The schema can still be accessible, but not modifiable. The main disadvantage is that the schema needs to be fetched from an external source.
 
 ```yaml
 # Person with linked schema
@@ -1270,7 +1270,7 @@ As UON is made to increase interoperability, the UON standard may not be fully s
 
 ## Destructuring
 
-With the help of references (`!ref`), *UON* data can be easily destructured to only access a subset of data. This might be useful when used within a RESTful API.
+With the help of references (`!ref`), *UON* data can be easily unstructured to only access a subset of data. This might be useful when used within a RESTful API.
 
 ```yaml
 !!uon(version: 0.0.1) {
@@ -1477,7 +1477,7 @@ UON Parser aims to be very fast so it relies on two passes:
   * end position
   * identified type (if identified)
   * object, the parsed object when available
-  * The idea is to not descend through all the tree. Long and complex strings can be parsed at a glance by just looking at the first non-escaped closing `"`.  The preparsed scalar. 
+  * The idea is not to descend through all the trees. Long and complex strings can be parsed at a glance by just looking at the first non-escaped closing `"`.  The preparsed scalar.
     * The type is identified so we have `(0, 32, 'int')`
     * The type isn't identified yet so we have `(0, 32, None)`
     * The type can only be a list of some types `(0, 32, ('int', 'float'))`
@@ -1678,22 +1678,22 @@ data: !acc-seq(index: .time, offset: 5433335321, increment: 250) [
 
 ## Evaluations
 
-*UON* should allow simple evaluations using the postfix notation because it is easier to implement in different languages and can easily be represented with a sequence. 
+*UON* should allow simple evaluations using the postfix notation because it is easier to implement in different languages and can easily be represented with a sequence.
 
 ```yaml
 !!eval: !!schema() !!seq(min: 2) [
-  !!number, 
+  !!number,
   !!add, !!sub, !!mul, !!div
   !!not, !!and, !!or,
   !!ref(resolve: false)
 ]
 ```
 
-Adding the support for evaluations would allow to provide support for a new unit conversion. Presenting a temperature value into a different compatible unit should be possible. Units are not types, they are built into the number class. 
+Adding the support for evaluations would allow to provide support for a new unit conversion. Presenting a temperature value into a different compatible unit should be possible. Units are not types, they are built into the number class.
 
-To coerce a unit into another we must make sure the values we use as input are good. In other words, we must check the quantity of both sides are the same. How to properly do this? 
+To coerce a unit into another we must make sure the values we use as input are good. In other words, we must check the quantity of both sides are the same. How to properly do this?
 
-Let's start from this: 
+Let's start from this:
 
 ```yaml
 !!number: !!schema(
@@ -1702,17 +1702,17 @@ Let's start from this:
       !!number(unit: farheneit): !!number(quantity: temperature) !!eval [212.234, @@.content, 543.1, !!mul, !!add],
       !!number(unit: kelvin): !!number(quantity: temperature) !!eval [212.234, @@.content, 543.1, !!mul, !!add],
     }
-) 
+)
 ```
 
 As *UON* would not allow to change the quantity of a given number. One must check this quantity is not changed. This possible by coercing the result of the evaluation with a number associated to a given quantity. We should notice that the following will fail at parsing the schema:
 
 ```yaml
-# Error because quantity a length cannot be converted into temperature. 
+# Error because quantity a length cannot be converted into temperature.
 !!number(quantity: temperature) !!number(unit: meter) 42
 ```
 
-Again, UON does not allow to transform data. It only offers to represent data differently without content loss. It means, quantity of a number has to be preserved 
+Again, UON does not allow to transform data. It only offers to represent data differently without content loss. It means, quantity of a number has to be preserved
 
 
 
@@ -1889,7 +1889,7 @@ coerce: {
 
 ## Available Types
 
-This annex lists all the native *UON* types. Currently 80 types have been reserved. *UON* supports 256 different types as a type identifier is encoded using a `!uint8` type. 
+This annex lists all the native *UON* types. Currently 80 types have been reserved. *UON* supports 256 different types as a type identifier is encoded using a `!uint8` type.
 
 | ID   | Name          | Description                                          | Derived from |
 | ---- | ------------- | ---------------------------------------------------- | ------------ |
@@ -2126,7 +2126,7 @@ Consensus matters, *UON* aims to use the largest consensus, by considering sever
 
 * How many languages agree on type names?
 * Which language has better credit for a chosen type (high level, low-level language)?
-  * C/C++ within C99/C11 is the most used language at bare-metal level. The type names is coherent.
+  * C/C++ within C99/C11 is the most used language at bare-metal level. The type name is coherent.
 * Tradition over time
   * Tradition for numbers is to use the system names such as `real`, `natural`, `rational`
 * Simplicity: shorter is better, simple is better
