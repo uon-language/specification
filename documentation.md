@@ -12,20 +12,7 @@ Copyright© 2018 Yves Chevallier
 
 # Introduction
 
-## Why UON™?
 
-The [IoT](https://en.wikipedia.org/wiki/Internet_of_things) world is nowadays dominated by [XML](https://www.w3.org/TR/xml/), [JSON](https://www.json.org/) and [YAML](http://yaml.org/). Other serialization protocols such as [Protocol Buffers](https://en.wikipedia.org/wiki/Protocol_Buffers) aim to a better interoperable solution by offering a programming language agnostic solution. Unfortunately, none of them are complete. They focus only on narrow areas instead of addressing a more general solution that encompass low-power MCU with limited computation sources, web services and high-end applications.
-
-UON™ would like to federate the IoT world by taking in account the [Industry 4.0](https://en.wikipedia.org/wiki/Industry_4.0) needs. In other words, the Unified Object Notation is meant to describe messages sent and received from:
-
-* Battery-powered telemetry sensors
-* Web APIs
-* IPC
-
-To achieve this goal, UON defines a way to:
-
-* Encode/Decode payloads either written in binary or in human readable form
-* Describe a payload through a validation schema
 
 ## What is UON™ and when should it be used?
 
