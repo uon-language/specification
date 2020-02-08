@@ -218,16 +218,16 @@ Here the equivalent **JSON** format:
   },
   "value": {
     "name": {
-      "type": "str"
+      "type": "str",
       "properties": {
         "length": 42,
         "pattern": {
           "type": "regex",
           "value": "[A-Za-z ]+"
         },
-      }
+      },
       "value": "John Doe"
-    }
+    },
     "age": {
       "type": "int",
       "properties": {
