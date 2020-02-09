@@ -38,6 +38,7 @@ Copyright© 2020 Yves Chevallier
     - [Data Structures (or Structural types)](#data-structures-or-structural-types)
     - [Scalar](#scalar)
       - [Numbers Datatypes](#numbers-datatypes)
+        - [BCDFP](#bcdfp)
       - [Rational, Complex and Quaternion](#rational-complex-and-quaternion)
     - [Sized Datatypes](#sized-datatypes)
       - [Arbitrary size](#arbitrary-size)
@@ -91,6 +92,7 @@ Copyright© 2020 Yves Chevallier
   - [Unified API](#unified-api)
   - [Implementations](#implementations)
     - [Parser](#parser)
+    - [Python](#python)
   - [Syntax Highlight and support in text editors](#syntax-highlight-and-support-in-text-editors)
   - [Evaluations](#evaluations)
 - [Binary Encoding](#binary-encoding)
@@ -759,7 +761,7 @@ Scalar values are any kind of values that may be represented as a string
 
 #### Numbers Datatypes
 
-The number type is much more complete than JSON, XML or YAML. It aims to serve goals of engineering and scientific areas such as:
+The number type is much more complete than what you will find in JSON, XML or YAML. It aims to serve goals of engineering and scientific areas such as:
 
 * Physics and Mathematics
   * Quantities with uncertainties and units
@@ -782,6 +784,23 @@ The number type is much more complete than JSON, XML or YAML. It aims to serve g
 | `!magnitude` | `!number` | Physical value with an associated unit                             |
 | `!frac`      | `!seq`    | Fraction of two integers, to represent repeating such as `0.33333` |
 | `!fixpoint`  | `!dec`    | Fixed point value                                                  |
+
+Also numbers are hard to store on computers because the chosen datatype cannot always store the number exactly. One has to take care of a potential overflow and a rounding error (especially for binary floating point IEEE754). To solve this, UON store generic numbers using an unefficient method: BCDFP (Binary-coded decimal floating point).
+
+##### BCDFP
+
+Binary-coded decimal floating point is a solution to store abritrary numbers with exact precision.
+The number 1542.3141592 is stored as follow: `2 4 5 1 F 3 1 4 1 5 9 2 F`
+
+```text
+\x24\51\f3\14\15\92\f0
+```
+
+A integer number is simply stored with two tralling `F`:
+
+```
+42 = \42\ff
+```
 
 #### Rational, Complex and Quaternion
 
@@ -1967,6 +1986,56 @@ UON Parser aims to be very fast so it relies on two passes:
     * The type can only be a list of some types `(0, 32, ('int', 'float'))`
 * Second pass
   * The Object representation is built from the first pass but it is built on request.
+
+### Python
+
+Here some examples of Python use.
+
+```python
+>>> from uon import Uon
+
+>>> TemperatureSensor = Uon("""
+    !schema(
+      name: "Generic temperature sensor",
+      description: "Telemetric temperature sensor with unit free value",
+      id: "http://uon.io/sensor/temperature/generic"
+    ) {
+      temperature: !num(quantity: temperature),
+      sampling-frequency(optional: true): !num(quantity: frequency),
+    }
+    """)
+
+>>> t = TemperatureSensor(temperature=24.1)
+>>> s.to_uon(format=uon.formats.MINIMAL)
+{
+  temperature: 24.1
+}
+
+>>> s.to_binary() # IEEE-754 Float32
+\x41\xc0\xcc\xcd
+
+>>> MyTemperatureSensor = TemperatureSensor.refine("""
+    !schema() : {
+      temperature: !int16(unit: celsius, uncertainty: 0.1, scale: 10),
+      sampling-frequency: 0.1 Hz
+    }
+    """)
+
+>>> s = MyTemperatureSensor(temperature=24.1)
+>>> s.to_uon(format=uon.formats.MINIMAL)
+{
+  temperature: 241
+}
+
+>>> s.to_binary()
+\x00\xf1
+
+>>> s.to_uon(format=uon.formats.FULL)
+!type(id: "http://uon.io/sensor/temperature/generic") {
+  temperature: !int16(unit: celsius, uncertainty: 0.1, scale: 10) 241
+  samping-frequency: !num(unit: hertz) 0.1
+}
+```
 
 ## Syntax Highlight and support in text editors
 
