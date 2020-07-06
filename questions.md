@@ -8,7 +8,7 @@
 
 **Editor**: Yves Chevallier <ycr@x0x.ch>
 
-Copyright© 2018 Yves Chevallier
+Copyright© 2018-2020 Yves Chevallier
 
 # Opened Questions
 

@@ -8,14 +8,14 @@
 
 **Editor**: Yves Chevallier <ycr@x0x.ch>
 
-Copyright© 2020 Yves Chevallier
+Copyright© 2018-2020 Yves Chevallier
 
-- [UON Unified Object Notation (UON ™ )](#uon-unified-object-notation-uon-%e2%84%a2)
+- [UON Unified Object Notation (UON ™ )](#uon-unified-object-notation-uon--)
   - [Introduction](#introduction)
   - [Scope](#scope)
   - [Normative references](#normative-references)
   - [Terms and definitions](#terms-and-definitions)
-  - [Why UON™?](#why-uon%e2%84%a2)
+  - [Why UON™?](#why-uon)
   - [Language](#language)
     - [UON Related to other standards](#uon-related-to-other-standards)
       - [Related to JSON](#related-to-json)
@@ -111,47 +111,49 @@ Copyright© 2020 Yves Chevallier
 
 ## Introduction
 
-Still in 2020 three major serialization formats are commonly used across the Internet: `XML`, `JSON` and `YAML`. Both are great, simple and well specified, but many would argue that:
+Three major serialization formats are yet commonly used across the Internet: `XML`, `JSON` and `YAML`. Both are great, simple and well specified, but many developers would argue that:
 
 * `XML` is great but cumbersome
-* `JSON` is awesome but lack validation by design
-* `YAML` is human friendly but unsafe and not ideal for m2m communication
+* `JSON` is simple and awesome but lack validation by design
+* `YAML` is human friendly but unsafe and ambiguous
 
 Seen from another perspective:
 
 * `XML` is fully specified with validation schema `XSD` and representation `XSLT`
-* `JSON` is lightweight and understood by most developers and programming languages
-* `YAML` is very readable and a superset of `JSON`
+* `JSON` is lightweight and can be understood by most developers and therefore most programming languages
+* `YAML` is very readable and (is) a superset of `JSON`
 
-*UON™* aims to steal all the amazing features of these serialization formats into a single format that encompass them.
+*UON™* aims to gather all the amazing features of these serialization formats into a single format that encompass them and make it suitable for m2m communication from low-power embedded devices to high-end cloud based platforms.
 
-Also, *UON* would like to go a step further by adding support for validation schema and magnitude units to extend interoperability in the sense of the Industry 4.0. The internet of things (IoT) often require to communicate between small devices with very limited computation power. The perspective to have an application communication protocol that is both interoperable and suitable for low power exchanges is more than welcome. *UON* is an attempt to serve these two needs.
+Also, *UON™* aims to go a step further by adding support for validation schema and magnitude units to extend interoperability in the sense of the **Industry 4.0**. The internet of things (IoT) often require to communicate between small devices with very limited computation power. The perspective to have an application communication protocol that is both interoperable and suitable for low power exchanges is more than welcome. Hence, *UON* is an attempt to serve these two needs by extending the existing and yet most popular serialization language.
 
-When two devices want to exchange information they have two commuinication channels:
+When two devices want to exchange information they have two communication channels:
 
-- An online communication channel used for payload data transmission
-- A contractual communication channel used for schema agreement
+1. An online communication channel used for content data transmission (payload)
+2. A contractual communication channel used for data description agreement (schema)
 
-In the following figure, we have on the left, two devices: a low power temperature sensor, and a powerful home automation gateway. To reduce the payload size, both devices agree on a schema which describe the payload format.
+In the following figure, one have on the left, two devices: a low power temperature sensor, and a powerful building automation gateway. To reduce the payload size, both devices may agree on a schema which describe the data format.
 
 ![](assets/data-exchange.png)
 
-On the right side of the figure, the generic schema that describe a temperature sensor is **refined** by narrowing the schema for instance by saying the generic temperature expressed with a number, is now an unsigned eight bit value expressed in Celsius degrees.
+On the right side of the figure, a generic schema that describe a temperature sensor can be **refined** by narrowing the schema to reduce the amount of data to be exchanged on each data transmission. For instance, the generic temperature which is expressed as an agnostic number (any numeric value) is refined into an unsigned eight bit value constraint to a temperature quantity, in Celsius degrees. Here we just saw how inheritance can be used in *UON™*.
+
+*UON™* use the same lexical field for describing either the data content, the data description or the validation schema. This makes it versatile to many applications.
 
 ## Scope
 
-*UON*™ pronounced "You On" is a human-machine-friendly serialization language designed to serve the purpose of:
+*UON*™ pronounced "You On" is a human-machine-friendly data description and serialization language designed to serve the purpose of:
 
-* Transmitting data across digital mediums
-* Being human readable and human editable
-* Being close to international standards and the largest consensus
-* Serializing/deserializing data across different programming languages
+* Transmitting data across digital mediums with minimum overhead
+* Being human readable and human editable (just as YAML or JSON)
+* Being close to international standards and the largest community consensus
+* Serializing/deserializing data and objects across different programming languages
 * Unambiguous strict representation by design
-* Support references and merge
-* Support properties
+* Support for references and merge
+* Support for type properties (we'll see that later)
 * Standard API
-* Binary encoding payload for low power embedded devices
-* Partial zero-copy operations for binary payloads
+* Binary encoding payload for low power embedded devices (just as Protocol Buffers)
+* Zero-copy operations for binary payloads
 * Validation schema supported by design (Inspired from [JSON-Schema](http://json-schema.org/) and [Voluptuous](https://pypi.org/project/voluptuous/))
 * Transformation schema supported by design (inspired from what `XSLT` is to `XML`)
 * Platform neutral
@@ -166,18 +168,18 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 For the purposes of this document, the following terms and definitions apply.
 
 * **RFC** Request for comments
-* **UON**  Unified Object Notation, specified in this document
+* **UON**  Unified Object Notation, specified in this very document
 * **ISO** International Standardization Organization
 * **YAML** Yet Another Markup Language
 * **JSON** JavaScript Object Notation
 
 ## Why UON™?
 
-The [IoT](https://en.wikipedia.org/wiki/Internet_of_things) world is nowadays dominated by [XML](https://www.w3.org/TR/xml/), [JSON](https://www.json.org/) and [YAML](http://yaml.org/). Other serialization protocols such as [Protocol Buffers](https://en.wikipedia.org/wiki/Protocol_Buffers) aim to a better interoperable solution by offering a programming language agnostic solution. Unfortunately, none of them are complete. They focus only on narrow areas instead of addressing a more general solution that encompass low-power MCU with limited computation sources, web services and high-end applications.
+The [IoT](https://en.wikipedia.org/wiki/Internet_of_things) world is yet dominated by either proprietary transmission formats or any of [XML](https://www.w3.org/TR/xml/), [JSON](https://www.json.org/) and [YAML](http://yaml.org/). Other serialization protocols such as [Protocol Buffers](https://en.wikipedia.org/wiki/Protocol_Buffers) attempted to offer a better interoperable solution by offering a programming language agnostic solution. Unfortunately, none of them are complete in the sense of what *UON* does. They focus only on narrow areas instead of addressing a more general solution that encompass low-power MCU with limited computation sources, web services and high-end applications.
 
-UON™ would like to federate the IoT world by taking in account the [Industry 4.0](https://en.wikipedia.org/wiki/Industry_4.0) needs. In other words, the Unified Object Notation is meant to describe messages sent and received from:
+*UON™* aims to federate the **IoT** and **IIot** world by taking in account what [Industry 4.0](https://en.wikipedia.org/wiki/Industry_4.0) engineers may need to ease their work. In other words, the *Unified Object Notation* is meant to describe messages sent and received from:
 
-* Battery-powered telemetry sensors
+* Battery-powered and Battery-less (energy harvested) telemetry sensors
 * Web APIs
 * IPC
 
@@ -185,21 +187,22 @@ To achieve this goal, UON defines a way to:
 
 * Encode/Decode payloads either written in binary or in human readable form
 * Describe a payload through a validation schema
+* Generate optimized parsers for a particular defined schema
 
 ## Language
 
-*UON*™ is not a programming language, but a data representation language. It is built upon concepts described by C, Perl, Python, Ruby and JSON. It is meant to be UTF-8 by default, but compatible with other encoding standards.
+*UON™* is not a programming language, but a data representation language. It is built upon concepts described by C, Perl, Python, Ruby and JSON. It is meant to be **UTF-8** by default, but compliant with other encoding standards.
 
-*UON* features four levels of complexity that each of them add more features. Remember that **UON** is a superset of **JSON**.
+*UON™* features four levels of complexity. Each of them add more features. Remember that **UON** is a superset of **JSON**.
 
-* **UON:0** is stricly speaking **JSON**, keywords have to be double quoted, comments are not permitted and well, it is simply **JSON**.
-* **UON:1** encompass some of the **YAML** standard. It is a reduced set of **YAML**.
-* **UON:2** adds type properties which allows to qualify a type, for instance by setting the base of a number `!int(base:36) ah1ddb1`.
-* **UON:3** extends **UON:2** by adding extended types and syntaxic sugars to simplify the readability.
+* **UON:0** is strictly speaking just **JSON**, keywords have to be double quoted, comments are not permitted and well, it is **JSON**.
+* **UON:1** encompass some of the **YAML** standard. It is a reduced set of **YAML** because the full YAML 1.2 specs may be unsafe and ambiguous.
+* **UON:2** adds *type properties* which allow to qualify a type, for example by setting the base of a number `!int(base:36) ah1ddb1`.
+* **UON:3** extends **UON:2** by adding extended types and syntactic sugars to make it more readable.
 
 ![](assets/complexity-levels.png)
 
-An interesting point is that **UON:3** could still be coerced in **UON:0**. For instance, the following **UON:3** code can be written in **JSON**
+An interesting point is that **UON:3** could still be coerced in **UON:0**. For instance, the following **UON:3** code can be written in **JSON**. Let's consider this piece of **UON:3** code:
 
 ```yaml
 {
@@ -210,33 +213,35 @@ An interesting point is that **UON:3** could still be coerced in **UON:0**. For 
 }
 ```
 
-Here the equivalent **JSON** format:
+We could express it using simple JSON:
 
 ```json
 {
-  "key": "person",
-  "properties": {
-    "desc": "A person"
-  },
-  "value": {
-    "name": {
-      "type": "str",
-      "properties": {
-        "length": 42,
-        "pattern": {
-          "type": "regex",
-          "value": "[A-Za-z ]+"
-        },
-      },
-      "value": "John Doe"
+  "@UON:3": {
+    "key": "person",
+    "properties": {
+      "desc": "A person"
     },
-    "age": {
-      "type": "int",
-      "properties": {
-        "base": 4,
-        "dictionary": ["Ga", "Bu", "Zo", "Meu"],
+    "value": {
+      "name": {
+        "type": "str",
+        "properties": {
+          "length": 42,
+          "pattern": {
+            "type": "regex",
+            "value": "[A-Za-z ]+"
+          },
+        },
+        "value": "John Doe"
       },
-      "value": "Ga Ga Zo Meu Bu"
+      "age": {
+        "type": "int",
+        "properties": {
+          "base": 4,
+          "dictionary": ["Ga", "Bu", "Zo", "Meu"],
+        },
+        "value": "Ga Ga Zo Meu Bu"
+      }
     }
   }
 }
@@ -246,6 +251,8 @@ The following figure graphically shows the different layers of *UON*:
 
 ![](assets/supersets.png)
 
+We can see that some features of **YAML 1.2** are excluded from *UON*.
+
 ### UON Related to other standards
 
 #### Related to JSON
@@ -253,15 +260,15 @@ The following figure graphically shows the different layers of *UON*:
 Both *JSON* and *UON* aim to be human readable data interchange formats. *UON* extends *JSON* capabilities and readability with:
 
 * More data types support
-* Allow no double quotes on mapping keys since they are promoted to a `keyword` type rather than `string`
+* Allowing for no double quotes on mapping keys since they are promoted to a `keyword` type rather than `string`
 * Validation schema by design inspired by JSON-Schema
-* Allow type coercion
-* Add support for comments
-* Add support for set, and ordered mapping
+* Allowing for type coercion
+* Support for comments
+* Support for set, and ordered mapping (`orderdict` in Python)
 
 #### Related to YAML
 
-*YAML* is very complete, it supports references (recursive references), comments, complex types, but its syntax lack of rigidity. They are multiple way of writing a *YAML* which can be confusing to some people and hard to validate. *UON* extends some *YAML* capabilities by adding:
+*YAML* is very complete, it supports references (recursive references), comments, complex types, but its syntax lack rigidity. They are multiple way of writing a *YAML* which can be confusing to some people and hard to validate. *UON* extends some *YAML* capabilities by adding:
 
 * More data types support
 * Strict formatting closer to *JSON*
@@ -269,32 +276,32 @@ Both *JSON* and *UON* aim to be human readable data interchange formats. *UON* e
 * Resolved and unresolved references
 * Unambiguous comment position
 
-In *YAML* it is possible to create a reference to an existing location in the tree. However this is always resolved after parsing which means, the reference information is lost. *UON* supports unresolved references in which even after parsing the document, the reference information is preserved.
+In *YAML* it is possible to create a reference to an existing location in the tree. However this reference is always resolved after parsing which means, the reference information is lost. *UON* supports unresolved references in which even after parsing the document, the reference information is preserved. This could be useful to describe recursive data structures.
 
-Comments in *YAML* are not formally part of the object tree, but they are somehow supported by `ruamel.yaml` Python package with the `round_trip_load` method. In *UON*, comments are part of the language, and they appear in the object tree.
+Comments in *YAML* are not formally part of the object tree, but they are somehow supported by `ruamel.yaml` in Python with the `round_trip_load` method. In *UON*, comments are meant to be part of the language, so they appear in the object tree.
 
-One major difference with *YAML* is the tag notations. On *YAML* native tags are noted using two exclamation marks e.g. `!!int`, but user types have only one `!`, they are so-called non-specific tag. *UON* aims to be simple and lightweight. Using an additional `!` for native types would encourage user types as they are quicker to read. So in *UON* native tags are primary tags.
+One major difference with *YAML* is the tag notations. On *YAML* native tags are noted using two exclamation marks e.g. `!!int`, but user types have only one `!`, they are so-called non-specific tag. *UON* aims to be simple and lightweight. Using an additional `!` for native types would encourage user types as they are quicker to read.
 
 #### Related to XML
 
-*XML* has proven its strength over many years. It is still a very complete language, but it is also more verbose than other serialization languages which make it difficult to use with a lightweight infrastructure such as battery powered MCU used on telemetry embedded devices. However it provides a full support for validation (*XSD*) and presentation (*XSLT*). *UON* took the tags attributes that are missing from *JSON* and *YAML* which as called: type properties.
+*XML* has proven its strength over many years. It is still a very complete data language, but it is also more verbose than other serialization languages which makes it difficult to use with a lightweight infrastructure such as battery powered MCU used on telemetry embedded devices. However, it provides a full support for validation (*XSD*) and presentation (*XSLT*). *UON* took the tags attributes that are missing from *JSON* and *YAML* which as called: type properties.
 
 #### Related to Protocol Buffers
 
-Protocol buffers is a relatively new standard developed by Google which allows binary payload generations. So it defined some advanced types. Platform neutral serialization language developed by Google.
+Protocol buffers is a relatively new standard developed by Google which allows binary payload generations. A data description file can be compiled into an efficient language specific code.
 
-*UON* got inspired from Protocol Buffers by the following
+*UON* was inspired from Protocol Buffers with the following
 
 * `repeated`, Fields can be repeated any number of times
 * Fixed size scalar values e.g. `int32`, `uint64`, `sint32`
 * Enumerations
-* One-of keyword
+* `One-of` keyword
 
 ### Self described (mostly)
 
-*UON* is aimed to be mostly self described in the sense that most of the *UON* standard is defined using *UON*. For example, the ipv4 type implementation does not relies on language specific code. It is defined is pure *UON*:
+*UON* meant to be mostly self described in the sense that most of the *UON* standard is defined in *UON*. For example, the `!ipv4` type implementation does not relies on language specific code. It can be defined in pure *UON*:
 
-```
+```yaml
 !ipv4: !schema("http://uon.io/ipv4") !str(
   description: "Type representing an Internet Protocol version 4 address defined in RFC 760",
   links: [
@@ -321,14 +328,14 @@ Protocol buffers is a relatively new standard developed by Google which allows b
 
 ### Information Model
 
-The *UON™* information model is shown by this figure below. Each item that composes *UON* object tree is  a `Type` that may have several properties. The content can be either a `Scalar` or a `Collection` of items.
+The *UON™* information model is shown by this figure below. Each item that composes the *UON* object tree is  a `Type` that may have several properties attached to it. The content can be either a `Scalar` or a `Collection` of items.
 
 Three kind of properties exists:
 
 * Presentation properties
 * Validation properties
 * Application properties
-*
+
 ![](assets/information-model.png)
 
 ### Symbol Pairs
@@ -348,7 +355,7 @@ Symbol pairs are syntactic sugars used to enhance readability by associating a s
 | `!@()`       | Reference to a type            | `!ref`   |
 | `< >`        | Structural container           | -        |
 
-Here is an example that uses all the supported symbol pairs:
+Here an example that uses some supported symbol pairs:
 
 ```yaml
 {
@@ -359,7 +366,18 @@ Here is an example that uses all the supported symbol pairs:
 }
 ```
 
-Structural containers are not meant to be directly used, but they can show how data are imbricated. The idea was inspired from *YAML* and it helps to understand hierarchical relationship in a *UON* description:
+the same code can be expressed using an explicit notation:
+
+```yaml
+{
+  data: !seq(sort: asc) [3, 1, 2],
+  name: "John Doe",
+  pattern: !regex "(?i)\b[a-z]\d{5}(?=0{3..4})-\w+",
+  equation: !math "\frac{1}{x}"
+}
+```
+
+Structural containers are not meant to be directly used, but they can show how data are imbricated. The idea was inspired from *YAML* and it helps to understand the hierarchical relationship in a *UON* description:
 
 ```yaml
 !uon<version: !version<0.0.1>>
@@ -388,12 +406,6 @@ Or in its minimal version:
 
 ```yaml
 {brand:"Toyota",model:"Prius",year:"2016"}
-```
-
-Or even in its binary version:
-
-```text
-
 ```
 
 ## Syntax and Grammar
